@@ -1,4 +1,4 @@
-package io.kestra.plugin.templates;
+package io.kestra.plugin.langchain;
 
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -24,7 +24,7 @@ import org.slf4j.Logger;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Simple revert",
-            code = { "format: \"Text to be reverted\"" }
+            code = {"format: \"Text to be reverted\""}
         )
     }
 )
