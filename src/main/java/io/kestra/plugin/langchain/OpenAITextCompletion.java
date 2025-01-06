@@ -1,5 +1,6 @@
 package io.kestra.plugin.langchain;
 
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -31,26 +32,45 @@ import org.slf4j.Logger;
         )
     }
 )
-public class LangChainTextCompletion extends Task implements RunnableTask<LangChainTextCompletion.Output> {
+public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITextCompletion.Output> {
     @Schema(
         title = "Text prompt",
         description = "The input prompt for the language model"
     )
     private Property<String> prompt;
 
-    private OpenAiChatModel openAiChatModel;
+    @Schema(
+        title = "Apikey",
+        description = "Openai api key"
+    )
+    private Property<String> apikey;
+
+    @Schema(
+        title = "OpenAi model",
+        description = "OpenAi model name"
+    )
+    private Property<String> openAiChatModelName;
+
 
     @Override
-    public LangChainTextCompletion.Output run(RunContext runContext) throws Exception {
+    public OpenAITextCompletion.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
 
-        // Render the input prompt
+        // Render the input prompt & apikey & model name
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
+        String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
+
+        String renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(String.class)
+            .orElse("gpt-4o-mini");
 
         logger.info("Prompt: {}", renderedPrompt);
+        ChatLanguageModel model = OpenAiChatModel.builder()
+            .apiKey(renderedApiKey)
+            .modelName(renderedOpenAiChatModelName)
+            .build();
 
         // Generate text completion
-        String answer = openAiChatModel.generate(renderedPrompt);
+        String answer = model.generate(renderedPrompt);
         logger.info("Generated Completion: {}", answer);
 
         return Output.builder()

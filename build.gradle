@@ -52,8 +52,9 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
     // langchain
+    implementation 'dev.langchain4j:langchain4j:1.0.0-alpha1'
     implementation 'dev.langchain4j:langchain4j-open-ai:1.0.0-alpha1'
-    implementation 'dev.langchain4j:langchain4j:1.0.0-alpha1'}
+}
 
 
 /**********************************************************************************************************************\
