@@ -28,9 +28,9 @@ class OpenAITextCompletionTest {
     void run() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", TEST_PROMPT,
+            "prompt", PROMPT_TEXT_COMPLETION,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OPENAI_GPT4_MINI_MODEL
+            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
         ));
 
         // WHEN
@@ -50,9 +50,9 @@ class OpenAITextCompletionTest {
     void runWithInvalidApiKey() {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", TEST_PROMPT,
+            "prompt", PROMPT_TEXT_COMPLETION,
             "apikey", "invalid-api-key",
-            "openAiChatModelName", OPENAI_GPT4_MINI_MODEL
+            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
         ));
 
         // WHEN
