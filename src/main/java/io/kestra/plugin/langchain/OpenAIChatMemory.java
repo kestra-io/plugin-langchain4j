@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
+import jakarta.validation.constraints.NotNull;
 
 @SuperBuilder
 @ToString
@@ -44,12 +45,14 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         title = "User message",
         description = "The input message from the user"
     )
+    @NotNull
     private Property<String> userMessage;
 
     @Schema(
         title = "API Key",
         description = "OpenAI API key"
     )
+    @NotNull
     private Property<String> apiKey;
 
     @Schema(
@@ -71,7 +74,7 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         Logger logger = runContext.logger();
 
         // Render the input properties
-        String renderedUserMessage = runContext.getVariables().get("userMessage").toString();
+        String renderedUserMessage = runContext.render(userMessage).as(String.class).orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class).orElse("demo");
         String renderedModelName = runContext.render(modelName).as(String.class).orElse("gpt-4");
         int renderedMaxTokens = runContext.render(maxTokens).as(Integer.class).orElse(500);

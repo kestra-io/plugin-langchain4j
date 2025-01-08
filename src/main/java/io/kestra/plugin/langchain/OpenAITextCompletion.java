@@ -2,12 +2,14 @@ package io.kestra.plugin.langchain;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
@@ -37,6 +39,7 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
         title = "Text prompt",
         description = "The input prompt for the language model"
     )
+    @NotNull
     private Property<String> prompt;
 
     @Schema(
@@ -61,7 +64,7 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
         String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
 
         String renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(String.class)
-            .orElse("gpt-4o-mini");
+            .orElse(OpenAiChatModelName.GPT_4_O_MINI.toString());
 
         logger.info("Prompt: {}", renderedPrompt);
         ChatLanguageModel model = OpenAiChatModel.builder()

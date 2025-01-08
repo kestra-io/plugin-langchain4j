@@ -10,6 +10,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
@@ -39,12 +40,14 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
         title = "Text prompt",
         description = "The input prompt for the language model"
     )
+    @NotNull
     private Property<String> prompt;
 
     @Schema(
         title = "Apikey",
         description = "Openai api key"
     )
+    @NotNull
     private Property<String> apikey;
 
     @Schema(
