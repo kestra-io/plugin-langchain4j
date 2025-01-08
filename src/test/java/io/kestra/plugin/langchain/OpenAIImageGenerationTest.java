@@ -61,8 +61,8 @@ class OpenAIImageGenerationTest {
 
         // WHEN
         OpenAIImageGeneration task = OpenAIImageGeneration.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .prompt(new Property<>(PROPERTY_EXPRESSION_PROMPT))
+            .apikey(new Property<>(PROPERTY_EXPRESSION_APIKEY))
             .openAiImageModelName(new Property<>("{{ openAiImageModelName }}"))
             .apiUrl(new Property<>("{{ apiUrl }}"))
             .build();

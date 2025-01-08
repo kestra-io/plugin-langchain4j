@@ -74,7 +74,7 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         Logger logger = runContext.logger();
 
         // Render the input properties
-        String renderedUserMessage = runContext.render(userMessage).as(String.class).orElseThrow();
+        String renderedUserMessage = runContext.getVariables().get("userMessage").toString();
         String renderedApiKey = runContext.render(apiKey).as(String.class).orElse("demo");
         String renderedModelName = runContext.render(modelName).as(String.class).orElse("gpt-4");
         int renderedMaxTokens = runContext.render(maxTokens).as(Integer.class).orElse(500);

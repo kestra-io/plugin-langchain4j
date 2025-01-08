@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static io.kestra.plugin.langchain.utils.ConstantTest.OPENAI_DEMO_APIKEY;
-import static io.kestra.plugin.langchain.utils.ConstantTest.OPENAI_TEXT_MINI_MODEL;
+import static io.kestra.plugin.langchain.utils.ConstantTest.*;
 
 /**
  * Unit test for OpenAIChatMemory
@@ -26,7 +25,7 @@ class OpenAIChatMemoryTest {
         // Initialize task instance
         OpenAIChatMemory task = OpenAIChatMemory.builder()
             .userMessage(new Property<>("{{ userMessage }}"))
-            .apiKey(new Property<>("{{ apiKey }}"))
+            .apiKey(new Property<>(PROPERTY_EXPRESSION_APIKEY))
             .modelName(new Property<>("{{ modelName }}"))
             .maxTokens(new Property<>("{{ maxTokens }}"))
             .build();

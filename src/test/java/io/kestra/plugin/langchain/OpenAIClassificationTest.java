@@ -11,8 +11,7 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
-import static io.kestra.plugin.langchain.utils.ConstantTest.OPENAI_DEMO_APIKEY;
-import static io.kestra.plugin.langchain.utils.ConstantTest.OPENAI_TEXT_MINI_MODEL;
+import static io.kestra.plugin.langchain.utils.ConstantTest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -37,10 +36,10 @@ class OpenAIClassificationTest {
 
         // WHEN
         OpenAIClassification task = OpenAIClassification.builder()
-            .prompt(new Property<>("{{ prompt }}"))
+            .prompt(new Property<>(PROPERTY_EXPRESSION_PROMPT))
             .classes(new Property<>("{{ classes }}"))
-            .apikey(new Property<>("{{ apikey }}"))
-            .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
+            .apikey(new Property<>(OPENAI_DEMO_APIKEY))
+            .openAiChatModelName(new Property<>(PROPERTY_EXPRESSION_MODEL_NAME))
             .build();
 
         OpenAIClassification.Output runOutput = task.run(runContext);

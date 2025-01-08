@@ -35,8 +35,8 @@ class OpenAITextCompletionTest {
 
         // WHEN
         OpenAITextCompletion task = OpenAITextCompletion.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .prompt(new Property<>(PROPERTY_EXPRESSION_PROMPT))
+            .apikey(new Property<>(PROPERTY_EXPRESSION_APIKEY))
             .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
             .build();
 
