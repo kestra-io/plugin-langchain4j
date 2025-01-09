@@ -66,7 +66,8 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         title = "OpenAI Model",
         description = "OpenAI model name"
     )
-    private Property<OpenAiChatModelName> modelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);;
+    @NotNull
+    private Property<OpenAiChatModelName> modelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);
 
     @Schema(
         title = "Max Tokens",
@@ -74,14 +75,11 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
     )
     private Property<Integer> maxTokens;
 
-
     @Schema(
-        title = "Chat Memory ID",
-        description = "The unique ID for the chat memory"
+        title = "Chat Messages",
+        description = "The list of chat messages for the current conversation"
     )
-    private Property<UUID> chatMemoryId;
-
-    private ChatMemory chatMemory;
+    private Property<List<ChatMessage>> chatMessages;
 
     @Override
     public OpenAIChatMemory.Output run(RunContext runContext) throws Exception {
@@ -89,24 +87,21 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
 
         // Render input properties
         String renderedUserMessage = runContext.render(userMessage).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("User message is required"));
+            .orElseThrow(() -> new IllegalArgumentException("User message is required !!"));
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("API key is required"));
+            .orElseThrow(() -> new ResourceNotFound("API key is required !!"));
         OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
-        UUID renderedChatMemoryId= runContext.render(chatMemoryId).as(UUID.class).orElse(null);
+            .orElseThrow(() -> new ResourceNotFound("Model name is required !!"));
         int renderedMaxTokens = runContext.render(maxTokens).as(Integer.class).orElse(1000);
 
-        // Check if memory ID exists, otherwise generate a new one
-        if (renderedChatMemoryId == null) {
-            renderedChatMemoryId = UUID.randomUUID();
-        }
+        // Render existing messages or initialize an empty list
+        List<ChatMessage> renderedChatMessages = runContext.render(chatMessages).asList(ChatMessage.class);
 
-        // Initialize ChatMemoryStore (In-Memory)
+        // Initialize ChatMemory
         InMemoryChatMemoryStore chatMemoryStore = new InMemoryChatMemoryStore();
+        chatMemoryStore.updateMessages(UUID.randomUUID(), renderedChatMessages);
 
-        chatMemory = TokenWindowChatMemory.builder()
-            .id(renderedChatMemoryId)
+        ChatMemory chatMemory = TokenWindowChatMemory.builder()
             .maxTokens(renderedMaxTokens, new OpenAiTokenizer(renderedModelName))
             .chatMemoryStore(chatMemoryStore)
             .build();
@@ -126,16 +121,12 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         // Add AI response to memory
         chatMemory.add(aiResponse);
 
-        // Persist updated messages in the InMemoryChatMemoryStore
-        chatMemoryStore.updateMessages(renderedChatMemoryId, chatMemory.messages());
-
+        // Return updated messages
         return Output.builder()
             .aiResponse(aiResponse.text())
-            .updatedMessages(chatMemory.messages())
-            .chatMemoryId(renderedChatMemoryId)
+            .outputMessages(chatMemory.messages())
             .build();
     }
-
 
     @Builder
     @Getter
@@ -150,11 +141,6 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
             title = "Updated Messages",
             description = "The updated list of messages after the current interaction"
         )
-        private final List<ChatMessage> updatedMessages;
-        @Schema(
-            title = "Chat Memory ID",
-            description = "The unique ID for the chat memory"
-        )
-        private final UUID chatMemoryId;
+        private final List<ChatMessage> outputMessages;
     }
 }
