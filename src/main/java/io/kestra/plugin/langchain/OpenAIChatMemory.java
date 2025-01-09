@@ -15,7 +15,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -87,11 +86,11 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
 
         // Render input properties
         String renderedUserMessage = runContext.render(userMessage).as(String.class)
-            .orElseThrow(() -> new IllegalArgumentException("User message is required !!"));
+            .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("API key is required !!"));
+            .orElseThrow();
         OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
-            .orElseThrow(() -> new ResourceNotFound("Model name is required !!"));
+            .orElseThrow();
         int renderedMaxTokens = runContext.render(maxTokens).as(Integer.class).orElse(1000);
 
         // Render existing messages or initialize an empty list

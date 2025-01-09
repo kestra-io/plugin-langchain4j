@@ -8,7 +8,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -74,12 +73,12 @@ public class OpenAIClassification extends Task implements RunnableTask<OpenAICla
 
         // Render inputs
         String renderedPrompt = runContext.render(prompt).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
+            .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
+            .orElseThrow();
         List<String> renderedClasses = runContext.render(classes).asList(String.class);
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElseThrow(() -> new ResourceNotFound("openAiChatModelName is required !!"));
+            .orElseThrow();
 
         logger.info("Prompt: {}", renderedPrompt);
         logger.info("Classes: {}", renderedClasses);

@@ -10,7 +10,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -23,7 +22,7 @@ import org.slf4j.Logger;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "LangChain4j Openai Image generation Task",
+    title = "LangChain4j OpenAI Image generation Task",
     description = "Image generation using LangChain4j"
 )
 @Plugin(
@@ -47,7 +46,7 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
 
     @Schema(
         title = "Apikey",
-        description = "Openai api key"
+        description = "OpenAI api key"
     )
     @NotNull
     private Property<String> apikey;
@@ -70,13 +69,13 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
         Logger logger = runContext.logger();
 
         // Render the input prompt & apikey & model name
-        String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
+        String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
+            .orElseThrow();
         String renderedApiUrl = runContext.render(apiUrl).as(String.class).orElse("https://api.openai.com");
 
         OpenAiImageModelName renderedOpenAiImageModelName = runContext.render(openAiImageModelName).as(OpenAiImageModelName.class)
-            .orElseThrow(() -> new ResourceNotFound("Image model is required !!"));
+            .orElseThrow();
 
         logger.info("Prompt: {}", renderedPrompt);
         ImageModel model = OpenAiImageModel.builder()
@@ -102,7 +101,7 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(
             title = "Generated image completion",
-            description = "The result of the openai image generation URL"
+            description = "The result of the OpenAI image generation URL"
         )
         private final String completion;
     }

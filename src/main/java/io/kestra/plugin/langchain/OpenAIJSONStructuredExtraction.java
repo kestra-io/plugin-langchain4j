@@ -15,7 +15,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -69,7 +68,7 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
 
     @Schema(
         title = "Apikey",
-        description = "Openai api key"
+        description = "OpenAI api key"
     )
     @NotNull
     private Property<String> apikey;
@@ -88,14 +87,14 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
 
         // Render the task params
         String renderedPrompt = runContext.render(prompt).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
+            .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Apikey is required"));
+            .orElseThrow();
         String renderedSchemaName = runContext.render(schemaName).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("schemaName is required !!"));
+            .orElseThrow();
         List<String> renderedFields = Property.asList(jsonFields, runContext, String.class);
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElseThrow(() -> new ResourceNotFound("ChatModel is required !!"));
+            .orElseThrow();
 
         // Prepare the json structure response
         ResponseFormat responseFormat = ResponseFormat.builder()

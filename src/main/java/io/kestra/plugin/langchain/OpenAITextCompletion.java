@@ -8,7 +8,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -45,14 +44,14 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
 
     @Schema(
         title = "Apikey",
-        description = "Openai api key"
+        description = "OpenAI api key"
     )
     @NotNull
     private Property<String> apikey;
 
     @Schema(
         title = "OpenAi model",
-        description = "OpenAi model name"
+        description = "OpenAI model name"
     )
     @NotNull
     private Property<OpenAiChatModelName> openAiChatModelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);
@@ -64,11 +63,11 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
 
         // Render the input prompt & apikey & model name
         String renderedPrompt = runContext.render(prompt).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
+            .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
+            .orElseThrow();
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
+            .orElseThrow();
 
         logger.info("Prompt: {}", renderedPrompt);
         ChatLanguageModel model = OpenAiChatModel.builder()
