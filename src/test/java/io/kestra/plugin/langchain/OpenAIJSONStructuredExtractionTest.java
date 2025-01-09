@@ -1,5 +1,6 @@
 package io.kestra.plugin.langchain;
 
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -28,8 +29,9 @@ class OpenAIJSONStructuredExtractionTest {
             "jsonFields", List.of("name", "date"),
             "schemaName", TEST_SCHEMA_NAME,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
-        ));
+            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
+
+            ));
 
         // WHEN
         OpenAIJSONStructuredExtraction task = OpenAIJSONStructuredExtraction.builder()

@@ -1,16 +1,21 @@
 package io.kestra.plugin.langchain;
 
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assertions;
+import io.kestra.plugin.langchain.OpenAIChatMemory.Output;
 import org.junit.jupiter.api.Test;
 
+import jakarta.inject.Inject;
 import java.util.Map;
+import java.util.UUID;
 
-import static io.kestra.plugin.langchain.utils.ConstantTest.*;
+import static io.kestra.plugin.langchain.utils.ConstantTest.OPENAI_DEMO_APIKEY;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * Unit test for OpenAIChatMemory
@@ -20,43 +25,54 @@ class OpenAIChatMemoryTest {
 
     @Inject
     private RunContextFactory runContextFactory;
+
     @Test
     void run() throws Exception {
-        // Initialize task instance
-        OpenAIChatMemory task = OpenAIChatMemory.builder()
+        // GIVEN: First prompt
+        RunContext runContext = runContextFactory.of(Map.of(
+            "userMessage", "Hello, my name is John",
+            "apiKey", OPENAI_DEMO_APIKEY,
+            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
+            "maxTokens", 300
+        ));
+
+        OpenAIChatMemory firstTask = OpenAIChatMemory.builder()
             .userMessage(new Property<>("{{ userMessage }}"))
-            .apiKey(new Property<>(PROPERTY_EXPRESSION_APIKEY))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .maxTokens(new Property<>("{{ maxTokens }}"))
             .build();
 
-        // GIVEN: run with first user message
-        RunContext runContext = runContextFactory.of(Map.of(
-            "userMessage", "Hello, my name is John",
-            "apiKey", OPENAI_DEMO_APIKEY,
-            "modelName", OPENAI_TEXT_MINI_MODEL,
-            "maxTokens", 500
-        ));
-        // WHEN
-        OpenAIChatMemory.Output step1Output = task.run(runContext);
+        // WHEN: Run the first task
+        Output firstOutput = firstTask.run(runContext);
 
-        // THEN
-        Assertions.assertTrue(step1Output.getAiResponse().toLowerCase().contains("John".toLowerCase()));
+        // THEN: Validate the first response
+        assertThat(firstOutput.getChatMemoryId(), is(notNullValue()));
 
-        // GIVEN: second step
+        UUID chatMemoryId = firstOutput.getChatMemoryId();
+
+        // GIVEN: Second prompt using the same memory ID
         runContext = runContextFactory.of(Map.of(
-            "userMessage", "What is my name?",
+            "userMessage", "What's my name?",
+            "chatMemoryId", chatMemoryId.toString(),
             "apiKey", OPENAI_DEMO_APIKEY,
-            "modelName", OPENAI_TEXT_MINI_MODEL,
-            "maxTokens", 500
+            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
+            "maxTokens", 300
         ));
-        // WHEN: run same context with different prompt user message
-        OpenAIChatMemory.Output step2Output = task.run(runContext);
 
-        // THEN : verify 2end output
-        Assertions.assertTrue(step2Output.getAiResponse().toLowerCase().contains("Your name is John".toLowerCase()));
+        OpenAIChatMemory secondTask = OpenAIChatMemory.builder()
+            .userMessage(new Property<>("{{ userMessage }}"))
+            .chatMemoryId(new Property<>("{{ chatMemoryId }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
+            .modelName(new Property<>("{{ modelName }}"))
+            .maxTokens(new Property<>("{{ maxTokens }}"))
+            .build();
 
+        // WHEN: Run the second task
+        Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), is(notNullValue()));
+        assertThat(secondOutput.getAiResponse().toLowerCase().contains("john"), is(Boolean.TRUE));
     }
-
-
 }

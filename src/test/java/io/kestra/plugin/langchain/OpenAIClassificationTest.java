@@ -1,5 +1,6 @@
 package io.kestra.plugin.langchain;
 
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -31,14 +32,14 @@ class OpenAIClassificationTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", classes,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
+            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         // WHEN
         OpenAIClassification task = OpenAIClassification.builder()
             .prompt(new Property<>(PROPERTY_EXPRESSION_PROMPT))
             .classes(new Property<>("{{ classes }}"))
-            .apikey(new Property<>(OPENAI_DEMO_APIKEY))
+            .apikey(new Property<>(PROPERTY_EXPRESSION_APIKEY))
             .openAiChatModelName(new Property<>(PROPERTY_EXPRESSION_MODEL_NAME))
             .build();
 
@@ -55,7 +56,7 @@ class OpenAIClassificationTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("invalid1", "invalid2"),
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
+            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         // WHEN

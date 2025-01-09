@@ -2,6 +2,7 @@ package io.kestra.plugin.langchain;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import dev.langchain4j.model.openai.OpenAiImageModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -55,7 +56,7 @@ class OpenAIImageGenerationTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", TEST_PROMPT_IMAGE_GENERATION,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiImageModelName", OPENAI_IMAGE_GENERATION_MODEL,
+            "openAiImageModelName", OpenAiImageModelName.DALL_E_2.name(),
             "apiUrl", "http://localhost:" + wireMockServer.port()
         ));
 

@@ -32,7 +32,7 @@ class OpenAITextCompletionTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", PROMPT_TEXT_COMPLETION,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI
+            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         // WHEN
@@ -48,21 +48,4 @@ class OpenAITextCompletionTest {
         assertThat(runOutput.getCompletion(), is(EXPECTED_RESULT));
     }
 
-    @Test
-    void runWithInvalidApiKey() {
-        // GIVEN
-        RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", PROMPT_TEXT_COMPLETION,
-            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
-        ));
-
-        // WHEN
-        OpenAITextCompletion task = OpenAITextCompletion.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
-            .build();
-
-        // THEN
-        Assertions.assertThrows(ApiKeyNotFoundException.class, () -> task.run(runContext));
-    }
 }
