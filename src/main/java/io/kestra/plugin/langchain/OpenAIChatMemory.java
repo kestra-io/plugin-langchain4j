@@ -15,7 +15,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
+import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -60,19 +60,20 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         description = "OpenAI API key"
     )
     @NotNull
-    private Property<String> apiKey;
+    private Property<String> apikey;
 
     @Schema(
         title = "OpenAI Model",
         description = "OpenAI model name"
     )
-    private Property<OpenAiChatModelName> modelName;
+    private Property<OpenAiChatModelName> modelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);;
 
     @Schema(
         title = "Max Tokens",
         description = "Maximum tokens for chat memory"
     )
     private Property<Integer> maxTokens;
+
 
     @Schema(
         title = "Chat Memory ID",
@@ -89,8 +90,8 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         // Render input properties
         String renderedUserMessage = runContext.render(userMessage).as(String.class)
             .orElseThrow(() -> new IllegalArgumentException("User message is required"));
-        String renderedApiKey = runContext.render(apiKey).as(String.class)
-            .orElseThrow(() -> new ApiKeyNotFoundException("API key is required"));
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow(() -> new ResourceNotFound("API key is required"));
         OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
             .orElse(OpenAiChatModelName.GPT_4_O_MINI);
         UUID renderedChatMemoryId= runContext.render(chatMemoryId).as(UUID.class).orElse(null);

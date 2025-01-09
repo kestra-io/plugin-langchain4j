@@ -8,7 +8,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
+import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -47,13 +47,15 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
         title = "Apikey",
         description = "Openai api key"
     )
+    @NotNull
     private Property<String> apikey;
 
     @Schema(
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<OpenAiChatModelName> openAiChatModelName;
+    @NotNull
+    private Property<OpenAiChatModelName> openAiChatModelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);
 
 
     @Override
@@ -61,12 +63,12 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
         Logger logger = runContext.logger();
 
         // Render the input prompt & apikey & model name
-        String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
+        String renderedPrompt = runContext.render(prompt).as(String.class)
+            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
-
+            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
+            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
 
         logger.info("Prompt: {}", renderedPrompt);
         ChatLanguageModel model = OpenAiChatModel.builder()

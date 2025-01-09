@@ -8,7 +8,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
+import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -58,25 +58,28 @@ public class OpenAIClassification extends Task implements RunnableTask<OpenAICla
         title = "Apikey",
         description = "OpenAI API key"
     )
+    @NotNull
     private Property<String> apikey;
 
     @Schema(
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<OpenAiChatModelName> openAiChatModelName;
+    @NotNull
+    private Property<OpenAiChatModelName> openAiChatModelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);
 
     @Override
     public OpenAIClassification.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
 
         // Render inputs
-        String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
+        String renderedPrompt = runContext.render(prompt).as(String.class)
+            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
+            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
         List<String> renderedClasses = runContext.render(classes).asList(String.class);
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
+            .orElseThrow(() -> new ResourceNotFound("openAiChatModelName is required !!"));
 
         logger.info("Prompt: {}", renderedPrompt);
         logger.info("Classes: {}", renderedClasses);

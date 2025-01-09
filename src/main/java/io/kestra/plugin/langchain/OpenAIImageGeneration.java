@@ -10,7 +10,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
+import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -53,17 +53,17 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
     private Property<String> apikey;
 
     @Schema(
+        title = "OpenAi model",
+        description = "OpenAi image generation model name"
+    )
+    @NotNull
+    private Property<OpenAiImageModelName> openAiImageModelName = Property.of(OpenAiImageModelName.DALL_E_3);
+
+    @Schema(
         title = "Base API URL",
         description = "The base URL for the OpenAI API (default: https://api.openai.com)."
     )
     private Property<String> apiUrl;
-
-    @Schema(
-        title = "OpenAi model",
-        description = "OpenAi image generation model name"
-    )
-    private Property<OpenAiImageModelName> openAiImageModelName;
-
 
     @Override
     public OpenAIImageGeneration.Output run(RunContext runContext) throws Exception {
@@ -72,11 +72,11 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
         // Render the input prompt & apikey & model name
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
+            .orElseThrow(() -> new ResourceNotFound("Apikey is required !!"));
         String renderedApiUrl = runContext.render(apiUrl).as(String.class).orElse("https://api.openai.com");
 
         OpenAiImageModelName renderedOpenAiImageModelName = runContext.render(openAiImageModelName).as(OpenAiImageModelName.class)
-            .orElse(OpenAiImageModelName.DALL_E_3);
+            .orElseThrow(() -> new ResourceNotFound("Image model is required !!"));
 
         logger.info("Prompt: {}", renderedPrompt);
         ImageModel model = OpenAiImageModel.builder()

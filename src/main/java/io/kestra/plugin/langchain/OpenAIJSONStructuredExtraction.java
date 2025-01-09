@@ -15,7 +15,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
+import io.kestra.plugin.langchain.exceptions.ResourceNotFound;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -71,13 +71,15 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
         title = "Apikey",
         description = "Openai api key"
     )
+    @NotNull
     private Property<String> apikey;
 
     @Schema(
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<OpenAiChatModelName> openAiChatModelName;
+    @NotNull
+    private Property<OpenAiChatModelName> openAiChatModelName = Property.of(OpenAiChatModelName.GPT_4_O_MINI);
 
 
     @Override
@@ -85,13 +87,15 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
         Logger logger = runContext.logger();
 
         // Render the task params
-        String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
+        String renderedPrompt = runContext.render(prompt).as(String.class)
+            .orElseThrow(() -> new ResourceNotFound("Prompt is required !!"));
         String renderedApiKey = runContext.render(apikey).as(String.class)
-            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
-        String renderedSchemaName = runContext.render(schemaName).as(String.class).orElse("");
+            .orElseThrow(() -> new ResourceNotFound("Apikey is required"));
+        String renderedSchemaName = runContext.render(schemaName).as(String.class)
+            .orElseThrow(() -> new ResourceNotFound("schemaName is required !!"));
         List<String> renderedFields = Property.asList(jsonFields, runContext, String.class);
         OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
+            .orElseThrow(() -> new ResourceNotFound("ChatModel is required !!"));
 
         // Prepare the json structure response
         ResponseFormat responseFormat = ResponseFormat.builder()

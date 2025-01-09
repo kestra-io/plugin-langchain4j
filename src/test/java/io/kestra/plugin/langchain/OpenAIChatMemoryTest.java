@@ -31,14 +31,14 @@ class OpenAIChatMemoryTest {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
             "userMessage", "Hello, my name is John",
-            "apiKey", OPENAI_DEMO_APIKEY,
+            "apikey", OPENAI_DEMO_APIKEY,
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
             "maxTokens", 300
         ));
 
         OpenAIChatMemory firstTask = OpenAIChatMemory.builder()
             .userMessage(new Property<>("{{ userMessage }}"))
-            .apiKey(new Property<>("{{ apiKey }}"))
+            .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .maxTokens(new Property<>("{{ maxTokens }}"))
             .build();
@@ -55,7 +55,7 @@ class OpenAIChatMemoryTest {
         runContext = runContextFactory.of(Map.of(
             "userMessage", "What's my name?",
             "chatMemoryId", chatMemoryId.toString(),
-            "apiKey", OPENAI_DEMO_APIKEY,
+            "apikey", OPENAI_DEMO_APIKEY,
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
             "maxTokens", 300
         ));
@@ -63,7 +63,7 @@ class OpenAIChatMemoryTest {
         OpenAIChatMemory secondTask = OpenAIChatMemory.builder()
             .userMessage(new Property<>("{{ userMessage }}"))
             .chatMemoryId(new Property<>("{{ chatMemoryId }}"))
-            .apiKey(new Property<>("{{ apiKey }}"))
+            .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .maxTokens(new Property<>("{{ maxTokens }}"))
             .build();
