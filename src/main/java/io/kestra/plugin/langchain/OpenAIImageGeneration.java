@@ -3,12 +3,14 @@ package io.kestra.plugin.langchain;
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.openai.OpenAiImageModel;
+import dev.langchain4j.model.openai.OpenAiImageModelName;
 import dev.langchain4j.model.output.Response;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -60,7 +62,7 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
         title = "OpenAi model",
         description = "OpenAi image generation model name"
     )
-    private Property<String> openAiImageModelName;
+    private Property<OpenAiImageModelName> openAiImageModelName;
 
 
     @Override
@@ -69,11 +71,12 @@ public class OpenAIImageGeneration extends Task implements RunnableTask<OpenAIIm
 
         // Render the input prompt & apikey & model name
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
-        String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
         String renderedApiUrl = runContext.render(apiUrl).as(String.class).orElse("https://api.openai.com");
 
-        String renderedOpenAiImageModelName = runContext.render(openAiImageModelName).as(String.class)
-            .orElse("dall-e-3");
+        OpenAiImageModelName renderedOpenAiImageModelName = runContext.render(openAiImageModelName).as(OpenAiImageModelName.class)
+            .orElse(OpenAiImageModelName.DALL_E_3);
 
         logger.info("Prompt: {}", renderedPrompt);
         ImageModel model = OpenAiImageModel.builder()

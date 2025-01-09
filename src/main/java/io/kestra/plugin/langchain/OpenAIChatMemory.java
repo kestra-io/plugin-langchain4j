@@ -6,12 +6,14 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.TokenWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.model.openai.OpenAiTokenizer;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -59,7 +61,7 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
         title = "OpenAI Model",
         description = "OpenAI model name"
     )
-    private Property<String> modelName;
+    private Property<OpenAiChatModelName> modelName;
 
     @Schema(
         title = "Max Tokens",
@@ -75,11 +77,11 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
 
         // Render the input properties
         String renderedUserMessage = runContext.getVariables().get("userMessage").toString();
-        String renderedApiKey = runContext.render(apiKey).as(String.class).orElse("demo");
-        String renderedModelName = runContext.render(modelName).as(String.class).orElse("gpt-4");
+        String renderedApiKey = runContext.render(apiKey).as(String.class)
+            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
+        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
+            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
         int renderedMaxTokens = runContext.render(maxTokens).as(Integer.class).orElse(500);
-
-        logger.info("User Message: {}", renderedUserMessage);
 
         // Initialize ChatMemory if it is null
         if (chatMemory == null) {
@@ -94,7 +96,6 @@ public class OpenAIChatMemory extends Task implements RunnableTask<OpenAIChatMem
             .apiKey(renderedApiKey)
             .modelName(renderedModelName)
             .build();
-        logger.info("Messages sent to model: {}", chatMemory.messages());
 
         AiMessage aiResponse = model.generate(chatMemory.messages()).content();
         logger.info("AI Response: {}", aiResponse.text());

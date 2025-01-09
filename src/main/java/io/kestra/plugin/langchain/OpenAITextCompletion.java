@@ -8,6 +8,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -52,7 +53,7 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<String> openAiChatModelName;
+    private Property<OpenAiChatModelName> openAiChatModelName;
 
 
     @Override
@@ -61,10 +62,11 @@ public class OpenAITextCompletion extends Task implements RunnableTask<OpenAITex
 
         // Render the input prompt & apikey & model name
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
-        String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
 
-        String renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(String.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI.toString());
+        OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
+            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
 
         logger.info("Prompt: {}", renderedPrompt);
         ChatLanguageModel model = OpenAiChatModel.builder()

@@ -8,6 +8,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -63,7 +64,7 @@ public class OpenAIClassification extends Task implements RunnableTask<OpenAICla
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<String> openAiChatModelName;
+    private Property<OpenAiChatModelName> openAiChatModelName;
 
     @Override
     public OpenAIClassification.Output run(RunContext runContext) throws Exception {
@@ -71,10 +72,11 @@ public class OpenAIClassification extends Task implements RunnableTask<OpenAICla
 
         // Render inputs
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
-        String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
-        List<String> renderedClasses = Property.asList(classes, runContext, String.class);
-        String renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(String.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI.toString());
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
+        List<String> renderedClasses = runContext.render(classes).asList(String.class);
+        OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
+            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
 
         logger.info("Prompt: {}", renderedPrompt);
         logger.info("Classes: {}", renderedClasses);

@@ -1,10 +1,12 @@
 package io.kestra.plugin.langchain;
 
 
+import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
@@ -30,7 +32,7 @@ class OpenAITextCompletionTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", PROMPT_TEXT_COMPLETION,
             "apikey", OPENAI_DEMO_APIKEY,
-            "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
+            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI
         ));
 
         // WHEN
@@ -51,18 +53,16 @@ class OpenAITextCompletionTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", PROMPT_TEXT_COMPLETION,
-            "apikey", "invalid-api-key",
             "openAiChatModelName", OPENAI_TEXT_MINI_MODEL
         ));
 
         // WHEN
         OpenAITextCompletion task = OpenAITextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
             .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
             .build();
 
         // THEN
-        Assertions.assertThrows(RuntimeException.class, () -> task.run(runContext));
+        Assertions.assertThrows(ApiKeyNotFoundException.class, () -> task.run(runContext));
     }
 }

@@ -15,6 +15,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain.exceptions.ApiKeyNotFoundException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -76,7 +77,7 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
         title = "OpenAi model",
         description = "OpenAi model name"
     )
-    private Property<String> openAiChatModelName;
+    private Property<OpenAiChatModelName> openAiChatModelName;
 
 
     @Override
@@ -85,11 +86,12 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
 
         // Render the task params
         String renderedPrompt = runContext.render(prompt).as(String.class).orElse("");
-        String renderedApiKey = runContext.render(apikey).as(String.class).orElse("demo");
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow(() -> new ApiKeyNotFoundException("Apikey is required"));
         String renderedSchemaName = runContext.render(schemaName).as(String.class).orElse("");
         List<String> renderedFields = Property.asList(jsonFields, runContext, String.class);
-        String renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(String.class)
-            .orElse(OpenAiChatModelName.GPT_4_O_MINI.toString());
+        OpenAiChatModelName renderedOpenAiChatModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
+            .orElse(OpenAiChatModelName.GPT_4_O_MINI);
 
         // Prepare the json structure response
         ResponseFormat responseFormat = ResponseFormat.builder()
@@ -100,7 +102,6 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
                 .build())
             .build();
 
-        logger.info("Prompt: {}", renderedPrompt);
         // Prepare Prompt Request
         ChatRequest chatRequest = ChatRequest.builder()
             .responseFormat(responseFormat)
@@ -114,7 +115,7 @@ public class OpenAIJSONStructuredExtraction extends Task implements RunnableTask
 
         // Generate text completion
         ChatResponse answer = model.chat(chatRequest);
-        logger.info("Generated Completion: {}", answer);
+        logger.info("Generated Completion !!");
 
         return Output.builder()
             .completion(answer.aiMessage().text())
