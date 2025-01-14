@@ -9,6 +9,7 @@ import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.dto.ChatMessageDTO;
 import io.kestra.plugin.enums.EChatType;
 import io.kestra.plugin.enums.EGeminiModel;
+import io.micronaut.context.annotation.Value;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
@@ -28,13 +29,16 @@ class GeminiChatMemoryTest {
     @Inject
     private RunContextFactory runContextFactory;
 
+    @Inject
+    @Value("${kestra.gemini.apikey}")
+    private String apikeyTest;
+
     @Test
     void run() throws Exception {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
-            "apikey", "AIzaSyAYcZI6PrLZu3Wx03X3zGocPo5x_DXb2PA",
+            "apikey", apikeyTest,
             "modelName", EGeminiModel.GEMINI_1_5_FLASH,
-            "maxTokens", 1000,
             "chatMessagesInput", List.of(ChatMessageDTO.builder().type(EChatType.USER)
                 .content("Hello, my name is John")
                 .build())
@@ -60,7 +64,7 @@ class GeminiChatMemoryTest {
             .build());
 
         runContext = runContextFactory.of(Map.of(
-            "apikey", "AIzaSyAYcZI6PrLZu3Wx03X3zGocPo5x_DXb2PA",
+            "apikey", apikeyTest,
             "modelName", EGeminiModel.GEMINI_1_5_FLASH,
             "chatMessagesInput", updatedMessages // Pass updated messages
         ));

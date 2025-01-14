@@ -1,7 +1,6 @@
 package io.kestra.plugin;
 
 
-import com.google.gson.JsonObject;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;

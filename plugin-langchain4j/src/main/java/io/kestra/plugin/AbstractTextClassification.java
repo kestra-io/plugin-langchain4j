@@ -55,14 +55,14 @@ public abstract class AbstractTextClassification extends Task implements Runnabl
         ChatLanguageModel model = createModel(runContext);
 
         // Generate classification-specific prompt
-        String classificationPrompt = renderedPrompt + "\nChoose one of the following classes: " + renderedClasses;
+        String classificationPrompt = renderedPrompt + "\nChoose only one of the following classes: " + renderedClasses;
 
         // Generate the classification result
         String generatedClass = model.generate(classificationPrompt).trim();
         logger.info("Generated Class: {}", generatedClass);
 
         // Validate the result
-        if (!renderedClasses.contains(generatedClass)) {
+        if (renderedClasses.stream().noneMatch(option -> option.equalsIgnoreCase(generatedClass))) {
             throw new IllegalArgumentException("Generated class is not in the list of possible classes: " + generatedClass);
         }
 

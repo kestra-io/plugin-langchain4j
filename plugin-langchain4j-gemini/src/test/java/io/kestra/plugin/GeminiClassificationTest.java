@@ -5,11 +5,13 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.enums.EGeminiModel;
+import io.micronaut.context.annotation.Value;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -24,13 +26,17 @@ class GeminiClassificationTest {
     @Inject
     private RunContextFactory runContextFactory;
 
+    @Inject
+    @Value("${kestra.gemini.apikey}")
+    private String apikeyTest;
+
     @Test
     void run() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
-            "apikey", "AIzaSyAYcZI6PrLZu3Wx03X3zGocPo5x_DXb2PA",
+            "apikey", apikeyTest,
             "modelName", EGeminiModel.GEMINI_1_5_FLASH
         ));
 
