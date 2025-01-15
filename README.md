@@ -33,9 +33,9 @@
 <p align="center" style="color:grey;"><i>Get started with Kestra in 4 minutes.</i></p>
 
 
-# Kestra Plugin Template
+# Kestra Plugin LangChain4j
 
-> A template for creating Kestra plugins
+> A Plugin to interact with langChain4j
 
 This repository serves as a general template for creating a new [Kestra](https://github.com/kestra-io/kestra) plugin. It should take only a few minutes! Use this repository as a scaffold to ensure that you've set up the plugin correctly, including unit tests and CI/CD workflows.
 
