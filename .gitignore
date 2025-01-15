@@ -14,3 +14,4 @@ out/
 .classpath
 .attach*
 src/test/resources/application-test.yml
+**/allure-results
