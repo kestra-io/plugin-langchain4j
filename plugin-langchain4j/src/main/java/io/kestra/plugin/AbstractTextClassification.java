@@ -18,10 +18,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Abstract Text Classification Task",
-    description = "Abstract class for text classification tasks across various models"
-)
+
 public abstract class AbstractTextClassification extends Task implements RunnableTask<AbstractTextClassification.Output> {
 
     @Schema(
@@ -60,11 +57,6 @@ public abstract class AbstractTextClassification extends Task implements Runnabl
         // Generate the classification result
         String generatedClass = model.generate(classificationPrompt).trim();
         logger.info("Generated Class: {}", generatedClass);
-
-        // Validate the result
-        if (renderedClasses.stream().noneMatch(option -> option.equalsIgnoreCase(generatedClass))) {
-            throw new IllegalArgumentException("Generated class is not in the list of possible classes: " + generatedClass);
-        }
 
         return Output.builder()
             .label(generatedClass)

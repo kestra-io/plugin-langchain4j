@@ -19,10 +19,6 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Abstract Image Generation Task",
-    description = "Abstract class for image generation tasks across various models"
-)
 public abstract class AbstractImageGeneration extends Task implements RunnableTask<AbstractImageGeneration.Output> {
 
     @Schema(

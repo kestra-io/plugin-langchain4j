@@ -18,10 +18,7 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Abstract Text Completion Task",
-    description = "Abstract class for text completion tasks across various models"
-)
+
 public abstract class AbstractTextCompletion extends Task implements RunnableTask<AbstractTextCompletion.Output> {
     @Schema(
         title = "Text prompt",

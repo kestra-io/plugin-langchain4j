@@ -1,14 +1,12 @@
 package io.kestra.plugin;
 
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.dto.ChatMessageDTO;
-import io.kestra.plugin.enums.EChatType;
+import io.kestra.plugin.enums.ChatType;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
@@ -35,19 +33,19 @@ class OpenAIChatMemoryTest {
             "apikey", "demo",
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
             "maxTokens", 1000,
-            "chatMessagesInput", List.of(ChatMessageDTO.builder().type(EChatType.USER)
+            "chatMessagesInput", List.of(ChatMessageDTO.builder().type(ChatType.USER)
                 .content("Hello, my name is John")
                 .build())
         ));
 
-        OpenAIChatMemory firstTask = OpenAIChatMemory.builder()
+        OpenAIChatCompletion firstTask = OpenAIChatCompletion.builder()
             .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();
 
         // WHEN: Run the first task
-        OpenAIChatMemory.Output firstOutput = firstTask.run(runContext);
+        OpenAIChatCompletion.Output firstOutput = firstTask.run(runContext);
 
         // THEN: Validate the first response
         assertThat(firstOutput.getOutputMessages().size(), is(2)); // User and AI response
@@ -55,7 +53,7 @@ class OpenAIChatMemoryTest {
 
         // GIVEN: Second prompt using the updated messages
         updatedMessages.add(ChatMessageDTO.builder()
-                .type(EChatType.USER)
+                .type(ChatType.USER)
                 .content("What's my name?")
             .build());
 
@@ -65,14 +63,14 @@ class OpenAIChatMemoryTest {
             "chatMessagesInput", updatedMessages // Pass updated messages
         ));
 
-        OpenAIChatMemory secondTask = OpenAIChatMemory.builder()
+        OpenAIChatCompletion secondTask = OpenAIChatCompletion.builder()
             .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();
 
         // WHEN: Run the second task
-        OpenAIChatMemory.Output secondOutput = secondTask.run(runContext);
+        OpenAIChatCompletion.Output secondOutput = secondTask.run(runContext);
 
         // THEN: Validate the second response
         assertThat(secondOutput.getAiResponse(), containsString("John"));

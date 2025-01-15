@@ -1,7 +1,7 @@
 package io.kestra.plugin.dto;
 
-import io.kestra.plugin.enums.EChatType;
+import io.kestra.plugin.enums.ChatType;
 import lombok.Builder;
 
 @Builder
-public record ChatMessageDTO(EChatType type, String content) {}
+public record ChatMessageDTO(ChatType type, String content) {}

@@ -1,14 +1,13 @@
 package io.kestra.plugin;
 
 
-import dev.langchain4j.data.message.ChatMessage;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.dto.ChatMessageDTO;
-import io.kestra.plugin.enums.EChatType;
-import io.kestra.plugin.enums.EGeminiModel;
+import io.kestra.plugin.enums.ChatType;
+import io.kestra.plugin.enums.GeminiModel;
 import io.micronaut.context.annotation.Value;
 import org.junit.jupiter.api.Test;
 
@@ -38,20 +37,20 @@ class GeminiChatMemoryTest {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
             "apikey", apikeyTest,
-            "modelName", EGeminiModel.GEMINI_1_5_FLASH,
-            "chatMessagesInput", List.of(ChatMessageDTO.builder().type(EChatType.USER)
+            "modelName", GeminiModel.GEMINI_1_5_FLASH,
+            "chatMessagesInput", List.of(ChatMessageDTO.builder().type(ChatType.USER)
                 .content("Hello, my name is John")
                 .build())
         ));
 
-        GeminiChatMemory firstTask = GeminiChatMemory.builder()
+        GeminiChatCompletion firstTask = GeminiChatCompletion.builder()
             .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();
 
         // WHEN: Run the first task
-        GeminiChatMemory.Output firstOutput = firstTask.run(runContext);
+        GeminiChatCompletion.Output firstOutput = firstTask.run(runContext);
 
         // THEN: Validate the first response
         assertThat(firstOutput.getOutputMessages().size(), is(2)); // User and AI response
@@ -59,24 +58,24 @@ class GeminiChatMemoryTest {
 
         // GIVEN: Second prompt using the updated messages
         updatedMessages.add(ChatMessageDTO.builder()
-            .type(EChatType.USER)
+            .type(ChatType.USER)
             .content("What's my name?")
             .build());
 
         runContext = runContextFactory.of(Map.of(
             "apikey", apikeyTest,
-            "modelName", EGeminiModel.GEMINI_1_5_FLASH,
+            "modelName", GeminiModel.GEMINI_1_5_FLASH,
             "chatMessagesInput", updatedMessages // Pass updated messages
         ));
 
-        GeminiChatMemory secondTask = GeminiChatMemory.builder()
+        GeminiChatCompletion secondTask = GeminiChatCompletion.builder()
             .apikey(new Property<>("{{ apikey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();
 
         // WHEN: Run the second task
-        GeminiChatMemory.Output secondOutput = secondTask.run(runContext);
+        GeminiChatCompletion.Output secondOutput = secondTask.run(runContext);
 
         // THEN: Validate the second response
         assertThat(secondOutput.getAiResponse(), containsString("John"));

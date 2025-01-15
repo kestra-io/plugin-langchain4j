@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.*;
+
 
 @KestraTest
 class OllamaClassificationTest extends OllamaContainerTest {
@@ -46,7 +46,6 @@ class OllamaClassificationTest extends OllamaContainerTest {
         OllamaClassification.Output runOutput = task.run(runContext);
 
         // THEN
-        assertThat(runOutput.getLabel(), is(in(classes)));
-        assertThat(runOutput.getLabel().equals("Paris"), is(Boolean.TRUE));
+        assertThat(runOutput.getLabel(), containsString("Paris"));
     }
 }

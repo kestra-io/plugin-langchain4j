@@ -25,10 +25,6 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Abstract JSON Structured Extraction Task",
-    description = "Abstract class for JSON structured extraction tasks across various models"
-)
 public abstract class AbstractJSONStructuredExtraction extends Task implements RunnableTask<AbstractJSONStructuredExtraction.Output> {
 
     @Schema(

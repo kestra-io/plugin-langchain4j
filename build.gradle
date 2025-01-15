@@ -28,10 +28,7 @@ allprojects {
         if (isBuildSnapshot) {
             maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
         }
-        maven { url "https://maven.dremio.com/free/" }
-        maven { url 'https://maven.jumpmind.com/repo/' }
-        maven { url "https://talend-update.talend.com/nexus/content/repositories/libraries/" }
-    }
+ }
 }
 
 subprojects {

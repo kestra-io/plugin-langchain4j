@@ -6,7 +6,7 @@ import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.enums.EGeminiModel;
+import io.kestra.plugin.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -38,7 +38,7 @@ public class GeminiTextCompletion extends io.kestra.plugin.AbstractTextCompletio
         description = "Gemini-specific model configuration"
     )
     @NotNull
-    private Property<EGeminiModel> modelName= Property.of(EGeminiModel.GEMINI_1_5_FLASH);
+    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
 
     @Schema(
         title = "API Key",
@@ -49,7 +49,7 @@ public class GeminiTextCompletion extends io.kestra.plugin.AbstractTextCompletio
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        EGeminiModel renderedModelName = runContext.render(modelName).as(EGeminiModel.class)
+        GeminiModel renderedModelName = runContext.render(modelName).as(GeminiModel.class)
             .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
             .orElseThrow();

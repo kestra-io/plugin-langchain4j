@@ -2,18 +2,13 @@ package io.kestra.plugin;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.TokenWindowChatMemory;
-import dev.langchain4j.model.Tokenizer;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.dto.ChatMessageDTO;
-import io.kestra.plugin.enums.EChatType;
+import io.kestra.plugin.enums.ChatType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,22 +16,15 @@ import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static io.kestra.plugin.utils.MethodUtility.convertFromDTOs;
+import static io.kestra.plugin.utils.LLMUtility.convertFromDTOs;
 
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(
-    title = "Abstract Chat Memory Task",
-    description = "Abstract class for chat memory tasks supporting different models"
-)
-public abstract class AbstractChatMemory extends Task implements RunnableTask<AbstractChatMemory.Output> {
+public abstract class AbstractChatCompletion extends Task implements RunnableTask<AbstractChatCompletion.Output> {
 
     @Schema(
         title = "API Key",
@@ -53,7 +41,7 @@ public abstract class AbstractChatMemory extends Task implements RunnableTask<Ab
     protected Property<List<ChatMessageDTO>> chatMessagesInput;
 
     @Override
-    public AbstractChatMemory.Output run(RunContext runContext) throws Exception {
+    public AbstractChatCompletion.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
 
         // Render input properties
@@ -72,7 +60,7 @@ public abstract class AbstractChatMemory extends Task implements RunnableTask<Ab
 
         // Add AI response to memory
         renderedChatMessagesInput.add(ChatMessageDTO.builder()
-                .type(EChatType.AI)
+                .type(ChatType.AI)
                 .content(aiResponse.text())
             .build());
 

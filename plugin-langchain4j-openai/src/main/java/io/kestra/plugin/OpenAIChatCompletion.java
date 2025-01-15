@@ -18,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "OpenAI Chat Memory Task",
-    description = "Handles chat interactions with memory using OpenAI models"
+    title = "OpenAI Chat Completion Task",
+    description = "Handles chat interactions using OpenAI models"
 )
 @Plugin(
     examples = {
@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class OpenAIChatMemory extends AbstractChatMemory {
+public class OpenAIChatCompletion extends AbstractChatCompletion {
 
     @Schema(
         title = "OpenAI Model Name",

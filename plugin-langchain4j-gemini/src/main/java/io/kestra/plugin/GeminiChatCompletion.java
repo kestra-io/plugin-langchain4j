@@ -6,7 +6,7 @@ import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.enums.EGeminiModel;
+import io.kestra.plugin.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -36,14 +36,14 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class GeminiChatMemory extends AbstractChatMemory {
+public class GeminiChatCompletion extends AbstractChatCompletion {
 
     @Schema(
         title = "Gemini Model Name",
         description = "Name of the Gemini model to use"
     )
     @NotNull
-    private Property<EGeminiModel> modelName= Property.of(EGeminiModel.GEMINI_1_5_FLASH);
+    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext, String apiKey) throws IllegalVariableEvaluationException {
@@ -55,8 +55,8 @@ public class GeminiChatMemory extends AbstractChatMemory {
             .build();
     }
 
-    private EGeminiModel renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(modelName).as(EGeminiModel.class).orElseThrow();
+    private GeminiModel renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
+        return runContext.render(modelName).as(GeminiModel.class).orElseThrow();
     }
 }
 
