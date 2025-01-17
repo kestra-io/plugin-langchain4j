@@ -1,12 +1,14 @@
 package io.kestra.plugin.langchain4j.openai;
 
+
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.AbstractTextClassification;
+import io.kestra.plugin.langchain4j.AbstractTextCompletion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,29 +20,28 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "OpenAI Text Classification Task",
-    description = "Classifies text using OpenAI models"
+    title = "OpenAI Text Completion Task",
+    description = "Generates text completion using OpenAI models"
 )
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Classification Example",
+            title = "Text Completion Example",
             code = {
-                "prompt: \"Is 'This is a joke' a good joke?\"",
-                "classes: [\"true\", \"false\"]",
-                "model: \"gpt-4\""
+                "prompt: \"What is the capital of France?\"",
+                "apiKey: \"demo\"",
+                "modelName: \"gpt-4\""
             }
         )
     }
 )
-public class OpenAIClassification extends AbstractTextClassification {
-
+public class TextCompletion extends AbstractTextCompletion {
     @Schema(
-        title = "OpenAI Model Name",
-        description = "The OpenAI model to use"
+        title = "OpenAI Model",
+        description = "OpenAI model name"
     )
     @NotNull
-    private Property<OpenAiChatModelName> openAiChatModelName;
+    private Property<OpenAiChatModelName> modelName;
 
     @Schema(
         title = "API Key",
@@ -50,9 +51,10 @@ public class OpenAIClassification extends AbstractTextClassification {
     protected Property<String> apikey;
 
     @Override
-    protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
-        OpenAiChatModelName renderedModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
+    protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
+        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
             .orElseThrow();
+
         String renderedApiKey = runContext.render(apikey).as(String.class)
             .orElseThrow();
 

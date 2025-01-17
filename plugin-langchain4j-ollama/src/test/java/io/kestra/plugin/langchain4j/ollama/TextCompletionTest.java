@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 
 @KestraTest
-class OllamaTextCompletionTest extends OllamaContainerTest {
+class TextCompletionTest extends OllamaContainerTest {
 
 
     @Inject
@@ -32,14 +32,14 @@ class OllamaTextCompletionTest extends OllamaContainerTest {
             "ollamaEndpoint", ollamaEndpoint
         ));
 
-        OllamaTextCompletion task = OllamaTextCompletion.builder()
+        TextCompletion task = TextCompletion.builder()
             .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .build();
 
         // WHEN
-        OllamaTextCompletion.Output runOutput = task.run(runContext);
+        TextCompletion.Output runOutput = task.run(runContext);
 
         // THEN
         assertThat(runOutput.getCompletion(), notNullValue());

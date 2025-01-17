@@ -34,7 +34,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class OpenAIChatCompletion extends AbstractChatCompletion {
+public class ChatCompletion extends AbstractChatCompletion {
 
     @Schema(
         title = "OpenAI Model Name",

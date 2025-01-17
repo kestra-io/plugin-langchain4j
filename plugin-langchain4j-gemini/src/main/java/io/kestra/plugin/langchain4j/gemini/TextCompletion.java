@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class GeminiTextCompletion extends AbstractTextCompletion {
+public class TextCompletion extends AbstractTextCompletion {
     @Schema(
         title = "Gemini Model",
         description = "Gemini-specific model configuration"

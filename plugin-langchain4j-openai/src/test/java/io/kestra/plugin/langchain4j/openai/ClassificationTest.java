@@ -5,7 +5,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.openai.OpenAIClassification;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
@@ -17,10 +16,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.oneOf;
 
 /**
- * Unit test for OpenAIClassification
+ * Unit test for Classification
  */
 @KestraTest
-class OpenAIClassificationTest {
+class ClassificationTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -35,7 +34,7 @@ class OpenAIClassificationTest {
             "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
-        OpenAIClassification task = OpenAIClassification.builder()
+        Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .apikey(new Property<>("{{ apikey }}"))
             .classes(new Property<>("{{ classes }}"))
@@ -43,7 +42,7 @@ class OpenAIClassificationTest {
             .build();
 
         // WHEN
-        OpenAIClassification.Output runOutput = task.run(runContext);
+        Classification.Output runOutput = task.run(runContext);
 
         // THEN
         assertThat(runOutput.getLabel(), is(oneOf("true", "false"))); // Verify that the result is one of the expected classes

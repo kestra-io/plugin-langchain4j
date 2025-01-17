@@ -35,7 +35,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class OpenAIImageGeneration extends AbstractImageGeneration {
+public class ImageGeneration extends AbstractImageGeneration {
 
     @Schema(
         title = "OpenAi model",

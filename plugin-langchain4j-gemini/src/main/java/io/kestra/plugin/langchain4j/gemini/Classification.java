@@ -6,7 +6,7 @@ import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.AbstractChatCompletion;
+import io.kestra.plugin.langchain4j.AbstractTextClassification;
 import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -22,42 +22,46 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Gemini Chat Memory Task",
-    description = "Handles chat interactions with memory using Gemini models"
+    title = "Google Gemini Text classification Task",
+    description = "Classify text using Google Gemini models"
 )
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Chat Memory Example",
             code = {
-                "userMessage: \"Hello, my name is John\"",
-                "apikey: \"your-gemini-api-key\"",
-                "modelName: \"gemini-1.5\""
+                "prompt: \"What is the capital of France?\"",
+                "classes: [\"Paris\", \"London\", \"Berlin\"]"
             }
         )
     }
 )
-public class GeminiChatCompletion extends AbstractChatCompletion {
+public class Classification extends AbstractTextClassification {
 
     @Schema(
-        title = "Gemini Model Name",
-        description = "Name of the Gemini model to use"
+        title = "Gemini Model",
+        description = "Gemini-specific model configuration"
     )
     @NotNull
     private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
 
+    @Schema(
+        title = "API Key",
+        description = "API key for the language model"
+    )
+    @NotNull
+    protected Property<String> apikey;
+
     @Override
-    protected ChatLanguageModel createModel(RunContext runContext, String apiKey) throws IllegalVariableEvaluationException {
+    protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
+        GeminiModel renderedModelName = runContext.render(modelName).as(GeminiModel.class)
+            .orElseThrow();
+
+        String renderedApiKey = runContext.render(apikey).as(String.class)
+            .orElseThrow();
 
         return GoogleAiGeminiChatModel.builder()
-            .apiKey(apiKey)
-            .modelName(renderModelName(runContext).getName())
-            .logRequestsAndResponses(true)
+            .apiKey(renderedApiKey)
+            .modelName(renderedModelName.getName())
             .build();
     }
-
-    private GeminiModel renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(modelName).as(GeminiModel.class).orElseThrow();
-    }
 }
-

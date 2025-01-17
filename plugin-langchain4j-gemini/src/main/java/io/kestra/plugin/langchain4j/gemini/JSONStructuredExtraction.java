@@ -38,7 +38,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class GeminiJSONStructuredExtraction extends AbstractJSONStructuredExtraction {
+public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
 
     @Schema(
