@@ -1,26 +1,27 @@
 package io.kestra.plugin.langchain4j.gemini;
 
+
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.micronaut.context.annotation.Value;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-
 import jakarta.inject.Inject;
+
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.oneOf;
+import static org.hamcrest.Matchers.*;
 
 /**
- * Unit test for GeminiClassification
+ * Unit test for OpenAIJSONStructuredExtraction
  */
 @KestraTest
-class GeminiClassificationTest {
+class JSONStructuredExtractionTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -33,23 +34,29 @@ class GeminiClassificationTest {
     void run() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", "Is 'This is a joke' a good joke?",
-            "classes", List.of("true", "false"),
+            "prompt", "Hello, my name is John. I was born on January 1, 2000.",
+            "jsonFields", List.of("name", "date"),
+            "schemaName", "Person",
             "apikey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH
         ));
 
-        GeminiClassification task = GeminiClassification.builder()
+        JSONStructuredExtraction task = JSONStructuredExtraction.builder()
             .prompt(new Property<>("{{ prompt }}"))
+            .jsonFields(new Property<>("{{ jsonFields }}"))
+            .schemaName(new Property<>("{{ schemaName }}"))
             .apikey(new Property<>("{{ apikey }}"))
-            .classes(new Property<>("{{ classes }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .build();
 
         // WHEN
-        GeminiClassification.Output runOutput = task.run(runContext);
+        JSONStructuredExtraction.Output runOutput = task.run(runContext);
 
         // THEN
-        assertThat(runOutput.getLabel(), is(oneOf("true", "false"))); // Verify that the result is one of the expected classes
+        assertThat(runOutput.getResult().contains("\"name\": \"John\""), is(Boolean.TRUE));
+        JSONObject json = new JSONObject(runOutput.getResult());
+        assertThat(json.has("name"), is(true));
+        assertThat(json.has("date"), is(true));
+        assertThat(json.getString("name"), equalToIgnoringCase("John"));
     }
 }

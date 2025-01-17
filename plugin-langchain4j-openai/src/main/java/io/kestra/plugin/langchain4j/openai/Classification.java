@@ -6,7 +6,7 @@ import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.AbstractJSONStructuredExtraction;
+import io.kestra.plugin.langchain4j.AbstractTextClassification;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,22 +18,22 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "OpenAI JSON Structured Extraction Task",
-    description = "Generates JSON structured extraction using OpenAI models"
+    title = "OpenAI Text Classification Task",
+    description = "Classifies text using OpenAI models"
 )
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Structured Extraction Example",
+            title = "Classification Example",
             code = {
-                "fields: [\"name\", \"date\"]",
-                "prompt: \"Hello, my name is John\"",
-                "model: \"gpt-4o-mini\""
+                "prompt: \"Is 'This is a joke' a good joke?\"",
+                "classes: [\"true\", \"false\"]",
+                "model: \"gpt-4\""
             }
         )
     }
 )
-public class OpenAIJSONStructuredExtraction extends AbstractJSONStructuredExtraction {
+public class Classification extends AbstractTextClassification {
 
     @Schema(
         title = "OpenAI Model Name",
@@ -51,14 +51,14 @@ public class OpenAIJSONStructuredExtraction extends AbstractJSONStructuredExtrac
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
-        OpenAiChatModelName renderedModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class).orElseThrow();
+        OpenAiChatModelName renderedModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class)
+            .orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
             .orElseThrow();
+
         return OpenAiChatModel.builder()
             .apiKey(renderedApiKey)
             .modelName(renderedModelName)
-            .logRequests(true)
-            .logResponses(true)
             .build();
     }
 }

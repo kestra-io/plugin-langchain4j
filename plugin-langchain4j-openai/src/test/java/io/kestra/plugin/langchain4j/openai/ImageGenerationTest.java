@@ -7,7 +7,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.openai.OpenAIImageGeneration;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +19,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 /**
- * Unit test for OpenAIImageGeneration
+ * Unit test for ImageGeneration
  */
 @KestraTest
-class OpenAIImageGenerationTest {
+class ImageGenerationTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -60,7 +59,7 @@ class OpenAIImageGenerationTest {
             "apiUrl", "http://localhost:" + wireMockServer.port() +"/v1"
         ));
 
-        OpenAIImageGeneration task = OpenAIImageGeneration.builder()
+        ImageGeneration task = ImageGeneration.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .apikey(new Property<>("{{ apikey }}"))
             .openAiImageModelName(new Property<>("{{ openAiImageModelName }}"))
@@ -68,7 +67,7 @@ class OpenAIImageGenerationTest {
             .build();
 
         // WHEN
-        OpenAIImageGeneration.Output runOutput = task.run(runContext);
+        ImageGeneration.Output runOutput = task.run(runContext);
 
         // THEN
         assertThat(runOutput.getCompletion(), is("https://mock-image-url.com/image.png"));

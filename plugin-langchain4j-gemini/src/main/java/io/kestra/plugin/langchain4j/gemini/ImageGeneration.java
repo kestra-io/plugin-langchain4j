@@ -34,7 +34,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class GeminiImageGeneration extends AbstractImageGeneration {
+public class ImageGeneration extends AbstractImageGeneration {
 
     @Schema(
         title = "Gemini Model",

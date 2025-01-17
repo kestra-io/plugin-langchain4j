@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
         )
     }
 )
-public class OllamaTextCompletion extends AbstractTextCompletion {
+public class TextCompletion extends AbstractTextCompletion {
 
     @Schema(
         title = "Ollama Endpoint",

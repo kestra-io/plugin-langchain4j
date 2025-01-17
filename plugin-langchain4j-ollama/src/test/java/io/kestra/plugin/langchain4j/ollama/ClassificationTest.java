@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.*;
 
 
 @KestraTest
-class OllamaClassificationTest extends OllamaContainerTest {
+class ClassificationTest extends OllamaContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -35,7 +35,7 @@ class OllamaClassificationTest extends OllamaContainerTest {
             "classes", classes
         ));
 
-        OllamaClassification task = OllamaClassification.builder()
+        Classification task = Classification.builder()
             .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
@@ -43,7 +43,7 @@ class OllamaClassificationTest extends OllamaContainerTest {
             .build();
 
         // WHEN
-        OllamaClassification.Output runOutput = task.run(runContext);
+        Classification.Output runOutput = task.run(runContext);
 
         // THEN
         assertThat(runOutput.getLabel(), containsString("Paris"));

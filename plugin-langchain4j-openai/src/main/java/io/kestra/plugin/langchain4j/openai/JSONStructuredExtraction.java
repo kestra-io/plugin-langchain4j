@@ -1,14 +1,12 @@
 package io.kestra.plugin.langchain4j.openai;
 
-
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.AbstractTextCompletion;
+import io.kestra.plugin.langchain4j.AbstractJSONStructuredExtraction;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -20,28 +18,29 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "OpenAI Text Completion Task",
-    description = "Generates text completion using OpenAI models"
+    title = "OpenAI JSON Structured Extraction Task",
+    description = "Generates JSON structured extraction using OpenAI models"
 )
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Text Completion Example",
+            title = "Structured Extraction Example",
             code = {
-                "prompt: \"What is the capital of France?\"",
-                "apiKey: \"demo\"",
-                "modelName: \"gpt-4\""
+                "fields: [\"name\", \"date\"]",
+                "prompt: \"Hello, my name is John\"",
+                "model: \"gpt-4o-mini\""
             }
         )
     }
 )
-public class OpenAITextCompletion extends AbstractTextCompletion {
+public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
+
     @Schema(
-        title = "OpenAI Model",
-        description = "OpenAI model name"
+        title = "OpenAI Model Name",
+        description = "The OpenAI model to use"
     )
     @NotNull
-    private Property<OpenAiChatModelName> modelName;
+    private Property<OpenAiChatModelName> openAiChatModelName;
 
     @Schema(
         title = "API Key",
@@ -51,16 +50,15 @@ public class OpenAITextCompletion extends AbstractTextCompletion {
     protected Property<String> apikey;
 
     @Override
-    protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
-            .orElseThrow();
-
+    protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
+        OpenAiChatModelName renderedModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class).orElseThrow();
         String renderedApiKey = runContext.render(apikey).as(String.class)
             .orElseThrow();
-
         return OpenAiChatModel.builder()
             .apiKey(renderedApiKey)
             .modelName(renderedModelName)
+            .logRequests(true)
+            .logResponses(true)
             .build();
     }
 }

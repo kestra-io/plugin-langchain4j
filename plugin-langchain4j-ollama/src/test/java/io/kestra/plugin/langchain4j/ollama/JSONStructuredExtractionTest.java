@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @KestraTest
-class OllamaJSONStructuredExtractionTest extends OllamaContainerTest {
+class JSONStructuredExtractionTest extends OllamaContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -36,7 +36,7 @@ class OllamaJSONStructuredExtractionTest extends OllamaContainerTest {
             "schemaName", "WeatherInfo"
         ));
 
-        OllamaJSONStructuredExtraction task = OllamaJSONStructuredExtraction.builder()
+        JSONStructuredExtraction task = JSONStructuredExtraction.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
@@ -45,7 +45,7 @@ class OllamaJSONStructuredExtractionTest extends OllamaContainerTest {
             .build();
 
         // WHEN
-        OllamaJSONStructuredExtraction.Output runOutput = task.run(runContext);
+        JSONStructuredExtraction.Output runOutput = task.run(runContext);
 
         // THEN
         assertThat(runOutput, notNullValue());
