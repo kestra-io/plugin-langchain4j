@@ -1,4 +1,4 @@
-rootProject.name = 'plugin-langchain'
+rootProject.name = 'plugin-langchain4js'
 include 'plugin-langchain4j'
 include 'plugin-langchain4j-openai'
 include 'plugin-langchain4j-gemini'

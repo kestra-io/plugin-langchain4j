@@ -5,7 +5,7 @@ jar {
         attributes(
             "X-Kestra-Name": project.name,
             "X-Kestra-Title": "Gemini",
-            "X-Kestra-Group": project.group + ".jdbc.gemini",
+            "X-Kestra-Group": project.group + ".langchain4j.gemini",
             "X-Kestra-Description": project.description,
             "X-Kestra-Version": project.version
         )

@@ -5,7 +5,7 @@ jar {
         attributes(
             "X-Kestra-Name": project.name,
             "X-Kestra-Title": "Ollama",
-            "X-Kestra-Group": project.group + ".jdbc.ollama",
+            "X-Kestra-Group": project.group + ".langchain4j.ollama",
             "X-Kestra-Description": project.description,
             "X-Kestra-Version": project.version
         )
