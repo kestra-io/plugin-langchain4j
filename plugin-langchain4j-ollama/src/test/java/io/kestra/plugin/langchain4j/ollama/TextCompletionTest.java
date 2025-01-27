@@ -28,12 +28,12 @@ class TextCompletionTest extends OllamaContainerTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "ollamaModelName", EOllamaModel.TINY_DOLPHIN,
+            "modelName", EOllamaModel.TINY_DOLPHIN,
             "ollamaEndpoint", ollamaEndpoint
         ));
 
         TextCompletion task = TextCompletion.builder()
-            .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .build();

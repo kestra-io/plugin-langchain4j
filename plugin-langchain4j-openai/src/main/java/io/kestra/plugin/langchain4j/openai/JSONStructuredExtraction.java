@@ -40,19 +40,19 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
         description = "The OpenAI model to use"
     )
     @NotNull
-    private Property<OpenAiChatModelName> openAiChatModelName;
+    private Property<OpenAiChatModelName> modelName;
 
     @Schema(
         title = "API Key",
         description = "API key for the language model"
     )
     @NotNull
-    protected Property<String> apikey;
+    protected Property<String> apiKey;
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
-        OpenAiChatModelName renderedModelName = runContext.render(openAiChatModelName).as(OpenAiChatModelName.class).orElseThrow();
-        String renderedApiKey = runContext.render(apikey).as(String.class)
+        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class).orElseThrow();
+        String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
         return OpenAiChatModel.builder()
             .apiKey(renderedApiKey)

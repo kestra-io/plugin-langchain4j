@@ -35,13 +35,13 @@ class ClassificationTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
-            "apikey", apikeyTest,
+            "apiKey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .classes(new Property<>("{{ classes }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .build();

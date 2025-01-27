@@ -32,16 +32,16 @@ class JSONStructuredExtractionTest {
             "prompt", "Hello, my name is John. I was born on January 1, 2000.",
             "jsonFields", List.of("name", "date"),
             "schemaName", "UserDetails",
-            "apikey", "demo",
-            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
+            "apiKey", "demo",
+            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
-            .apikey(new Property<>("{{ apikey }}"))
-            .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .build();
 
         // WHEN

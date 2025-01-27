@@ -42,7 +42,7 @@ public class ImageGeneration extends AbstractImageGeneration {
         description = "OpenAi image generation model name"
     )
     @NotNull
-    private Property<OpenAiImageModelName> openAiImageModelName = Property.of(OpenAiImageModelName.DALL_E_3);
+    private Property<OpenAiImageModelName> modelName = Property.of(OpenAiImageModelName.DALL_E_3);
 
 
     @Schema(
@@ -50,14 +50,14 @@ public class ImageGeneration extends AbstractImageGeneration {
         description = "API key for the image generation model"
     )
     @NotNull
-    protected Property<String> apikey;
+    protected Property<String> apiKey;
 
 
     @Override
     protected ImageModel createModel(RunContext runContext, String apiUrl) throws IllegalVariableEvaluationException {
-        OpenAiImageModelName renderedModelName = runContext.render(openAiImageModelName).as(OpenAiImageModelName.class)
+        OpenAiImageModelName renderedModelName = runContext.render(modelName).as(OpenAiImageModelName.class)
             .orElseThrow();
-        String renderedApiKey = runContext.render(apikey).as(String.class)
+        String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
 
         return OpenAiImageModel.builder()

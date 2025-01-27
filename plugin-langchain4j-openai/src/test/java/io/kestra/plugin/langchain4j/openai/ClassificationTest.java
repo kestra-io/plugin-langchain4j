@@ -29,16 +29,16 @@ class ClassificationTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
-            "apikey", "demo",
+            "apiKey", "demo",
             "classes", List.of("true", "false"),
-            "openAiChatModelName", OpenAiChatModelName.GPT_4_O_MINI.name()
+            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .classes(new Property<>("{{ classes }}"))
-            .openAiChatModelName(new Property<>("{{ openAiChatModelName }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .build();
 
         // WHEN

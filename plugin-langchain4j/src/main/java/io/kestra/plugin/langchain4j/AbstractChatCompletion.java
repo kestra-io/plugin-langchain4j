@@ -31,7 +31,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
         description = "API key for the language model"
     )
     @NotNull
-    protected Property<String> apikey;
+    public Property<String> apiKey;
 
 
     @Schema(
@@ -45,7 +45,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
         Logger logger = runContext.logger();
 
         // Render input properties
-        String renderedApiKey = runContext.render(apikey).as(String.class).orElseThrow();
+        String renderedApiKey = runContext.render(apiKey).as(String.class).orElseThrow();
 
         // Render existing messages
         List<ChatMessageDTO> renderedChatMessagesInput = runContext.render(chatMessagesInput).asList(ChatMessageDTO.class);
