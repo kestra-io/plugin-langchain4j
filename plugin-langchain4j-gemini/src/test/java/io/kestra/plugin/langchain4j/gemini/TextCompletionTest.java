@@ -31,13 +31,13 @@ public class TextCompletionTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "apikey", apikeyTest,
+            "apiKey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .build();
 

@@ -31,7 +31,7 @@ class JSONStructuredExtractionTest extends OllamaContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "In Paris France, it's 20 degrees Celsius.",
             "ollamaEndpoint", ollamaEndpoint,
-            "ollamaModelName", EOllamaModel.TINY_DOLPHIN,
+            "modelName", EOllamaModel.TINY_DOLPHIN,
             "jsonFields", jsonFields,
             "schemaName", "WeatherInfo"
         ));
@@ -39,7 +39,7 @@ class JSONStructuredExtractionTest extends OllamaContainerTest {
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
-            .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
             .build();

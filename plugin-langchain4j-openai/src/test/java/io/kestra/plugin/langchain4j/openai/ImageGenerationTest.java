@@ -54,15 +54,15 @@ class ImageGenerationTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Donald Duck in New York, cartoon style",
-            "apikey", "demo",
-            "openAiImageModelName", OpenAiImageModelName.DALL_E_3.name(),
+            "apiKey", "demo",
+            "modelName", OpenAiImageModelName.DALL_E_3.name(),
             "apiUrl", "http://localhost:" + wireMockServer.port() +"/v1"
         ));
 
         ImageGeneration task = ImageGeneration.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
-            .openAiImageModelName(new Property<>("{{ openAiImageModelName }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .apiUrl(new Property<>("{{ apiUrl }}"))
             .build();
 

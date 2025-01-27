@@ -30,13 +30,13 @@ class ClassificationTest extends OllamaContainerTest {
 
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "ollamaModelName", EOllamaModel.TINY_DOLPHIN,
+            "modelName", EOllamaModel.TINY_DOLPHIN,
             "ollamaEndpoint", ollamaEndpoint,
             "classes", classes
         ));
 
         Classification task = Classification.builder()
-            .ollamaModelName(new Property<>("{{ ollamaModelName }}"))
+            .modelName(new Property<>("{{ modelName }}"))
             .prompt(new Property<>("{{ prompt }}"))
             .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .classes(new Property<>("{{ classes }}"))

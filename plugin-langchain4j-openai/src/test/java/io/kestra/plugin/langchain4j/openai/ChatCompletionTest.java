@@ -30,7 +30,7 @@ class ChatCompletionTest {
     void run() throws Exception {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
-            "apikey", "demo",
+            "apiKey", "demo",
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
             "maxTokens", 1000,
             "chatMessagesInput", List.of(ChatMessageDTO.builder().type(ChatType.USER)
@@ -39,7 +39,7 @@ class ChatCompletionTest {
         ));
 
         ChatCompletion firstTask = ChatCompletion.builder()
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();
@@ -58,13 +58,13 @@ class ChatCompletionTest {
             .build());
 
         runContext = runContextFactory.of(Map.of(
-            "apikey", "demo",
+            "apiKey", "demo",
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
             "chatMessagesInput", updatedMessages // Pass updated messages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
             .build();

@@ -37,7 +37,7 @@ class JSONStructuredExtractionTest {
             "prompt", "Hello, my name is John. I was born on January 1, 2000.",
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
-            "apikey", apikeyTest,
+            "apiKey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH
         ));
 
@@ -45,7 +45,7 @@ class JSONStructuredExtractionTest {
             .prompt(new Property<>("{{ prompt }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .build();
 

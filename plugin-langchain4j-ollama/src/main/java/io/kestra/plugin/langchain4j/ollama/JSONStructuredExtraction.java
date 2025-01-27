@@ -47,12 +47,12 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
         description = "The Ollama model to use"
     )
     @NotNull
-    private Property<EOllamaModel> ollamaModelName = Property.of(EOllamaModel.OLLAMA3_3);
+    private Property<EOllamaModel> modelName = Property.of(EOllamaModel.OLLAMA3_3);
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
         String renderedEndpoint = runContext.render(ollamaEndpoint).as(String.class).orElseThrow();
-        EOllamaModel renderedModelName = runContext.render(ollamaModelName).as(EOllamaModel.class).orElseThrow();
+        EOllamaModel renderedModelName = runContext.render(modelName).as(EOllamaModel.class).orElseThrow();
 
         return OllamaChatModel.builder()
             .baseUrl(renderedEndpoint)

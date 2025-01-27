@@ -48,14 +48,14 @@ public class TextCompletion extends AbstractTextCompletion {
         description = "API key for the language model"
     )
     @NotNull
-    protected Property<String> apikey;
+    protected Property<String> apiKey;
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
         OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
             .orElseThrow();
 
-        String renderedApiKey = runContext.render(apikey).as(String.class)
+        String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
 
         return OpenAiChatModel.builder()

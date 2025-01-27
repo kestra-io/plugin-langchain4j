@@ -26,13 +26,13 @@ public class TextCompletionTest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "apikey", "demo",
+            "apiKey", "demo",
             "modelName", OpenAiChatModelName.GPT_4_O_MINI.name()
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .apikey(new Property<>("{{ apikey }}"))
+            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
             .build();
 
