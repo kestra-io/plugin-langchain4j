@@ -26,8 +26,9 @@ import lombok.experimental.SuperBuilder;
         @io.kestra.core.models.annotations.Example(
             title = "Classification Example",
             code = {
-                "prompt: \"What is the capital of France?\"",
-                "classes: [\"Paris\", \"London\", \"Berlin\"]",
+                "prompt: \"Is 'This is a joke' a good joke?\"",
+                "classes: [\"true\", \"false\"]",
+                "modelName: \"OLLAMA3\"",
                 "ollamaEndpoint: \"http://localhost:8000\""
             }
         )

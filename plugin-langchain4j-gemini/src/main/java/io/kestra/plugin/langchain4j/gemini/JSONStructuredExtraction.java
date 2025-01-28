@@ -30,10 +30,13 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Structured Extraction Example",
+            full = true,
             code = {
-                "fields: [\"name\", \"date\"]",
-                "prompt: \"Hello, my name is John\"",
-                "model: \"gemini-1.5-flash\""
+                "jsonFields: [\"name\", \"City\"]",
+                "schemaName: Person",
+                "prompt: \"Hello, my name is John, I live in Paris\"",
+                "apiKey: \"your-gemini-api-key\"",
+                "modelName: \"GEMINI_1_5_FLASH\""
             }
         )
     }

@@ -28,9 +28,13 @@ import lombok.experimental.SuperBuilder;
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
+            title = "Classification Example",
+            full = true,
             code = {
                 "prompt: \"What is the capital of France?\"",
-                "classes: [\"Paris\", \"London\", \"Berlin\"]"
+                "classes: [\"Paris\", \"London\", \"Berlin\"]",
+                "apiKey: \"your-gemini-api-key\"",
+                "modelName: \"GEMINI_1_5_FLASH\""
             }
         )
     }

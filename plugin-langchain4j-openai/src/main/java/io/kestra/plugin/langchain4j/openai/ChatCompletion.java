@@ -26,10 +26,15 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Chat Memory Example",
+            full = true,
             code = {
-                "userMessage: \"Hello, my name is John\"",
+                "Messages: [",
+                "  { \"type\": \"USER\", \"content\": \"Hello, my name is John\" },",
+                "  { \"type\": \"AI\", \"content\": \"Welcome John, how can I assist you today?\" },",
+                "  { \"type\": \"USER\", \"content\": \"I need help with my account\" }",
+                "]",
                 "apikey: \"your-openai-api-key\"",
-                "modelName: \"gpt-4\""
+                "modelName: \"GPT_4_O_MINI\""
             }
         )
     }

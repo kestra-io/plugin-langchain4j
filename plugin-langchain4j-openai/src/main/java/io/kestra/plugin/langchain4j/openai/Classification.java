@@ -25,10 +25,12 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Classification Example",
+            full = true,
             code = {
                 "prompt: \"Is 'This is a joke' a good joke?\"",
                 "classes: [\"true\", \"false\"]",
-                "model: \"gpt-4\""
+                "apikey: \"your-openai-api-key\"",
+                "modelName: \"GPT_4_O_MINI\""
             }
         )
     }

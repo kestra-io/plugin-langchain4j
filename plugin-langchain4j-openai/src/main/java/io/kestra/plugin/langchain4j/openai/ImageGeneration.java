@@ -27,10 +27,13 @@ import lombok.experimental.SuperBuilder;
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Image generation Example",
+            title = "Image Generation Example",
+            full = true,
             code = {
-                "prompt: \"Donald Duck in New York, cartoon style\"",
-                "model: \"dall-e-3\""
+                "prompt: \"A beautiful sunset over mountains\"",
+                "apiKey: \"your-openai-api-key\"",
+                "modelName: \"DALL_E_2\"",
+                "apiUrl: \"https://api.openai.com/v1\"",
             }
         )
     }

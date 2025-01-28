@@ -38,7 +38,7 @@ class ChatCompletionTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH,
-            "chatMessagesInput", List.of(ChatMessageDTO.builder().type(ChatType.USER)
+            "messages", List.of(ChatMessageDTO.builder().type(ChatType.USER)
                 .content("Hello, my name is John")
                 .build())
         ));
@@ -46,7 +46,7 @@ class ChatCompletionTest {
         ChatCompletion firstTask = ChatCompletion.builder()
             .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
-            .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
+            .messages(new Property<>("{{ messages }}"))
             .build();
 
         // WHEN: Run the first task
@@ -65,13 +65,13 @@ class ChatCompletionTest {
         runContext = runContextFactory.of(Map.of(
             "apiKey", apikeyTest,
             "modelName", GeminiModel.GEMINI_1_5_FLASH,
-            "chatMessagesInput", updatedMessages // Pass updated messages
+            "messages", updatedMessages // Pass updated messages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
-            .chatMessagesInput(new Property<>("{{ chatMessagesInput }}"))
+            .messages(new Property<>("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task

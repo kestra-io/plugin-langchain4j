@@ -22,13 +22,16 @@ import lombok.experimental.SuperBuilder;
     title = "Google Gemini Text Completion Task",
     description = "Generates text completion using Google Gemini models"
 )
+
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Text Completion Example",
+            full = true,
             code = {
                 "prompt: \"What is the capital of France?\"",
-                "apiKey: \"gemini-api-key\""
+                "apiKey: \"your-gemini-api-key\"",
+                "modelName: \"GEMINI_1_5_FLASH\""
             }
         )
     }
