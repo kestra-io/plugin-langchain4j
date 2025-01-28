@@ -38,7 +38,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
         title = "Chat Messages",
         description = "The list of chat messages for the current conversation"
     )
-    protected Property<List<ChatMessageDTO>> chatMessagesInput;
+    protected Property<List<ChatMessageDTO>> messages;
 
     @Override
     public AbstractChatCompletion.Output run(RunContext runContext) throws Exception {
@@ -48,7 +48,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
         String renderedApiKey = runContext.render(apiKey).as(String.class).orElseThrow();
 
         // Render existing messages
-        List<ChatMessageDTO> renderedChatMessagesInput = runContext.render(chatMessagesInput).asList(ChatMessageDTO.class);
+        List<ChatMessageDTO> renderedChatMessagesInput = runContext.render(messages).asList(ChatMessageDTO.class);
 
         // Initialize ChatMemory
         List<ChatMessage> chatMessages = convertFromDTOs(renderedChatMessagesInput);

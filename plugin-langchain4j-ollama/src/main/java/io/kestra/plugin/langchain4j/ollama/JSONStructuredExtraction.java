@@ -25,9 +25,12 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Structured Extraction Example",
+            full = true,
             code = {
-                "fields: [\"location\", \"temperature\"]",
-                "prompt: \"In Paris, it's 20 degrees Celsius.\"",
+                "jsonFields: [\"name\", \"City\"]",
+                "schemaName: Person",
+                "prompt: \"Hello, my name is John, I live in Paris\"",
+                "modelName: \"OLLAMA3\"",
                 "ollamaEndpoint: \"http://localhost:11434\""
             }
         )

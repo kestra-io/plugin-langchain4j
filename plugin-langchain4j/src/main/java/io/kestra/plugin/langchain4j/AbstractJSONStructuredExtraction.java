@@ -78,7 +78,7 @@ public abstract class AbstractJSONStructuredExtraction extends Task implements R
 
         // Generate response
         ChatResponse answer = model.chat(chatRequest);
-        logger.info("Generated Completion!");
+        logger.info("Generation Complete!");
 
         return Output.builder()
             .result(answer.aiMessage().text())

@@ -26,8 +26,10 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Text Completion Example",
+            full = true,
             code = {
                 "prompt: \"What is the capital of France?\"",
+                "modelName: \"OLLAMA3\"",
                 "ollamaEndpoint: \"http://localhost:8000\""
             }
         )

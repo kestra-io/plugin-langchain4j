@@ -25,10 +25,13 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Structured Extraction Example",
+            full = true,
             code = {
-                "fields: [\"name\", \"date\"]",
-                "prompt: \"Hello, my name is John\"",
-                "model: \"gpt-4o-mini\""
+                "jsonFields: [\"name\", \"City\"]",
+                "schemaName: Person",
+                "prompt: \"Hello, my name is John, I live in Paris\"",
+                "apiKey: \"your-openai-api-key\"",
+                "modelName: \"GPT_4_O_MINI\""
             }
         )
     }

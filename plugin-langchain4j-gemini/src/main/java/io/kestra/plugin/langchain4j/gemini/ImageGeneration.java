@@ -25,11 +25,14 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Image Generation Example",
+            full = true,
             code = {
                 "prompt: \"A beautiful sunset over mountains\"",
                 "apiKey: \"gemini-api-key\"",
-                "width: 1024",
-                "height: 1024"
+                "modelName: \"imagegeneration@002\"",
+                "projectId: \"your-google-project-id\"",
+                "location: \"us-central1\"",
+                "apiUrl: \"https://us-central1-aiplatform.googleapis.com/v1/\"",
             }
         )
     }

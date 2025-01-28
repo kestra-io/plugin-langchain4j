@@ -29,10 +29,15 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Chat Memory Example",
+            full = true,
             code = {
-                "userMessage: \"Hello, my name is John\"",
-                "apikey: \"your-gemini-api-key\"",
-                "modelName: \"gemini-1.5\""
+                "Messages: [",
+                "  { \"type\": \"USER\", \"content\": \"Hello, my name is John\" },",
+                "  { \"type\": \"AI\", \"content\": \"Welcome John, how can I assist you today?\" },",
+                "  { \"type\": \"USER\", \"content\": \"I need help with my account\" }",
+                "]",
+                "apiKey: \"your-gemini-api-key\"",
+                "modelName: \"GEMINI_1_5_FLASH\""
             }
         )
     }
