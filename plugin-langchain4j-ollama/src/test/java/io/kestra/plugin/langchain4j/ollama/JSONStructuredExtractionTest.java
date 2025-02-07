@@ -5,7 +5,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.ollama.enums.EOllamaModel;
 import io.kestra.plugin.langchain4j.ollama.ollama.OllamaContainerTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ class JSONStructuredExtractionTest extends OllamaContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "In Paris France, it's 20 degrees Celsius.",
             "ollamaEndpoint", ollamaEndpoint,
-            "modelName", EOllamaModel.TINY_DOLPHIN,
+            "modelName", "tinydolphin",
             "jsonFields", jsonFields,
             "schemaName", "WeatherInfo"
         ));

@@ -1,6 +1,5 @@
 package io.kestra.plugin.langchain4j.openai;
 
-import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -31,7 +30,7 @@ class ClassificationTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "apiKey", "demo",
             "classes", List.of("true", "false"),
-            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name()
+            "modelName", "gpt-4o-mini"
         ));
 
         Classification task = Classification.builder()

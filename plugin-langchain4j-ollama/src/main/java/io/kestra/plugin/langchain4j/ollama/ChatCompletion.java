@@ -6,10 +6,13 @@ import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.AbstractTextCompletion;
+import io.kestra.plugin.langchain4j.AbstractChatCompletion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
@@ -18,31 +21,46 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Ollama Text Completion Task",
-    description = "Generates text completion using Ollama models"
+    title = "Ollama Chat Memory Task",
+    description = "Handles chat interactions with memory using Ollama models"
 )
+
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Text Completion Example",
+            title = "Chat Memory Example",
             full = true,
             code = {
                 """
-                id: ollama_text_completion
+                id: ollama_chat_completion
                 namespace: company.team
 
                 task:
-                    id: text_completion
-                    prompt: What is the capital of France?
+                    id: chat_completion
                     modelName: llama3
                     ollamaEndpoint: http://localhost:11434
+                    Messages:
+                      - type: USER
+                        content: Hello, my name is John
+                      - type: AI
+                        content: Welcome John, how can I assist you today?
+                      - type: USER
+                        content: I need help with my account
                 """
             }
         )
     }
 )
 
-public class TextCompletion extends AbstractTextCompletion {
+public class ChatCompletion extends AbstractChatCompletion {
+
+    @Schema(
+        title = "Ollama Model Name",
+        description = "Name of the Ollama model to use"
+    )
+    @NotNull
+    private Property<String> modelName;
+
 
     @Schema(
         title = "Ollama Endpoint",
@@ -51,23 +69,19 @@ public class TextCompletion extends AbstractTextCompletion {
     @NotNull
     private Property<String> ollamaEndpoint;
 
-    @Schema(
-        title = "Ollama Model Name",
-        description = "The Ollama model to use"
-    )
-    @NotNull
-    private Property<String> modelName;
-
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
+
         String renderedUrl = runContext.render(ollamaEndpoint).as(String.class).orElseThrow();
-        String renderedModelName = runContext.render(modelName).as(String.class).orElseThrow();
+        String renderedModelName= runContext.render(modelName).as(String.class).orElseThrow();
 
         return OllamaChatModel.builder()
             .baseUrl(renderedUrl)
+            .modelName(renderedModelName)
             .logRequests(true)
             .logResponses(true)
-            .modelName(renderedModelName)
             .build();
     }
+
 }
+

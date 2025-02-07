@@ -1,13 +1,12 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.dto.ChatMessageDTO;
+import io.kestra.plugin.langchain4j.dto.ChatMessage;
 import io.kestra.plugin.langchain4j.enums.ChatType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -27,39 +26,28 @@ import static io.kestra.plugin.langchain4j.utils.LLMUtility.convertFromDTOs;
 public abstract class AbstractChatCompletion extends Task implements RunnableTask<AbstractChatCompletion.Output> {
 
     @Schema(
-        title = "API Key",
-        description = "API key for the language model"
-    )
-    @NotNull
-    public Property<String> apiKey;
-
-
-    @Schema(
         title = "Chat Messages",
         description = "The list of chat messages for the current conversation"
     )
-    protected Property<List<ChatMessageDTO>> messages;
+    @NotNull
+    protected Property<List<ChatMessage>> messages;
 
     @Override
     public AbstractChatCompletion.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
-
-        // Render input properties
-        String renderedApiKey = runContext.render(apiKey).as(String.class).orElseThrow();
-
         // Render existing messages
-        List<ChatMessageDTO> renderedChatMessagesInput = runContext.render(messages).asList(ChatMessageDTO.class);
+        List<ChatMessage> renderedChatMessagesInput = runContext.render(messages).asList(ChatMessage.class);
 
         // Initialize ChatMemory
-        List<ChatMessage> chatMessages = convertFromDTOs(renderedChatMessagesInput);
+        List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertFromDTOs(renderedChatMessagesInput);
 
         // Generate AI response
-        ChatLanguageModel model = createModel(runContext, renderedApiKey);
+        ChatLanguageModel model = createModel(runContext);
         AiMessage aiResponse = model.generate(chatMessages).content();
         logger.info("AI Response: {}", aiResponse.text());
 
         // Add AI response to memory
-        renderedChatMessagesInput.add(ChatMessageDTO.builder()
+        renderedChatMessagesInput.add(ChatMessage.builder()
                 .type(ChatType.AI)
                 .content(aiResponse.text())
             .build());
@@ -71,7 +59,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
             .build();
     }
 
-    protected abstract ChatLanguageModel createModel(RunContext runContext, String apiKey) throws Exception;
+    protected abstract ChatLanguageModel createModel(RunContext runContext) throws Exception;
 
 
     @Builder
@@ -87,7 +75,7 @@ public abstract class AbstractChatCompletion extends Task implements RunnableTas
             title = "Updated Messages",
             description = "The updated list of messages after the current interaction"
         )
-        private final List<ChatMessageDTO> outputMessages;
+        private final List<ChatMessage> outputMessages;
     }
 
 

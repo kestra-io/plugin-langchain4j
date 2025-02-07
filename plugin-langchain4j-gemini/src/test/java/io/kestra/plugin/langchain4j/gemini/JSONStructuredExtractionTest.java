@@ -5,7 +5,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.micronaut.context.annotation.Value;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ class JSONStructuredExtractionTest {
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
             "apiKey", apikeyTest,
-            "modelName", GeminiModel.GEMINI_1_5_FLASH
+            "modelName", "gemini-1.5-flash"
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()

@@ -25,20 +25,29 @@ import lombok.experimental.SuperBuilder;
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Chat Memory Example",
+            title = "Chat Completion Example",
             full = true,
             code = {
-                "Messages: [",
-                "  { \"type\": \"USER\", \"content\": \"Hello, my name is John\" },",
-                "  { \"type\": \"AI\", \"content\": \"Welcome John, how can I assist you today?\" },",
-                "  { \"type\": \"USER\", \"content\": \"I need help with my account\" }",
-                "]",
-                "apikey: \"your-openai-api-key\"",
-                "modelName: \"GPT_4_O_MINI\""
+                """
+                id: openai_chat_memory
+                namespace: company.team
+                task:
+                    id: chat_memory
+                    apikey: your_openai_api_key
+                    modelName: gpt-4o-mini
+                    Messages:
+                      - type: USER
+                        content: Hello, my name is John
+                      - type: AI
+                        content: Welcome John, how can I assist you today?
+                      - type: USER
+                        content: I need help with my account
+                """
             }
         )
     }
 )
+
 public class ChatCompletion extends AbstractChatCompletion {
 
     @Schema(
@@ -46,18 +55,26 @@ public class ChatCompletion extends AbstractChatCompletion {
         description = "OpenAI model name"
     )
     @NotNull
-    private Property<OpenAiChatModelName> modelName;
+    private Property<String> modelName;
+
+    @Schema(
+        title = "API Key",
+        description = "API key for the language model"
+    )
+    @NotNull
+    public Property<String> apiKey;
 
     @Override
-    protected ChatLanguageModel createModel(RunContext runContext, String apiKey) throws Exception {
+    protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
+        String renderedApiKey = runContext.render(apiKey).as(String.class).orElseThrow();
 
         return OpenAiChatModel.builder()
-            .apiKey(apiKey)
+            .apiKey(renderedApiKey)
             .modelName(renderModelName(runContext))
             .build();
     }
 
-    private OpenAiChatModelName renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(modelName).as(OpenAiChatModelName.class).orElseThrow();
+    private String renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
+        return runContext.render(modelName).as(String.class).orElseThrow();
     }
 }

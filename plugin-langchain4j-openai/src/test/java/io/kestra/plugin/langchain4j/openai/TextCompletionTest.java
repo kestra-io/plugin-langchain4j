@@ -1,6 +1,5 @@
 package io.kestra.plugin.langchain4j.openai;
 
-import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -27,7 +26,7 @@ public class TextCompletionTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
             "apiKey", "demo",
-            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name()
+            "modelName", "gpt-4o-mini"
         ));
 
         TextCompletion task = TextCompletion.builder()

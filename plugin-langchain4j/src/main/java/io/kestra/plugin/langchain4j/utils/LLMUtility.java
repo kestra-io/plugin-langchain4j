@@ -1,9 +1,8 @@
 package io.kestra.plugin.langchain4j.utils;
 
 import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
-import io.kestra.plugin.langchain4j.dto.ChatMessageDTO;
+import io.kestra.plugin.langchain4j.dto.ChatMessage;
 import io.kestra.plugin.langchain4j.enums.ChatType;
 import lombok.experimental.UtilityClass;
 
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class LLMUtility {
 
-    public static List<ChatMessage> convertFromDTOs(List<ChatMessageDTO> dtos) {
+    public static List<dev.langchain4j.data.message.ChatMessage> convertFromDTOs(List<ChatMessage> dtos) {
         return dtos.stream()
             .map(dto -> {
                 if (ChatType.USER.equals(dto.type())) {

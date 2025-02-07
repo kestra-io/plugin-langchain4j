@@ -4,7 +4,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.micronaut.context.annotation.Value;
 import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
@@ -32,7 +31,7 @@ public class TextCompletionTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
             "apiKey", apikeyTest,
-            "modelName", GeminiModel.GEMINI_1_5_FLASH
+            "modelName", "gemini-1.5-flash"
         ));
 
         TextCompletion task = TextCompletion.builder()
