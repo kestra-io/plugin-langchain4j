@@ -2,7 +2,6 @@ package io.kestra.plugin.langchain4j.openai;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import dev.langchain4j.model.openai.OpenAiImageModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -55,7 +54,7 @@ class ImageGenerationTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Donald Duck in New York, cartoon style",
             "apiKey", "demo",
-            "modelName", OpenAiImageModelName.DALL_E_3.name(),
+            "modelName", "dall-e-3",
             "apiUrl", "http://localhost:" + wireMockServer.port() +"/v1"
         ));
 

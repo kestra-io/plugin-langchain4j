@@ -27,15 +27,25 @@ import lombok.experimental.SuperBuilder;
             title = "Structured Extraction Example",
             full = true,
             code = {
-                "jsonFields: [\"name\", \"City\"]",
-                "schemaName: Person",
-                "prompt: \"Hello, my name is John, I live in Paris\"",
-                "apiKey: \"your-openai-api-key\"",
-                "modelName: \"GPT_4_O_MINI\""
+                """
+                id: openai_structured_extraction
+                namespace: company.team
+
+                task:
+                    id: structured_extraction
+                    jsonFields:
+                      - name
+                      - City
+                    schemaName: Person
+                    prompt: Hello, my name is John, I live in Paris
+                    apiKey: your_openai_api_key
+                    modelName: gpt-4o-mini
+                """
             }
         )
     }
 )
+
 public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
     @Schema(
@@ -43,7 +53,7 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
         description = "The OpenAI model to use"
     )
     @NotNull
-    private Property<OpenAiChatModelName> modelName;
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -54,7 +64,7 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
-        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class).orElseThrow();
+        String renderedModelName = runContext.render(modelName).as(String.class).orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
         return OpenAiChatModel.builder()

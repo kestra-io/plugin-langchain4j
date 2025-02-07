@@ -30,14 +30,21 @@ import lombok.experimental.SuperBuilder;
             title = "Image Generation Example",
             full = true,
             code = {
-                "prompt: \"A beautiful sunset over mountains\"",
-                "apiKey: \"your-openai-api-key\"",
-                "modelName: \"DALL_E_2\"",
-                "apiUrl: \"https://api.openai.com/v1\"",
+                """
+                id: openai_image_generation
+                namespace: company.team
+
+                task:
+                    id: image_generation
+                    prompt: A beautiful sunset over mountains
+                    apiKey: your_openai_api_key
+                    modelName: dall-e-2
+                """
             }
         )
     }
 )
+
 public class ImageGeneration extends AbstractImageGeneration {
 
     @Schema(
@@ -45,7 +52,7 @@ public class ImageGeneration extends AbstractImageGeneration {
         description = "OpenAi image generation model name"
     )
     @NotNull
-    private Property<OpenAiImageModelName> modelName = Property.of(OpenAiImageModelName.DALL_E_3);
+    private Property<String> modelName;
 
 
     @Schema(
@@ -58,7 +65,7 @@ public class ImageGeneration extends AbstractImageGeneration {
 
     @Override
     protected ImageModel createModel(RunContext runContext, String apiUrl) throws IllegalVariableEvaluationException {
-        OpenAiImageModelName renderedModelName = runContext.render(modelName).as(OpenAiImageModelName.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();

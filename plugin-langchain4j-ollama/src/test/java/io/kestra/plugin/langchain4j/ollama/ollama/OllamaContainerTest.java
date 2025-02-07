@@ -1,6 +1,5 @@
 package io.kestra.plugin.langchain4j.ollama.ollama;
 
-import io.kestra.plugin.langchain4j.ollama.enums.EOllamaModel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -33,7 +32,7 @@ public class OllamaContainerTest {
         ollamaEndpoint = "http://" + ollamaContainer.getHost() + ":" + ollamaContainer.getMappedPort(11434);
 
         // Pull a lightweight model for testing
-        ollamaContainer.execInContainer("ollama", "pull", EOllamaModel.TINY_DOLPHIN.getName());
+        ollamaContainer.execInContainer("ollama", "pull", "tinydolphin");
     }
 
 

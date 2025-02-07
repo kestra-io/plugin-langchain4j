@@ -7,7 +7,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractChatCompletion;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -31,13 +30,21 @@ import lombok.experimental.SuperBuilder;
             title = "Chat Memory Example",
             full = true,
             code = {
-                "Messages: [",
-                "  { \"type\": \"USER\", \"content\": \"Hello, my name is John\" },",
-                "  { \"type\": \"AI\", \"content\": \"Welcome John, how can I assist you today?\" },",
-                "  { \"type\": \"USER\", \"content\": \"I need help with my account\" }",
-                "]",
-                "apiKey: \"your-gemini-api-key\"",
-                "modelName: \"GEMINI_1_5_FLASH\""
+                """
+                id: gemini_chat_completion
+                namespace: company.team
+                task:
+                    id: chat_completion
+                    apiKey: your_gemini_api_key
+                    modelName: gemini-1.5-flash
+                    Messages:
+                      - type: USER
+                        content: What is the capital of France?
+                      - type: AI
+                        content: The capital of France is Paris.
+                      - type: USER
+                        content: Can you also tell me its population?
+                """
             }
         )
     }
@@ -49,20 +56,29 @@ public class ChatCompletion extends AbstractChatCompletion {
         description = "Name of the Gemini model to use"
     )
     @NotNull
-    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
+    private Property<String> modelName;
+
+    @Schema(
+        title = "API Key",
+        description = "API key for the language model"
+    )
+    @NotNull
+    public Property<String> apiKey;
+
 
     @Override
-    protected ChatLanguageModel createModel(RunContext runContext, String apiKey) throws IllegalVariableEvaluationException {
+    protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
+        String renderedApiKey = runContext.render(apiKey).as(String.class).orElseThrow();
 
         return GoogleAiGeminiChatModel.builder()
-            .apiKey(apiKey)
-            .modelName(renderModelName(runContext).getName())
+            .apiKey(renderedApiKey)
+            .modelName(renderModelName(runContext))
             .logRequestsAndResponses(true)
             .build();
     }
 
-    private GeminiModel renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(modelName).as(GeminiModel.class).orElseThrow();
+    private String renderModelName (RunContext runContext) throws IllegalVariableEvaluationException {
+        return runContext.render(modelName).as(String.class).orElseThrow();
     }
 }
 

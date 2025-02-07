@@ -7,7 +7,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractJSONStructuredExtraction;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -32,15 +31,22 @@ import lombok.experimental.SuperBuilder;
             title = "Structured Extraction Example",
             full = true,
             code = {
-                "jsonFields: [\"name\", \"City\"]",
-                "schemaName: Person",
-                "prompt: \"Hello, my name is John, I live in Paris\"",
-                "apiKey: \"your-gemini-api-key\"",
-                "modelName: \"GEMINI_1_5_FLASH\""
+                """
+                id: gemini_json_structured_extraction
+                namespace: company.team
+                task:
+                    id: json_structured_extraction
+                    prompt: Hello, my name is John, I live in Paris
+                    jsonFields: [name, City]
+                    schemaName: Person
+                    apiKey: your-gemini-api-key
+                    modelName: gemini-1.5-flash
+                """
             }
         )
     }
 )
+
 public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
 
@@ -49,7 +55,7 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
         description = "Gemini-specific model configuration"
     )
     @NotNull
-    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -60,14 +66,14 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        GeminiModel renderedModelName = runContext.render(modelName).as(GeminiModel.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
 
         return GoogleAiGeminiChatModel.builder()
             .apiKey(renderedApiKey)
-            .modelName(renderedModelName.getName())
+            .modelName(renderedModelName)
             .build();
     }
 }

@@ -29,20 +29,28 @@ import lombok.experimental.SuperBuilder;
             title = "Text Completion Example",
             full = true,
             code = {
-                "prompt: \"What is the capital of France?\"",
-                "apiKey: \"your-openai-api-key\"",
-                "modelName: \"gpt-4\""
+                """
+                id: openai_text_completion
+                namespace: company.team
+
+                task:
+                    id: text_completion
+                    prompt: What is the capital of France?
+                    apiKey: your_openai_api_key
+                    modelName: gpt-4o-mini
+                """
             }
         )
     }
 )
+
 public class TextCompletion extends AbstractTextCompletion {
     @Schema(
         title = "OpenAI Model",
         description = "OpenAI model name"
     )
     @NotNull
-    private Property<OpenAiChatModelName> modelName;
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -53,7 +61,7 @@ public class TextCompletion extends AbstractTextCompletion {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
 
         String renderedApiKey = runContext.render(apiKey).as(String.class)

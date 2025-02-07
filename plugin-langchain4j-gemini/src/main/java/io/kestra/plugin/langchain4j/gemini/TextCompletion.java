@@ -7,7 +7,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractTextCompletion;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,9 +28,15 @@ import lombok.experimental.SuperBuilder;
             title = "Text Completion Example",
             full = true,
             code = {
-                "prompt: \"What is the capital of France?\"",
-                "apiKey: \"your-gemini-api-key\"",
-                "modelName: \"GEMINI_1_5_FLASH\""
+                """
+                id: gemini_text_completion
+                namespace: company.team
+                task:
+                    id: text_completion
+                    prompt: What is the capital of France?
+                    apiKey: your_gemini_api_key
+                    modelName: gemini-1.5-flash
+                """
             }
         )
     }
@@ -42,7 +47,7 @@ public class TextCompletion extends AbstractTextCompletion {
         description = "Gemini-specific model configuration"
     )
     @NotNull
-    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -53,13 +58,13 @@ public class TextCompletion extends AbstractTextCompletion {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        GeminiModel renderedModelName = runContext.render(modelName).as(GeminiModel.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();
         return GoogleAiGeminiChatModel.builder()
             .apiKey(renderedApiKey)
-            .modelName(renderedModelName.getName())
+            .modelName(renderedModelName)
             .build();
     }
 }

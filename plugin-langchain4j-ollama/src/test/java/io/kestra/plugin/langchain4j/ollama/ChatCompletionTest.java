@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.gemini;
+package io.kestra.plugin.langchain4j.ollama;
 
 
 import io.kestra.core.junit.annotations.KestraTest;
@@ -7,10 +7,10 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.dto.ChatMessage;
 import io.kestra.plugin.langchain4j.enums.ChatType;
-import io.micronaut.context.annotation.Value;
+import io.kestra.plugin.langchain4j.ollama.ollama.OllamaContainerTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
@@ -22,29 +22,26 @@ import static org.hamcrest.Matchers.is;
  * Unit test for ChatCompletion
  */
 @KestraTest
-class ChatCompletionTest {
+class ChatCompletionTest extends OllamaContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
 
-    @Inject
-    @Value("${kestra.gemini.apikey}")
-    private String apikeyTest;
 
     @Test
     void run() throws Exception {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", apikeyTest,
-            "modelName", "gemini-1.5-flash",
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
             "messages", List.of(ChatMessage.builder().type(ChatType.USER)
                 .content("Hello, my name is John")
                 .build())
         ));
 
         ChatCompletion firstTask = ChatCompletion.builder()
-            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
+            .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .messages(new Property<>("{{ messages }}"))
             .build();
 
@@ -62,14 +59,14 @@ class ChatCompletionTest {
             .build());
 
         runContext = runContextFactory.of(Map.of(
-            "apiKey", apikeyTest,
-            "modelName", "gemini-1.5-flash",
-            "messages", updatedMessages // Pass updated messages
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
+            "messages", updatedMessages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .apiKey(new Property<>("{{ apiKey }}"))
             .modelName(new Property<>("{{ modelName }}"))
+            .ollamaEndpoint(new Property<>("{{ ollamaEndpoint }}"))
             .messages(new Property<>("{{ messages }}"))
             .build();
 

@@ -7,7 +7,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractTextClassification;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -31,10 +30,19 @@ import lombok.experimental.SuperBuilder;
             title = "Classification Example",
             full = true,
             code = {
-                "prompt: \"What is the capital of France?\"",
-                "classes: [\"Paris\", \"London\", \"Berlin\"]",
-                "apiKey: \"your-gemini-api-key\"",
-                "modelName: \"GEMINI_1_5_FLASH\""
+                """
+                id: gemini_classification
+                namespace: company.team
+                task:
+                    id: classification
+                    apiKey: your_gemini_api_key
+                    modelName: gemini-1.5-flash
+                    prompt: What is the capital of France?
+                    classes:
+                      - Paris
+                      - London
+                      - Berlin
+                """
             }
         )
     }
@@ -46,7 +54,7 @@ public class Classification extends AbstractTextClassification {
         description = "Gemini-specific model configuration"
     )
     @NotNull
-    private Property<GeminiModel> modelName= Property.of(GeminiModel.GEMINI_1_5_FLASH);
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -57,7 +65,7 @@ public class Classification extends AbstractTextClassification {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        GeminiModel renderedModelName = runContext.render(modelName).as(GeminiModel.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
 
         String renderedApiKey = runContext.render(apiKey).as(String.class)
@@ -65,7 +73,7 @@ public class Classification extends AbstractTextClassification {
 
         return GoogleAiGeminiChatModel.builder()
             .apiKey(renderedApiKey)
-            .modelName(renderedModelName.getName())
+            .modelName(renderedModelName)
             .build();
     }
 }

@@ -27,14 +27,24 @@ import lombok.experimental.SuperBuilder;
             title = "Classification Example",
             full = true,
             code = {
-                "prompt: \"Is 'This is a joke' a good joke?\"",
-                "classes: [\"true\", \"false\"]",
-                "apikey: \"your-openai-api-key\"",
-                "modelName: \"GPT_4_O_MINI\""
+                """
+                id: openai_classification
+                namespace: company.team
+
+                task:
+                    id: classification
+                    prompt: Is 'This is a joke' a good joke?
+                    classes:
+                      - true
+                      - false
+                    apikey: your_openai_api_key
+                    modelName: gpt-4o-mini
+                """
             }
         )
     }
 )
+
 public class Classification extends AbstractTextClassification {
 
     @Schema(
@@ -42,7 +52,7 @@ public class Classification extends AbstractTextClassification {
         description = "The OpenAI model to use"
     )
     @NotNull
-    private Property<OpenAiChatModelName> modelName;
+    private Property<String> modelName;
 
     @Schema(
         title = "API Key",
@@ -53,7 +63,7 @@ public class Classification extends AbstractTextClassification {
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
-        OpenAiChatModelName renderedModelName = runContext.render(modelName).as(OpenAiChatModelName.class)
+        String renderedModelName = runContext.render(modelName).as(String.class)
             .orElseThrow();
         String renderedApiKey = runContext.render(apiKey).as(String.class)
             .orElseThrow();

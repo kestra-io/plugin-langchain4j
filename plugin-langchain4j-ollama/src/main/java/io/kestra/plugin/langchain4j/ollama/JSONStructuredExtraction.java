@@ -6,7 +6,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractJSONStructuredExtraction;
-import io.kestra.plugin.langchain4j.ollama.enums.EOllamaModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -24,18 +23,28 @@ import lombok.experimental.SuperBuilder;
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Structured Extraction Example",
+            title = "Json Structured Extraction Example",
             full = true,
             code = {
-                "jsonFields: [\"name\", \"City\"]",
-                "schemaName: Person",
-                "prompt: \"Hello, my name is John, I live in Paris\"",
-                "modelName: \"OLLAMA3\"",
-                "ollamaEndpoint: \"http://localhost:11434\""
+                """
+                id: ollama_json_structured_extraction
+                namespace: company.team
+
+                task:
+                    id: json_structured_extraction
+                    jsonFields:
+                      - name
+                      - City
+                    schemaName: Person
+                    prompt: Hello, my name is John, I live in Paris
+                    modelName: llama3
+                    ollamaEndpoint: http://localhost:11434
+                """
             }
         )
     }
 )
+
 public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
 
     @Schema(
@@ -50,16 +59,16 @@ public class JSONStructuredExtraction extends AbstractJSONStructuredExtraction {
         description = "The Ollama model to use"
     )
     @NotNull
-    private Property<EOllamaModel> modelName = Property.of(EOllamaModel.OLLAMA3_3);
+    private Property<String> modelName;
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
         String renderedEndpoint = runContext.render(ollamaEndpoint).as(String.class).orElseThrow();
-        EOllamaModel renderedModelName = runContext.render(modelName).as(EOllamaModel.class).orElseThrow();
+        String renderedModelName = runContext.render(modelName).as(String.class).orElseThrow();
 
         return OllamaChatModel.builder()
             .baseUrl(renderedEndpoint)
-            .modelName(renderedModelName.getName())
+            .modelName(renderedModelName)
             .logRequests(true)
             .logResponses(true)
             .build();
