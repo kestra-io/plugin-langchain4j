@@ -1,11 +1,10 @@
 package io.kestra.plugin.langchain4j.openai;
 
-import dev.langchain4j.model.openai.OpenAiChatModelName;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.dto.ChatMessageDTO;
+import io.kestra.plugin.langchain4j.dto.ChatMessage;
 import io.kestra.plugin.langchain4j.enums.ChatType;
 import org.junit.jupiter.api.Test;
 
@@ -31,9 +30,9 @@ class ChatCompletionTest {
         // GIVEN: First prompt
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
-            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
+            "modelName", "gpt-4o-mini",
             "maxTokens", 1000,
-            "messages", List.of(ChatMessageDTO.builder().type(ChatType.USER)
+            "messages", List.of(ChatMessage.builder().type(ChatType.USER)
                 .content("Hello, my name is John")
                 .build())
         ));
@@ -49,17 +48,17 @@ class ChatCompletionTest {
 
         // THEN: Validate the first response
         assertThat(firstOutput.getOutputMessages().size(), is(2)); // User and AI response
-        List<ChatMessageDTO> updatedMessages = firstOutput.getOutputMessages();
+        List<ChatMessage> updatedMessages = firstOutput.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatMessageDTO.builder()
+        updatedMessages.add(ChatMessage.builder()
                 .type(ChatType.USER)
                 .content("What's my name?")
             .build());
 
         runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
-            "modelName", OpenAiChatModelName.GPT_4_O_MINI.name(),
+            "modelName", "gpt-4o-mini",
             "messages", updatedMessages // Pass updated messages
         ));
 

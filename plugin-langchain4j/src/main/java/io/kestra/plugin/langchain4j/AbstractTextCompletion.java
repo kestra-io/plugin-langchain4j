@@ -27,8 +27,6 @@ public abstract class AbstractTextCompletion extends Task implements RunnableTas
     @NotNull
     protected Property<String> prompt;
 
-
-
     @Override
     public AbstractTextCompletion.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();

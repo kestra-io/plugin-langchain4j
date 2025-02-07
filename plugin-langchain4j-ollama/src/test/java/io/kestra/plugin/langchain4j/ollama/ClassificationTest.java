@@ -4,7 +4,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.ollama.enums.EOllamaModel;
 import io.kestra.plugin.langchain4j.ollama.ollama.OllamaContainerTest;
 import jakarta.inject.Inject;
 
@@ -30,7 +29,7 @@ class ClassificationTest extends OllamaContainerTest {
 
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "modelName", EOllamaModel.TINY_DOLPHIN,
+            "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
             "classes", classes
         ));

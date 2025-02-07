@@ -6,7 +6,6 @@ import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.AbstractTextClassification;
-import io.kestra.plugin.langchain4j.ollama.enums.EOllamaModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,15 +24,26 @@ import lombok.experimental.SuperBuilder;
     examples = {
         @io.kestra.core.models.annotations.Example(
             title = "Classification Example",
+            full = true,
             code = {
-                "prompt: \"Is 'This is a joke' a good joke?\"",
-                "classes: [\"true\", \"false\"]",
-                "modelName: \"OLLAMA3\"",
-                "ollamaEndpoint: \"http://localhost:8000\""
+                """
+                id: ollama_classification
+                namespace: company.team
+
+                task:
+                    id: classification
+                    prompt: Is 'This is a joke' a good joke?
+                    classes:
+                      - true
+                      - false
+                    modelName: llama3
+                    ollamaEndpoint: http://localhost:11434
+                """
             }
         )
     }
 )
+
 public class Classification extends AbstractTextClassification {
 
     @Schema(
@@ -48,16 +58,16 @@ public class Classification extends AbstractTextClassification {
         description = "The Ollama model to use"
     )
     @NotNull
-    private Property<EOllamaModel> modelName = Property.of(EOllamaModel.OLLAMA3_3);
+    private Property<String> modelName;
 
     @Override
     protected ChatLanguageModel createModel(RunContext runContext) throws Exception {
         String renderedUrl = runContext.render(ollamaEndpoint).as(String.class).orElseThrow();
-        EOllamaModel renderedModelName= runContext.render(modelName).as(EOllamaModel.class).orElseThrow();
+        String renderedModelName= runContext.render(modelName).as(String.class).orElseThrow();
 
         return OllamaChatModel.builder()
             .baseUrl(renderedUrl)
-            .modelName(renderedModelName.getName())
+            .modelName(renderedModelName)
             .logRequests(true)
             .logResponses(true)
             .build();

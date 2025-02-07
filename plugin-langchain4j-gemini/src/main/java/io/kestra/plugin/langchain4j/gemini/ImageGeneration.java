@@ -21,22 +21,31 @@ import lombok.experimental.SuperBuilder;
     title = "Google Gemini Image Generation Task",
     description = "Generates images using Google Gemini models"
 )
+
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "Image Generation Example",
+            title = "Gemini Image Generation Example",
             full = true,
             code = {
-                "prompt: \"A beautiful sunset over mountains\"",
-                "apiKey: \"gemini-api-key\"",
-                "modelName: \"imagegeneration@002\"",
-                "projectId: \"your-google-project-id\"",
-                "location: \"us-central1\"",
-                "apiUrl: \"https://us-central1-aiplatform.googleapis.com/v1/\"",
+                """
+                id: gemini_image_generation
+                namespace: company.team
+                task:
+                    id: image_generation
+                    prompt: A beautiful sunset over mountains
+                    apiKey: gemini_api_key
+                    modelName: imagegeneration@002
+                    projectId: your_google_project_id
+                    location: us-central1
+                    apiUrl: https://us-central1-aiplatform.googleapis.com/v1/
+
+                """
             }
         )
     }
 )
+
 public class ImageGeneration extends AbstractImageGeneration {
 
     @Schema(

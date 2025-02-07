@@ -4,7 +4,6 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.gemini.enums.GeminiModel;
 import io.micronaut.context.annotation.Value;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +35,7 @@ class ClassificationTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
             "apiKey", apikeyTest,
-            "modelName", GeminiModel.GEMINI_1_5_FLASH
+            "modelName", "gemini-1.5-flash"
         ));
 
         Classification task = Classification.builder()
