@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.openai;
+package io.kestra.plugin.langchain4j.ollama;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
@@ -14,9 +14,10 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
-class TextCompletionOpenAITest {
+class TextCompletionTest extends OllamaContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -26,16 +27,16 @@ class TextCompletionOpenAITest {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "apiKey", "demo",
-            "modelName", "gpt-4o-mini"
+            "modelName", "tinydolphin",
+            "endpoint", ollamaEndpoint
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI)
-                .apiKey(new Property<>("{{ apiKey }}"))
+                .type(Provider.OLLAMA)
                 .modelName(new Property<>("{{ modelName }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -44,6 +45,7 @@ class TextCompletionOpenAITest {
         TextCompletion.Output runOutput = task.run(runContext);
 
         // THEN
+        assertThat(runOutput.getCompletion(), notNullValue());
         assertThat(runOutput.getCompletion().toLowerCase().contains("paris"), is(Boolean.TRUE));
     }
 }

@@ -4,20 +4,22 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.TextCompletion;
+import io.kestra.plugin.langchain4j.Classification;
 import io.kestra.plugin.langchain4j.model.Provider;
 import io.kestra.plugin.langchain4j.model.ProviderConfig;
 import io.micronaut.context.annotation.Value;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
-public class TextCompletionGeminiTest {
+class ClassificationTest {
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -29,13 +31,15 @@ public class TextCompletionGeminiTest {
     void run() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", "What is the capital of France?",
+            "prompt", "Is 'This is a joke' a good joke?",
+            "classes", List.of("true", "false"),
             "apiKey", apikeyTest,
             "modelName", "gemini-1.5-flash"
         ));
 
-        TextCompletion task = TextCompletion.builder()
+        Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
+            .classes(new Property<>("{{ classes }}"))
             .provider(ProviderConfig.builder()
                 .type(Provider.GOOGLE_GEMINI)
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -45,9 +49,10 @@ public class TextCompletionGeminiTest {
             .build();
 
         // WHEN
-        TextCompletion.Output runOutput = task.run(runContext);
+        Classification.Output runOutput = task.run(runContext);
 
         // THEN
-        assertThat(runOutput.getCompletion().toLowerCase().contains("paris"), is(Boolean.TRUE));
+        assertThat(runOutput.getClassification(), notNullValue());
+        assertThat(List.of("true", "false").contains(runOutput.getClassification().toLowerCase()), is(Boolean.TRUE));
     }
 }

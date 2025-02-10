@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
-class JSONStructuredExtractionOllamaTest extends OllamaContainerTest {
+class JSONStructuredExtractionTest extends OllamaContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
