@@ -1,11 +1,11 @@
-package io.kestra.plugin.langchain4j.ollama;
+package io.kestra.plugin.langchain4j;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public class OllamaContainerTest {
+public class ContainerTest {
 
     public static GenericContainer<?> ollamaContainer;
     public static String ollamaEndpoint;

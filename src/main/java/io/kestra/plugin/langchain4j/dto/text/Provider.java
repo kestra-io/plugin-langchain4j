@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.model;
+package io.kestra.plugin.langchain4j.dto.text;
 
 public enum Provider {
     GOOGLE_GEMINI,

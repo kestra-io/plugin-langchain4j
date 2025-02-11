@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.model;
+package io.kestra.plugin.langchain4j.dto.text;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.core.models.property.Property;

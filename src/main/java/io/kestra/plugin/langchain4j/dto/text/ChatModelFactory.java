@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.model;
+package io.kestra.plugin.langchain4j.dto.text;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;

@@ -1,13 +1,15 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import io.kestra.core.models.annotations.Example;
+import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.model.ChatModelFactory;
-import io.kestra.plugin.langchain4j.model.Provider;
-import io.kestra.plugin.langchain4j.model.ProviderConfig;
+import io.kestra.plugin.langchain4j.dto.text.ChatModelFactory;
+import io.kestra.plugin.langchain4j.dto.text.Provider;
+import io.kestra.plugin.langchain4j.dto.text.ProviderConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,7 +23,72 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Text Classification Task", description = "Classifies text using AI models (OpenAI, Ollama, Gemini).")
+@Schema(title = "Text Classification Task", description = "Classifies text using AI models")
+@Plugin(
+    examples = {
+        @Example(
+            title = "Text Classification using OpenAI",
+            full = true,
+            code = {
+                """
+                id: openai_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    prompt: "Is 'This is a joke' a good joke?"
+                    classes:
+                      - true
+                      - false
+                    provider:
+                        type: OPEN_AI
+                        apiKey: your_openai_api_key
+                        modelName: gpt-4o
+                """
+            }
+        ),
+        @Example(
+            title = "Text Classification using Ollama",
+            full = true,
+            code = {
+                """
+                id: ollama_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    prompt: "Is 'This is a joke' a good joke?"
+                    classes:
+                      - true
+                      - false
+                    provider:
+                        type: OLLAMA
+                        modelName: llama3
+                        endpoint: http://localhost:11434
+                """
+            }
+        ),
+        @Example(
+            title = "Text Classification using Gemini",
+            full = true,
+            code = {
+                """
+                id: gemini_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                    classes:
+                      - positive
+                      - negative
+                      - neutral
+                    provider:
+                        type: GOOGLE_GEMINI
+                        apiKey: your_gemini_api_key
+                        modelName: gemini-1.5-flash
+                """
+            }
+        )
+    }
+)
 public class Classification extends Task implements RunnableTask<Classification.Output> {
 
     @Schema(title = "Text prompt", description = "The input text to classify.")
