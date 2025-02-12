@@ -1,7 +1,8 @@
-package io.kestra.plugin.langchain4j.dto.image;
+package io.kestra.plugin.langchain4j.dto.embedding;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.kestra.core.models.property.Property;
+import io.kestra.plugin.langchain4j.dto.image.ProviderImage;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,11 +12,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Schema(title = "Provider Configuration", description = "Configuration settings for different providers")
-public class ProviderImageConfig {
+public class ProviderEmbeddingConfig {
 
     @Schema(title = "Provider Type", description = "Choose between OPENAI or GOOGLE_VERTEX")
     @NotNull
-    private ProviderImage type;
+    private ProviderEmbedding type;
 
     @Schema(title = "API Key", description = "API key for the provider (if required)")
     @NotNull
@@ -36,19 +37,4 @@ public class ProviderImageConfig {
 
     @Schema(title = "Google Vertex Publisher", description = "Publisher for Vertex AI (e.g., google)")
     private Property<String> publisher;
-
-    @Schema(
-            title = "The size of the generated images."
-    )
-    @Builder.Default
-    @NotNull
-    private Property<Size> size = Property.of(Size.LARGE);
-
-    @Schema(
-            title = "Whether to download the generated image",
-            description = "If enable, the generated image will be downloaded inside Kestra's internal storage. Else, the URL of the generated image will be available as task output."
-    )
-    @Builder.Default
-    @NotNull
-    private Property<Boolean> download = Property.of(Boolean.FALSE);
 }

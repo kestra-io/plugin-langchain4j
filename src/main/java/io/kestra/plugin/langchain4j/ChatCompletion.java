@@ -8,6 +8,8 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.langchain4j.dto.chat.ChatMessage;
+import io.kestra.plugin.langchain4j.dto.chat.ChatType;
 import io.kestra.plugin.langchain4j.dto.text.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +19,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
-import static io.kestra.plugin.langchain4j.utils.LLMUtility.convertFromDTOs;
+import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
 
 @SuperBuilder
 @ToString

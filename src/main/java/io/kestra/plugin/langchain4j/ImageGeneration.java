@@ -12,6 +12,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.dto.image.ImageModelFactory;
 import io.kestra.plugin.langchain4j.dto.image.ProviderImage;
 import io.kestra.plugin.langchain4j.dto.image.ProviderImageConfig;
+import io.kestra.plugin.langchain4j.dto.image.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -39,6 +40,8 @@ import org.slf4j.Logger;
                         type: OPENAI
                         apiKey: your_openai_api_key
                         modelName: dall-e-3
+                        size: LARGE
+                        download: false
                 """
             }
         ),
@@ -90,6 +93,8 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
         String renderedLocation = runContext.render(provider.getLocation()).as(String.class).orElse(null);
         String renderedEndpoint = runContext.render(provider.getEndpoint()).as(String.class).orElse(null);
         String renderedPublisher = runContext.render(provider.getPublisher()).as(String.class).orElse(null);
+        Boolean renderedDownload = runContext.render(provider.getDownload()).as(Boolean.class).orElse(false);
+        String renderedSize = runContext.render(provider.getSize()).as(Size.class).orElseThrow().getSize();
 
         // Get the model
         ImageModel model = ImageModelFactory.createModel(
@@ -99,7 +104,9 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
             renderedProjectId,
             renderedLocation,
             renderedEndpoint,
-            renderedPublisher
+            renderedPublisher,
+            renderedSize,
+            renderedDownload
         );
 
         Response<Image> imageUrl = model.generate(renderedPrompt);

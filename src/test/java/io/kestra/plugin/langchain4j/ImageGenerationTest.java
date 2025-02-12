@@ -2,14 +2,13 @@ package io.kestra.plugin.langchain4j;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.dto.image.ProviderImage;
 import io.kestra.plugin.langchain4j.dto.image.ProviderImageConfig;
-
+import io.kestra.plugin.langchain4j.dto.image.Size;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -47,29 +45,33 @@ public class ImageGenerationTest {
     void run() throws Exception {
         // Stub the OpenAI API response
         stubFor(post(urlEqualTo("/v1/images/generations"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"data\": [{\"url\": \"https://mock-image-url.com/image.png\"}]}")));
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"data\": [{\"url\": \"https://mock-image-url.com/image.png\"}]}")));
 
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
-            "prompt", "Donald Duck in New York, cartoon style",
-            "apiKey", "demo",
-            "modelName", "dall-e-3",
-            "endpoint", "http://localhost:" + wireMockServer.port() +"/v1"
+                "prompt", "Donald Duck in New York, cartoon style",
+                "apiKey", "demo",
+                "modelName", "dall-e-3",
+                "endpoint", "http://localhost:" + wireMockServer.port() + "/v1",
+                "size", Size.LARGE.name(),
+                "download", Boolean.FALSE
         ));
 
         ImageGeneration task = ImageGeneration.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .provider(ProviderImageConfig.builder()
-                .type(ProviderImage.OPENAI)
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
-                .build()
-            )
-            .build();
+                .prompt(new Property<>("{{ prompt }}"))
+                .provider(ProviderImageConfig.builder()
+                        .type(ProviderImage.OPENAI)
+                        .apiKey(new Property<>("{{ apiKey }}"))
+                        .modelName(new Property<>("{{ modelName }}"))
+                        .endpoint(new Property<>("{{ endpoint }}"))
+                        .size(new Property<>("{{ size }}"))
+                        .download(new Property<>("{{ download }}"))
+                        .build()
+                )
+                .build();
         // WHEN
         ImageGeneration.Output runOutput = task.run(runContext);
 
@@ -78,8 +80,8 @@ public class ImageGenerationTest {
 
         // Verify WireMock interaction
         verify(postRequestedFor(urlEqualTo("/v1/images/generations"))
-            .withRequestBody(matchingJsonPath("$.prompt", equalTo("Donald Duck in New York, cartoon style")))
-            .withHeader("Authorization", matching("Bearer demo")));
+                .withRequestBody(matchingJsonPath("$.prompt", equalTo("Donald Duck in New York, cartoon style")))
+                .withHeader("Authorization", matching("Bearer demo")));
     }
 
 }
