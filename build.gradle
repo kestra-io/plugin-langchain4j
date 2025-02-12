@@ -51,6 +51,17 @@ dependencies {
     annotationProcessor group: "io.kestra", name: "processor", version: kestraVersion
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
+
+    implementation 'dev.langchain4j:langchain4j:1.0.0-alpha1'
+    implementation 'org.json:json:20231013'
+    implementation 'dev.langchain4j:langchain4j-open-ai:1.0.0-alpha1'
+    implementation 'dev.langchain4j:langchain4j-ollama:1.0.0-alpha1'
+    implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.0.0-alpha1'
+    implementation 'dev.langchain4j:langchain4j-vertex-ai:1.0.0-alpha1'
+
+    testImplementation 'org.testcontainers:ollama:1.20.4'
+
+
 }
 
 
@@ -98,6 +109,8 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.hamcrest:hamcrest"
     testImplementation "org.hamcrest:hamcrest-library"
+    testImplementation "org.wiremock:wiremock"
+
 }
 
 /**********************************************************************************************************************\
@@ -157,8 +170,8 @@ jar {
     manifest {
         attributes(
                 "X-Kestra-Name": project.name,
-                "X-Kestra-Title": "Template",
-                "X-Kestra-Group": project.group + ".templates",
+                "X-Kestra-Title": "langchain4j",
+                "X-Kestra-Group": project.group + ".langchain4j",
                 "X-Kestra-Description": project.description,
                 "X-Kestra-Version": project.version
         )

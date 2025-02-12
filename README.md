@@ -33,7 +33,7 @@
 <p align="center" style="color:grey;"><i>Get started with Kestra in 4 minutes.</i></p>
 
 
-# Kestra Plugin Template
+# Kestra Langchaing4j Template
 
 > A template for creating Kestra plugins
 
