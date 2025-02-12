@@ -1,9 +1,7 @@
-package io.kestra.plugin.langchain4j.utils;
+package io.kestra.plugin.langchain4j.dto.chat;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
-import io.kestra.plugin.langchain4j.dto.text.ChatMessage;
-import io.kestra.plugin.langchain4j.dto.text.ChatType;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;

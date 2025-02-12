@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.dto.text;
+package io.kestra.plugin.langchain4j.dto.chat;
 
 import lombok.Getter;
 
