@@ -30,6 +30,7 @@ import java.util.List;
             code = {
                 """
                 id: openai_embedding_retrieval
+                type: io.kestra.core.plugin.langchain4j.EmbeddingRetrieval
                 namespace: company.team
                 task:
                     id: embedding_retrieval
@@ -50,6 +51,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: embedding_retrieval
+                    type: io.kestra.core.plugin.langchain4j.EmbeddingRetrieval
                     prompt: 'Explain machine learning'
                     provider:
                         type: OLLAMA
@@ -67,6 +69,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: embedding_retrieval
+                    type: io.kestra.core.plugin.langchain4j.EmbeddingRetrieval
                     prompt: Deep learning applications
                     provider:
                         type: GOOGLE_VERTEX_AI

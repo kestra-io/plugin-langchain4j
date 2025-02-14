@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -36,15 +37,16 @@ class JSONStructuredExtractionTest extends ContainerTest {
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
             "modelName", "gemini-1.5-flash",
-            "apiKey", apikeyTest
-            ));
+            "apiKey", apikeyTest,
+            "modelProvider", GOOGLE_GEMINI
+        ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.GOOGLE_GEMINI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .build()
@@ -68,9 +70,9 @@ class JSONStructuredExtractionTest extends ContainerTest {
             "prompt", "Hello, my name is Alice, I live in London",
             "schemaName", "Person",
             "jsonFields", List.of("name", "City"),
-            "providerType", "OLLAMA",
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint
+            "endpoint", ollamaEndpoint,
+            "modelProvider", OLLAMA
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
@@ -78,9 +80,9 @@ class JSONStructuredExtractionTest extends ContainerTest {
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OLLAMA)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .endPoint(new Property<>("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -94,14 +96,15 @@ class JSONStructuredExtractionTest extends ContainerTest {
         assertThat(runOutput.getExtractedJson().toLowerCase().contains("london"), is(Boolean.TRUE));
     }
     @Test
-    void testJSONStructuredOpaenAI() throws Exception {
+    void testJSONStructuredOpenAI() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Hello, my name is John. I was born on January 1, 2000.",
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
             "modelName", "gpt-4o-mini",
-            "apiKey", "demo"
+            "apiKey", "demo",
+            "modelProvider", OPENAI
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
@@ -109,7 +112,7 @@ class JSONStructuredExtractionTest extends ContainerTest {
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .build()

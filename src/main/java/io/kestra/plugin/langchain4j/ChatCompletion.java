@@ -38,6 +38,7 @@ import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
                 namespace: company.team
                 task:
                     id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: OPEN_AI
                         apiKey: your_openai_api_key
@@ -61,6 +62,7 @@ import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
                 namespace: company.team
                 task:
                     id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: OLLAMA
                         modelName: llama3
@@ -92,13 +94,13 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
         List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertFromDTOs(renderedChatMessagesInput);
 
-        Provider renderedProviderType = provider.getType();
+        Provider renderedType = runContext.render(provider.getType()).as(Provider.class).orElseThrow();
         String renderedModelName = runContext.render(provider.getModelName()).as(String.class).orElse(null);
         String renderedApiKey = runContext.render(provider.getApiKey()).as(String.class).orElse(null);
-        String renderedEndpoint = runContext.render(provider.getEndpoint()).as(String.class).orElse(null);
+        String renderedEndpoint = runContext.render(provider.getEndPoint()).as(String.class).orElse(null);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = ChatModelFactory.createModel(renderedProviderType, renderedApiKey, renderedModelName, renderedEndpoint);
+        ChatLanguageModel model = ChatModelFactory.createModel(renderedType, renderedApiKey, renderedModelName, renderedEndpoint);
 
         // Generate AI response
         AiMessage aiResponse = model.generate(chatMessages).content();

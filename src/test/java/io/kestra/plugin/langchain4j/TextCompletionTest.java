@@ -10,8 +10,10 @@ import io.micronaut.context.annotation.Value;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -31,13 +33,14 @@ public class TextCompletionTest extends ContainerTest{
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
             "apiKey", apikeyTest,
-            "modelName", "gemini-1.5-flash"
+            "modelName", "gemini-1.5-flash",
+            "modelProvider", GOOGLE_GEMINI
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.GOOGLE_GEMINI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -57,15 +60,17 @@ public class TextCompletionTest extends ContainerTest{
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint
+            "endpoint", ollamaEndpoint,
+            "modelProvider", OLLAMA
+
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OLLAMA)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .endPoint(new Property<>("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -84,13 +89,15 @@ public class TextCompletionTest extends ContainerTest{
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
             "apiKey", "demo",
-            "modelName", "gpt-4o-mini"
+            "modelName", "gpt-4o-mini",
+            "modelProvider", OPENAI
+
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()

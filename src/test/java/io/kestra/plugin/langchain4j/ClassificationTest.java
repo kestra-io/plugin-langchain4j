@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -33,14 +34,16 @@ class ClassificationTest extends ContainerTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
             "apiKey", apikeyTest,
-            "modelName", "gemini-1.5-flash"
+            "modelName", "gemini-1.5-flash",
+            "modelProvider", GOOGLE_GEMINI
+
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.GOOGLE_GEMINI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -63,16 +66,17 @@ class ClassificationTest extends ContainerTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint
+            "endpoint", ollamaEndpoint,
+            "modelProvider", OLLAMA
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OLLAMA)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .endPoint(new Property<>("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -93,14 +97,15 @@ class ClassificationTest extends ContainerTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
             "apiKey", "demo",
-            "modelName", "gpt-4o-mini"
+            "modelName", "gpt-4o-mini",
+            "modelProvider", OPENAI
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()

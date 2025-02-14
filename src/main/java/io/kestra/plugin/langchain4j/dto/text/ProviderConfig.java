@@ -15,7 +15,7 @@ public class ProviderConfig {
 
     @Schema(title = "Provider Type", description = "Choose between GOOGLE_GEMINI, OPEN_AI, or OLLAMA")
     @NotNull
-    private Provider type;
+    private Property<Provider> type;
 
     @Schema(title = "API Key", description = "API key for the provider (if required)")
     private Property<String> apiKey;
@@ -24,5 +24,5 @@ public class ProviderConfig {
     private Property<String> modelName;
 
     @Schema(title = "Ollama Endpoint", description = "Endpoint for Ollama API (required for OLLAMA)")
-    private Property<String> endpoint;
+    private Property<String> endPoint;
 }

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
                 namespace: company.team
                 task:
                     id: image_generation
+                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: "A futuristic cityscape at sunset"
                     provider:
                         type: OPENAI
@@ -54,6 +55,7 @@ import org.slf4j.Logger;
                 namespace: company.team
                 task:
                     id: image_generation
+                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: A realistic portrait of a medieval knight
                     provider:
                         type: GOOGLE_VERTEX

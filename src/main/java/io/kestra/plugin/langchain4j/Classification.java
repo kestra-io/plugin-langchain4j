@@ -35,6 +35,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
                     prompt: "Is 'This is a joke' a good joke?"
                     classes:
                       - true
@@ -55,6 +56,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
                     prompt: "Is 'This is a joke' a good joke?"
                     classes:
                       - true
@@ -75,6 +77,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
                     prompt: "Classify the sentiment of this sentence: 'I love this product!'"
                     classes:
                       - positive
@@ -111,13 +114,13 @@ public class Classification extends Task implements RunnableTask<Classification.
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
         List<String> renderedClasses = runContext.render(classes).asList(String.class);
 
-        Provider renderedProviderType = provider.getType();
+        Provider renderedType = runContext.render(provider.getType()).as(Provider.class).orElseThrow();
         String renderedModelName = runContext.render(provider.getModelName()).as(String.class).orElse(null);
         String renderedApiKey = runContext.render(provider.getApiKey()).as(String.class).orElse(null);
-        String renderedEndpoint = runContext.render(provider.getEndpoint()).as(String.class).orElse(null);
+        String renderedEndpoint = runContext.render(provider.getEndPoint()).as(String.class).orElse(null);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = ChatModelFactory.createModel(renderedProviderType, renderedApiKey, renderedModelName, renderedEndpoint);
+        ChatLanguageModel model = ChatModelFactory.createModel(renderedType, renderedApiKey, renderedModelName, renderedEndpoint);
 
         String classificationPrompt = renderedPrompt +
             "\nRespond by only one of the following classes by typing just the exact class name: " + renderedClasses;

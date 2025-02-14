@@ -44,6 +44,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: json_structured_extraction
+                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
                     jsonFields:
                       - name
                       - City
@@ -65,6 +66,7 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: json_structured_extraction
+                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
                     jsonFields:
                       - name
                       - City
@@ -106,13 +108,13 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
         String renderedSchemaName = runContext.render(schemaName).as(String.class).orElseThrow();
         List<String> renderedJsonFields = Property.asList(jsonFields, runContext, String.class);
 
-        Provider renderedProviderType = provider.getType();
+        Provider renderedType = runContext.render(provider.getType()).as(Provider.class).orElseThrow();
         String renderedModelName = runContext.render(provider.getModelName()).as(String.class).orElse(null);
         String renderedApiKey = runContext.render(provider.getApiKey()).as(String.class).orElse(null);
-        String renderedEndpoint = runContext.render(provider.getEndpoint()).as(String.class).orElse(null);
+        String renderedEndpoint = runContext.render(provider.getEndPoint()).as(String.class).orElse(null);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = ChatModelFactory.createModel(renderedProviderType, renderedApiKey, renderedModelName, renderedEndpoint);
+        ChatLanguageModel model = ChatModelFactory.createModel(renderedType, renderedApiKey, renderedModelName, renderedEndpoint);
         // Build JSON schema
         ResponseFormat responseFormat = ResponseFormat.builder()
             .type(ResponseFormatType.JSON)

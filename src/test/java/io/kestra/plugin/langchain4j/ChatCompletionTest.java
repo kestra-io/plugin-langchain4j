@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -37,6 +38,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
+            "modelProvider", OPENAI,
             "messages", List.of(
                 ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -45,7 +47,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI )
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -66,12 +68,13 @@ class ChatCompletionTest extends ContainerTest {
         runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
-            "messages", updatedMessages
-        ));
+            "messages", updatedMessages,
+            "modelProvider", OPENAI
+            ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             .provider(ProviderConfig.builder()
-                .type(Provider.OPENAI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -95,6 +98,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", geminiApikeyTest,
             "modelName", "gemini-1.5-flash",
+            "modelProvider", GOOGLE_GEMINI,
             "messages", List.of(
                ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -103,7 +107,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.GOOGLE_GEMINI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -124,12 +128,13 @@ class ChatCompletionTest extends ContainerTest {
         runContext = runContextFactory.of(Map.of(
             "apiKey", geminiApikeyTest,
             "modelName", "gemini-1.5-flash",
+            "modelProvider", GOOGLE_GEMINI,
             "messages", updatedMessages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             .provider(ProviderConfig.builder()
-                .type(Provider.GOOGLE_GEMINI)
+                .type(new Property<>("{{ modelProvider }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -153,6 +158,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
+            "modelProvider", OLLAMA,
             "messages", List.of(
                 ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -161,9 +167,9 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             .provider(ProviderConfig.builder()
-                .type(Provider.OLLAMA)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
+                .endPoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
             )
             .build();
@@ -182,14 +188,15 @@ class ChatCompletionTest extends ContainerTest {
         runContext = runContextFactory.of(Map.of(
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
-            "messages", updatedMessages
-        ));
+            "messages", updatedMessages,
+            "modelProvider", OLLAMA
+            ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             .provider(ProviderConfig.builder()
-                .type(Provider.OLLAMA)
+                .type(new Property<>("{{ modelProvider }}"))
                 .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
+                .endPoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
             )
             .messages(new Property<>("{{ messages }}"))

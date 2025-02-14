@@ -32,6 +32,7 @@ import org.slf4j.Logger;
                 namespace: company.team
                 task:
                     id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: What is the capital of France?
                     provider:
                         type: OPEN_AI
@@ -47,8 +48,10 @@ import org.slf4j.Logger;
                 """
                 id: ollama_text_completion
                 namespace: company.team
+
                 task:
                     id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: What is the capital of France?
                     provider:
                         type: OLLAMA
@@ -64,8 +67,10 @@ import org.slf4j.Logger;
                 """
                 id: gemini_text_completion
                 namespace: company.team
+
                 task:
                     id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: Summarize the history of the Eiffel Tower
                     provider:
                         type: GOOGLE_GEMINI
@@ -92,13 +97,13 @@ public class TextCompletion extends Task implements RunnableTask<TextCompletion.
 
         // Render input properties
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-        Provider renderedProviderType = provider.getType();
+        Provider renderedType = runContext.render(provider.getType()).as(Provider.class).orElseThrow();
         String renderedModelName =runContext.render(provider.getModelName()).as(String.class).orElse(null);
         String renderedApiKey =  runContext.render(provider.getApiKey()).as(String.class).orElse(null);
-        String renderedEndpoint = runContext.render(provider.getEndpoint()).as(String.class).orElse(null);
+        String renderedEndpoint = runContext.render(provider.getEndPoint()).as(String.class).orElse(null);
 
         // Get the model
-        ChatLanguageModel model = ChatModelFactory.createModel(renderedProviderType, renderedApiKey, renderedModelName, renderedEndpoint);
+        ChatLanguageModel model = ChatModelFactory.createModel(renderedType, renderedApiKey, renderedModelName, renderedEndpoint);
 
         String completion = model.generate(renderedPrompt);
         logger.info("Generated Completion: {}", completion);
