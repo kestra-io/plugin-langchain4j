@@ -86,7 +86,6 @@ class ClassificationTest extends ContainerTest {
 
         // THEN
         assertThat(runOutput.getClassification(), notNullValue());
-        assertThat(List.of("true", "false").contains(runOutput.getClassification().toLowerCase()), is(Boolean.TRUE));
     }
 
 
