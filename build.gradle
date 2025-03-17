@@ -59,7 +59,7 @@ dependencies {
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.0.0-alpha1'
     implementation 'dev.langchain4j:langchain4j-vertex-ai:1.0.0-alpha1'
 
-    testImplementation 'org.testcontainers:ollama:1.20.4'
+    testImplementation 'org.testcontainers:ollama:1.20.6'
 
 
 }
