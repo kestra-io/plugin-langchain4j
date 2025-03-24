@@ -3,7 +3,7 @@ plugins {
     id "idea"
     id 'jacoco'
     id "com.adarshr.test-logger" version "4.0.0"
-    id "com.gradleup.shadow" version "8.3.5"
+    id "com.gradleup.shadow" version "8.3.6"
     id 'ru.vyarus.java-lib' version '3.0.0'
     id 'ru.vyarus.github-info' version '2.0.0'
     id 'signing'
@@ -53,13 +53,13 @@ dependencies {
     compileOnly group: "io.kestra", name: "script", version: kestraVersion
 
     implementation 'dev.langchain4j:langchain4j:1.0.0-alpha1'
-    implementation 'org.json:json:20231013'
+    implementation 'org.json:json:20250107'
     implementation 'dev.langchain4j:langchain4j-open-ai:1.0.0-alpha1'
     implementation 'dev.langchain4j:langchain4j-ollama:1.0.0-alpha1'
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.0.0-alpha1'
     implementation 'dev.langchain4j:langchain4j-vertex-ai:1.0.0-alpha1'
 
-    testImplementation 'org.testcontainers:ollama:1.20.4'
+    testImplementation 'org.testcontainers:ollama:1.20.6'
 
 
 }
@@ -129,7 +129,7 @@ configurations {
 }
 
 dependencies {
-    agent "org.aspectj:aspectjweaver:1.9.22.1"
+    agent "org.aspectj:aspectjweaver:1.9.23"
 }
 
 test {
