@@ -1,0 +1,36 @@
+name: Main
+
+on:
+  schedule:
+    - cron: '0 4 * * 1,2,3,4,5'
+  push:
+    branches:
+      - master
+      - main
+      - releases/*
+    tags:
+      - v*
+
+  pull_request:
+    branches:
+      - master
+      - main
+      - releases/*
+
+  workflow_dispatch:
+    inputs:
+      skip-test:
+        description: 'Skip test'
+        type: choice
+        required: true
+        default: 'false'
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  check:
+    uses: kestra-io/actions/.github/workflows/plugins.yml@main
+    with:
+      skip-test: ${{ github.event.inputs.skip-test == 'true' }}
+    secrets: inherit
