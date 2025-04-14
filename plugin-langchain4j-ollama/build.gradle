@@ -17,5 +17,5 @@ dependencies {
     implementation project(':plugin-langchain4j')
 
     testImplementation project(':plugin-langchain4j').sourceSets.test.output
-    testImplementation 'org.testcontainers:ollama:1.20.4'
+    testImplementation 'org.testcontainers:ollama:1.20.6'
 }
