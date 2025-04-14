@@ -58,7 +58,7 @@ subprojects {
         compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
         implementation 'dev.langchain4j:langchain4j:1.0.0-alpha1'
-        implementation 'org.json:json:20230227'
+        implementation 'org.json:json:20250107'
 
         //Logs
         constraints {
