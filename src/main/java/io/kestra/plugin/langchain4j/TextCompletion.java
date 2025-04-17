@@ -3,13 +3,13 @@ package io.kestra.plugin.langchain4j;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
+import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.dto.text.ChatModelFactory;
-import io.kestra.plugin.langchain4j.dto.text.Provider;
-import io.kestra.plugin.langchain4j.dto.text.ProviderConfig;
+import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
+import io.kestra.plugin.langchain4j.domain.ModelProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -35,7 +35,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: What is the capital of France?
                     provider:
-                        type: OPEN_AI
+                        type: io.kestra.plugin.langchain4j.openai.OpenAIModelProvider
                         apiKey: your_openai_api_key
                         modelName: gpt-4o
                 """
@@ -54,7 +54,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: What is the capital of France?
                     provider:
-                        type: OLLAMA
+                        type: io.kestra.plugin.langchain4j.ollama.OllamaModelProvider
                         modelName: llama3
                         endpoint: http://localhost:11434
                 """
@@ -73,7 +73,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.TextCompletion
                     prompt: Summarize the history of the Eiffel Tower
                     provider:
-                        type: GOOGLE_GEMINI
+                        type: io.kestra.plugin.langchain4j.gemini.GeminiModelProvider
                         apiKey: your_gemini_api_key
                         modelName: gemini-1.5-flash
                 """
@@ -87,9 +87,15 @@ public class TextCompletion extends Task implements RunnableTask<TextCompletion.
     @NotNull
     protected Property<String> prompt;
 
-    @Schema(title = "Provider Configuration", description = "Configuration for the provider (e.g., API key, model name, endpoint)")
+    @Schema(title = "Language Model Provider")
     @NotNull
-    private ProviderConfig provider;
+    @PluginProperty
+    private ModelProvider provider;
+
+    @NotNull
+    @PluginProperty
+    @Builder.Default
+    private ChatConfiguration configuration = ChatConfiguration.empty();
 
     @Override
     public TextCompletion.Output run(RunContext runContext) throws Exception {
@@ -97,16 +103,12 @@ public class TextCompletion extends Task implements RunnableTask<TextCompletion.
 
         // Render input properties
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-        Provider renderedType = runContext.render(provider.getType()).as(Provider.class).orElseThrow();
-        String renderedModelName =runContext.render(provider.getModelName()).as(String.class).orElse(null);
-        String renderedApiKey =  runContext.render(provider.getApiKey()).as(String.class).orElse(null);
-        String renderedEndpoint = runContext.render(provider.getEndPoint()).as(String.class).orElse(null);
 
         // Get the model
-        ChatLanguageModel model = ChatModelFactory.createModel(renderedType, renderedApiKey, renderedModelName, renderedEndpoint);
+        ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
 
-        String completion = model.generate(renderedPrompt);
-        logger.info("Generated Completion: {}", completion);
+        String completion = model.chat(renderedPrompt);
+        logger.debug("Generated Completion: {}", completion);
 
         return Output.builder()
             .completion(completion)

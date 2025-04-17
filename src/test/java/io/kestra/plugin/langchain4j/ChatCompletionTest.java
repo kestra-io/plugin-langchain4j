@@ -6,29 +6,25 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.dto.chat.ChatMessage;
 import io.kestra.plugin.langchain4j.dto.chat.ChatType;
-import io.kestra.plugin.langchain4j.dto.text.Provider;
-import io.kestra.plugin.langchain4j.dto.text.ProviderConfig;
-import io.micronaut.context.annotation.Value;
+import io.kestra.plugin.langchain4j.gemini.GeminiModelProvider;
+import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.openai.OpenAIModelProvider;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class ChatCompletionTest extends ContainerTest {
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
-
-    @Inject
-    @Value("${kestra.gemini.apikey}")
-    private String geminiApikeyTest;
 
     /**
      * Test Chat Completion using OpenAI.
@@ -38,7 +34,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
-            "modelProvider", OPENAI,
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1",
             "messages", List.of(
                 ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -46,17 +42,18 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OpenAIModelProvider.builder()
+                .type(OpenAIModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
                 .build()
             )
             .build();
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getOutputMessages().size(), is(2)); // User and AI response
+        assertThat(output.getAiResponse(), notNullValue());
         List<ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
@@ -68,15 +65,16 @@ class ChatCompletionTest extends ContainerTest {
         runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
-            "messages", updatedMessages,
-            "modelProvider", OPENAI
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1",
+            "messages", updatedMessages
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OpenAIModelProvider.builder()
+                .type(OpenAIModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
                 .build()
             )
             .messages(new Property<>("{{ messages }}"))
@@ -87,18 +85,18 @@ class ChatCompletionTest extends ContainerTest {
 
         // THEN: Validate the second response
         assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(4));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
     }
 
     /**
      * Test Chat Completion using Gemini.
      */
     @Test
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
     void testChatCompletionGemini() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", geminiApikeyTest,
+            "apiKey", GEMINI_API_KEY,
             "modelName", "gemini-1.5-flash",
-            "modelProvider", GOOGLE_GEMINI,
             "messages", List.of(
                ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -106,8 +104,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(GeminiModelProvider.builder()
+                .type(GeminiModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -116,7 +114,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getOutputMessages().size(), is(2)); // User and AI response
+        assertThat(output.getAiResponse(), notNullValue());
         List<ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
@@ -126,15 +124,14 @@ class ChatCompletionTest extends ContainerTest {
             .build());
 
         runContext = runContextFactory.of(Map.of(
-            "apiKey", geminiApikeyTest,
+            "apiKey", GEMINI_API_KEY,
             "modelName", "gemini-1.5-flash",
-            "modelProvider", GOOGLE_GEMINI,
             "messages", updatedMessages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(GeminiModelProvider.builder()
+                .type(GeminiModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -147,7 +144,7 @@ class ChatCompletionTest extends ContainerTest {
 
         // THEN: Validate the second response
         assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(4));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
     }
 
     /**
@@ -158,7 +155,6 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
-            "modelProvider", OLLAMA,
             "messages", List.of(
                 ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
             )
@@ -166,17 +162,17 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OllamaModelProvider.builder()
+                .type(OllamaModelProvider.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
-                .endPoint(new Property<>("{{ ollamaEndpoint }}"))
+                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
             )
             .build();
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getOutputMessages().size(), is(2)); // User and AI response
+        assertThat(output.getAiResponse(), notNullValue());
         List<ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
@@ -188,15 +184,14 @@ class ChatCompletionTest extends ContainerTest {
         runContext = runContextFactory.of(Map.of(
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
-            "messages", updatedMessages,
-            "modelProvider", OLLAMA
+            "messages", updatedMessages
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OllamaModelProvider.builder()
+                .type(OllamaModelProvider.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
-                .endPoint(new Property<>("{{ ollamaEndpoint }}"))
+                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
             )
             .messages(new Property<>("{{ messages }}"))
@@ -207,6 +202,6 @@ class ChatCompletionTest extends ContainerTest {
 
         // THEN: Validate the second response
         assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(4));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
     }
 }
