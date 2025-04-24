@@ -1,13 +1,14 @@
 package io.kestra.plugin.langchain4j;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.langchain4j.gemini.GeminiModelProvider;
 import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
 import io.kestra.plugin.langchain4j.openai.OpenAIModelProvider;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -55,7 +56,8 @@ class JSONStructuredExtractionTest extends ContainerTest {
 
         // THEN
         assertThat(runOutput.getExtractedJson(), notNullValue());
-        JSONObject json = new JSONObject(runOutput.getExtractedJson());
+
+        JsonNode json = JacksonMapper.ofJson().readTree(runOutput.getExtractedJson());
         assertThat(json.has("name"), is(true));
         assertThat(json.has("date"), is(true));
     }
@@ -121,7 +123,7 @@ class JSONStructuredExtractionTest extends ContainerTest {
 
         // THEN
         assertThat(runOutput.getExtractedJson(), notNullValue());
-        JSONObject json = new JSONObject(runOutput.getExtractedJson());
+        JsonNode json = JacksonMapper.ofJson().readTree(runOutput.getExtractedJson());
         assertThat(json.has("name"), is(true));
         assertThat(json.has("date"), is(true));
     }

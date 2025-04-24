@@ -3,6 +3,7 @@ package io.kestra.plugin.langchain4j.domain;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.plugins.AdditionalPlugin;
 import io.kestra.core.plugins.serdes.PluginDeserializer;
@@ -22,9 +23,9 @@ import java.util.Map;
 // AND concrete subclasses must be annotated by @JsonDeserialize() to avoid StackOverflow.
 @JsonDeserialize(using = PluginDeserializer.class)
 public abstract class EmbeddingStoreProvider extends AdditionalPlugin {
-    public abstract EmbeddingStore<TextSegment> embeddingStore(RunContext runContext) throws IOException;
+    public abstract EmbeddingStore<TextSegment> embeddingStore(RunContext runContext) throws IOException, IllegalVariableEvaluationException;
 
-    public Map<String, Object> outputs(RunContext runContext) throws IOException {
+    public Map<String, Object> outputs(RunContext runContext) throws IOException, IllegalVariableEvaluationException {
         return null;
     }
 }

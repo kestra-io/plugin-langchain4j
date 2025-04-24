@@ -50,18 +50,14 @@ dependencies {
     // kestra
     annotationProcessor group: "io.kestra", name: "processor", version: kestraVersion
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
-    compileOnly group: "io.kestra", name: "script", version: kestraVersion
 
-    implementation 'dev.langchain4j:langchain4j:1.0.0-beta3'
-    implementation 'org.json:json:20250107'
-    implementation 'dev.langchain4j:langchain4j-open-ai:1.0.0-beta3'
-    implementation 'dev.langchain4j:langchain4j-ollama:1.0.0-beta3'
-    implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.0.0-beta3'
-    implementation 'dev.langchain4j:langchain4j-vertex-ai:1.0.0-beta3'
+    implementation "dev.langchain4j:langchain4j:$langchain4jVersion"
+    implementation "dev.langchain4j:langchain4j-open-ai:$langchain4jVersion"
+    implementation "dev.langchain4j:langchain4j-ollama:$langchain4jVersion"
+    implementation "dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion"
+    implementation "dev.langchain4j:langchain4j-vertex-ai:$langchain4jVersion"
 
     testImplementation 'org.testcontainers:ollama:1.20.6'
-
-
 }
 
 
