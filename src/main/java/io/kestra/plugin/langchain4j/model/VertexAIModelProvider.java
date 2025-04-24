@@ -1,12 +1,12 @@
-package io.kestra.plugin.langchain4j.openai;
+package io.kestra.plugin.langchain4j.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiImageModel;
+import dev.langchain4j.model.vertexai.VertexAiChatModel;
+import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
+import dev.langchain4j.model.vertexai.VertexAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -23,45 +23,48 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin
+@Plugin(beta = true)
 @JsonDeserialize
-public class OpenAIModelProvider extends ModelProvider {
+public class VertexAIModelProvider extends ModelProvider {
     @NotNull
-    private Property<String> apiKey;
+    private Property<String> endpoint;
 
-    private Property<String> baseUrl;
+    @NotNull
+    private Property<String> location;
+
+    @NotNull
+    private Property<String> project;
 
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        if (configuration.getTopK() != null) {
-            throw new IllegalArgumentException("OpenAI models didn't support topK");
-        }
-
-        return OpenAiChatModel.builder()
+        return VertexAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
+            .endpoint(runContext.render(this.endpoint).as(String.class).orElseThrow())
+            .location(runContext.render(this.location).as(String.class).orElseThrow())
+            .project(runContext.render(this.project).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
+            .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
             .build();
     }
 
     @Override
     public ImageModel imageModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return OpenAiImageModel.builder()
+        return VertexAiImageModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
-            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
+            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
+            .location(runContext.render(this.location).as(String.class).orElse(null))
+            .project(runContext.render(this.project).as(String.class).orElseThrow())
             .build();
     }
 
     @Override
     public EmbeddingModel embeddingModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return OpenAiEmbeddingModel.builder()
+        return VertexAiEmbeddingModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
-            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
+            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
+            .location(runContext.render(this.location).as(String.class).orElse(null))
+            .project(runContext.render(this.project).as(String.class).orElseThrow())
             .build();
     }
-
 }

@@ -55,7 +55,7 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.IngestDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.gemini.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-embedding-exp-03-07
                       apiKey: my_api_key
                     embeddingStore:

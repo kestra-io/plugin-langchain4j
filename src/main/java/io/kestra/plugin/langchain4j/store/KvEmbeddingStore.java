@@ -27,7 +27,7 @@ import java.util.Optional;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@Plugin
+@Plugin(beta = true)
 @JsonDeserialize
 public class KvEmbeddingStore extends EmbeddingStoreProvider {
     @JsonIgnore

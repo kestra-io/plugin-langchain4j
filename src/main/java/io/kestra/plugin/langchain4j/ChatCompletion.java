@@ -1,6 +1,8 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -11,7 +13,6 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
-import io.kestra.plugin.langchain4j.dto.chat.ChatMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -19,8 +20,6 @@ import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 
 import java.util.List;
-
-import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
 
 @SuperBuilder
 @ToString
@@ -41,7 +40,7 @@ import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.openai.OpenAIModelProvider
+                        type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
                         apiKey: your_openai_api_key
                         modelName: gpt-4o-mini
                     messages:
@@ -65,7 +64,7 @@ import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.ollama.OllamaModelProvider
+                        type: io.kestra.plugin.langchain4j.model.OllamaModelProvider
                         modelName: llama3
                         endpoint: http://localhost:11434
                     messages:
@@ -74,7 +73,8 @@ import static io.kestra.plugin.langchain4j.dto.chat.LLMUtility.convertFromDTOs;
                 """
             }
         )
-    }
+    },
+    beta = true
 )
 public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
 
@@ -99,7 +99,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
         // Render existing messages
         List<ChatMessage> renderedChatMessagesInput = runContext.render(messages).asList(ChatMessage.class);
-        List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertFromDTOs(renderedChatMessagesInput);
+        List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertMessages(renderedChatMessagesInput);
 
         // Get the appropriate model from the factory
         ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
@@ -115,6 +115,16 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .build();
     }
 
+    public static List<dev.langchain4j.data.message.ChatMessage> convertMessages(List<ChatCompletion.ChatMessage> messages) {
+        return messages.stream()
+            .map(dto -> switch (dto.type()) {
+                case SYSTEM -> SystemMessage.systemMessage(dto.content());
+                case AI ->  AiMessage.aiMessage(dto.content());
+                case USER ->  UserMessage.userMessage(dto.content());
+            })
+            .toList();
+    }
+
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
@@ -124,4 +134,9 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         @Schema(title = "Updated Messages", description = "The updated list of messages after the current interaction")
         private final List<ChatMessage> outputMessages;
     }
+
+    @Builder
+    public record ChatMessage(ChatMessageType type, String content) {}
+
+    public enum ChatMessageType { SYSTEM, AI, USER }
 }
