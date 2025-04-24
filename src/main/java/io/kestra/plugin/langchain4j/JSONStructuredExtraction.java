@@ -52,7 +52,7 @@ import java.util.List;
                     schemaName: Person
                     prompt: Hello, my name is John, I live in Paris
                     provider:
-                      type: io.kestra.plugin.langchain4j.ollama.OllamaModelProvider
+                      type: io.kestra.plugin.langchain4j.model.OllamaModelProvider
                       modelName: llama3
                       endpoint: http://localhost:11434
                 """
@@ -74,13 +74,14 @@ import java.util.List;
                     schemaName: Person
                     prompt: Hello, my name is John, I live in Paris
                     provider:
-                      type: io.kestra.plugin.langchain4j.openai.OpenAIModelProvider
+                      type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
                       apiKey: your_openai_api_key
                       modelName: GPT-4
                 """
             }
         )
-    }
+    },
+    beta = true
 )
 public class JSONStructuredExtraction extends Task implements RunnableTask<JSONStructuredExtraction.Output> {
 

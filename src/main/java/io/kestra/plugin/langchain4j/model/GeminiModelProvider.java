@@ -1,12 +1,11 @@
-package io.kestra.plugin.langchain4j.vertexai;
+package io.kestra.plugin.langchain4j.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.image.ImageModel;
-import dev.langchain4j.model.vertexai.VertexAiChatModel;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
-import dev.langchain4j.model.vertexai.VertexAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -23,25 +22,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin
+@Plugin(beta = true)
 @JsonDeserialize
-public class VertexAIModelProvider extends ModelProvider {
+public class GeminiModelProvider extends ModelProvider {
     @NotNull
-    private Property<String> endpoint;
-
-    @NotNull
-    private Property<String> location;
-
-    @NotNull
-    private Property<String> project;
+    private Property<String> apiKey;
 
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        return VertexAiChatModel.builder()
+        return GoogleAiGeminiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElseThrow())
-            .location(runContext.render(this.location).as(String.class).orElseThrow())
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
+            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
@@ -49,22 +40,16 @@ public class VertexAIModelProvider extends ModelProvider {
     }
 
     @Override
-    public ImageModel imageModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return VertexAiImageModel.builder()
-            .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
-            .location(runContext.render(this.location).as(String.class).orElse(null))
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
-            .build();
+    public ImageModel imageModel(RunContext runContext) {
+        throw new UnsupportedOperationException("Gemini didn't support image model");
     }
 
     @Override
     public EmbeddingModel embeddingModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return VertexAiEmbeddingModel.builder()
+        return GoogleAiEmbeddingModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
-            .location(runContext.render(this.location).as(String.class).orElse(null))
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
+            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .build();
     }
+
 }

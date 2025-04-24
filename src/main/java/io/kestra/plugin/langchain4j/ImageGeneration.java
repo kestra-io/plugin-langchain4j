@@ -36,7 +36,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: "A futuristic cityscape at sunset"
                     provider:
-                        type: io.kestra.plugin.langchain4j.openai.OpenAIModelProvider
+                        type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
                         apiKey: your_openai_api_key
                         modelName: dall-e-3
                         size: LARGE
@@ -56,7 +56,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: A realistic portrait of a medieval knight
                     provider:
-                        type: io.kestra.plugin.langchain4j.vertexai.VertexAIModelProvider
+                        type: io.kestra.plugin.langchain4j.model.VertexAIModelProvider
                         apiKey: your_google_api_key
                         modelName: imagegeneration@005
                         projectId: my-gcp-project
@@ -66,7 +66,8 @@ import org.slf4j.Logger;
                 """
             }
         )
-    }
+    },
+    beta = true
 )
 
 public class ImageGeneration extends Task implements RunnableTask<ImageGeneration.Output> {

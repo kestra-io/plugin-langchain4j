@@ -4,11 +4,9 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.dto.chat.ChatMessage;
-import io.kestra.plugin.langchain4j.dto.chat.ChatType;
-import io.kestra.plugin.langchain4j.gemini.GeminiModelProvider;
-import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.openai.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.model.GeminiModelProvider;
+import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -36,7 +34,7 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "gpt-4o-mini",
             "baseUrl", "http://langchain4j.dev/demo/openai/v1",
             "messages", List.of(
-                ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
         ));
 
@@ -54,11 +52,11 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatMessage> updatedMessages = output.getOutputMessages();
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatMessage.builder()
-            .type(ChatType.USER)
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
             .content("What's my name?")
             .build());
 
@@ -98,7 +96,7 @@ class ChatCompletionTest extends ContainerTest {
             "apiKey", GEMINI_API_KEY,
             "modelName", "gemini-1.5-flash",
             "messages", List.of(
-               ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
         ));
 
@@ -115,11 +113,11 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatMessage> updatedMessages = output.getOutputMessages();
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatMessage.builder()
-            .type(ChatType.USER)
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
             .content("What's my name?")
             .build());
 
@@ -156,7 +154,7 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
             "messages", List.of(
-                ChatMessage.builder().type(ChatType.USER).content("Hello, my name is John").build()
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
         ));
 
@@ -173,11 +171,11 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatMessage> updatedMessages = output.getOutputMessages();
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
 
         // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatMessage.builder()
-            .type(ChatType.USER)
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
             .content("What's my name?")
             .build());
 

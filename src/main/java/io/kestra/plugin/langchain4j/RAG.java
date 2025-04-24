@@ -42,7 +42,7 @@ import java.util.Optional;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.IndexDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.gemini.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-embedding-exp-03-07
                       apiKey: your_api_key
                     embeddingStore:
@@ -54,11 +54,11 @@ import java.util.Optional;
                   - id: rag
                     type: io.kestra.plugin.langchain4j.RAG
                     chatModelProvider:
-                      type: io.kestra.plugin.langchain4j.gemini.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-1.5-flash
                       apiKey: your_api_key
                     embeddingModelProvider:
-                      type: io.kestra.plugin.langchain4j.gemini.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-embedding-exp-03-07
                       apiKey: your_api_key
                     embeddingStore:
@@ -66,7 +66,8 @@ import java.util.Optional;
                     prompt: Hello AI!
                 """
         )
-    }
+    },
+    beta = true
 )
 public class RAG  extends Task implements RunnableTask<RAG.Output> {
     @Schema(title = "Text prompt", description = "The input prompt for the language model")

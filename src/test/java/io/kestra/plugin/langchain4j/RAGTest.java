@@ -4,7 +4,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
 import io.kestra.plugin.langchain4j.store.KvEmbeddingStore;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;

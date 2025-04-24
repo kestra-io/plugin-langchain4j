@@ -10,7 +10,7 @@ import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.storages.kv.KVEntry;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVValue;
-import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
 import io.kestra.plugin.langchain4j.store.KvEmbeddingStore;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;

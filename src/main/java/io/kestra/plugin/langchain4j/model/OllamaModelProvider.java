@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j.ollama;
+package io.kestra.plugin.langchain4j.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin
+@Plugin(beta = true)
 @JsonDeserialize
 public class OllamaModelProvider extends ModelProvider {
     @NotNull
