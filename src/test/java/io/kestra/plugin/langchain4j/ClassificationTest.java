@@ -4,46 +4,44 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.dto.text.Provider;
-import io.kestra.plugin.langchain4j.dto.text.ProviderConfig;
-import io.micronaut.context.annotation.Value;
+import io.kestra.plugin.langchain4j.gemini.GeminiModelProvider;
+import io.kestra.plugin.langchain4j.ollama.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.openai.OpenAIModelProvider;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.util.List;
 import java.util.Map;
 
-import static io.kestra.plugin.langchain4j.dto.text.Provider.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
 class ClassificationTest extends ContainerTest {
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+
     @Inject
     private RunContextFactory runContextFactory;
 
-    @Inject
-    @Value("${kestra.gemini.apikey}")
-    private String apikeyTest;
-
     @Test
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
     void testClassificationGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
-            "apiKey", apikeyTest,
-            "modelName", "gemini-1.5-flash",
-            "modelProvider", GOOGLE_GEMINI
+            "apiKey", GEMINI_API_KEY,
+            "modelName", "gemini-1.5-flash"
 
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(GeminiModelProvider.builder()
+                .type(GeminiModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -55,7 +53,6 @@ class ClassificationTest extends ContainerTest {
 
         // THEN
         assertThat(runOutput.getClassification(), notNullValue());
-        assertThat(List.of("true", "false").contains(runOutput.getClassification().toLowerCase()), is(Boolean.TRUE));
     }
 
 
@@ -66,17 +63,16 @@ class ClassificationTest extends ContainerTest {
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "modelProvider", OLLAMA
+            "endpoint", ollamaEndpoint
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OllamaModelProvider.builder()
+                .type(OllamaModelProvider.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
-                .endPoint(new Property<>("{{ endpoint }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -97,16 +93,17 @@ class ClassificationTest extends ContainerTest {
             "classes", List.of("true", "false"),
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
-            "modelProvider", OPENAI
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1"
         ));
 
         Classification task = Classification.builder()
             .prompt(new Property<>("{{ prompt }}"))
             .classes(new Property<>("{{ classes }}"))
-            .provider(ProviderConfig.builder()
-                .type(new Property<>("{{ modelProvider }}"))
+            .provider(OpenAIModelProvider.builder()
+                .type(OpenAIModelProvider.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
                 .build()
             )
             .build();

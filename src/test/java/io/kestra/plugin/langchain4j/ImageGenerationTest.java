@@ -6,9 +6,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.dto.image.ProviderImage;
-import io.kestra.plugin.langchain4j.dto.image.ProviderImageConfig;
-import io.kestra.plugin.langchain4j.dto.image.Size;
+import io.kestra.plugin.langchain4j.openai.OpenAIModelProvider;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,20 +53,16 @@ public class ImageGenerationTest {
                 "prompt", "Donald Duck in New York, cartoon style",
                 "apiKey", "demo",
                 "modelName", "dall-e-3",
-                "endpoint", "http://localhost:" + wireMockServer.port() + "/v1",
-                "size", Size.LARGE.name(),
-                "download", Boolean.FALSE
+                "endpoint", "http://localhost:" + wireMockServer.port() + "/v1"
         ));
 
         ImageGeneration task = ImageGeneration.builder()
                 .prompt(new Property<>("{{ prompt }}"))
-                .provider(ProviderImageConfig.builder()
-                        .type(ProviderImage.OPENAI)
+                .provider(OpenAIModelProvider.builder()
+                        .type(OpenAIModelProvider.class.getName())
                         .apiKey(new Property<>("{{ apiKey }}"))
                         .modelName(new Property<>("{{ modelName }}"))
-                        .endpoint(new Property<>("{{ endpoint }}"))
-                        .size(new Property<>("{{ size }}"))
-                        .download(new Property<>("{{ download }}"))
+                        .baseUrl(new Property<>("{{ endpoint }}"))
                         .build()
                 )
                 .build();

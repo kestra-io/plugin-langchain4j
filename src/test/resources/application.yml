@@ -7,5 +7,3 @@ kestra:
     type: local
     local:
       base-path: /tmp/unittest
-  gemini:
-    apikey: AIzaSyAYcZI6PrLZu3Wx03X3zGocPo5x_DXb2PA
