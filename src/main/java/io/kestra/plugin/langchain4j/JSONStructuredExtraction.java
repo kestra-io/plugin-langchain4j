@@ -3,6 +3,7 @@ package io.kestra.plugin.langchain4j;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
@@ -100,6 +101,7 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
     @PluginProperty
     private ModelProvider provider;
 
+    @Schema(title = "Chat configuration")
     @NotNull
     @PluginProperty
     @Builder.Default
@@ -128,7 +130,7 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
 
         // Build request
         ChatRequest chatRequest = ChatRequest.builder()
-            .responseFormat(responseFormat)
+            .parameters(ChatRequestParameters.builder().responseFormat(responseFormat).build())
             .messages(UserMessage.from(renderedPrompt))
             .build();
 

@@ -98,6 +98,7 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
             .imageUrl(String.valueOf(imageUrl.content().url()))
             .build();
     }
+
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {

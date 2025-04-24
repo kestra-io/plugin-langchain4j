@@ -107,6 +107,7 @@ public class Classification extends Task implements RunnableTask<Classification.
     @PluginProperty
     private ModelProvider provider;
 
+    @Schema(title = "Chat configuration")
     @NotNull
     @PluginProperty
     @Builder.Default

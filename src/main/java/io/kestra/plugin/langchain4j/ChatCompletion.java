@@ -87,6 +87,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @PluginProperty
     private ModelProvider provider;
 
+    @Schema(title = "Chat configuration")
     @NotNull
     @PluginProperty
     @Builder.Default
