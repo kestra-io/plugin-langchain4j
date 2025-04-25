@@ -63,6 +63,55 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                     fromDocuments:
                       - content: My name is Loïc!
                 """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into an Elasticsearch embedding store.\\nWARNING: it needs Elasticsearch version 8.15 minimum.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddingStore:
+                        type: io.kestra.plugin.langchain4j.store.ElasticsearchEmbeddingStore
+                        connection:
+                          hosts:
+                            - http://localhost:9200
+                    fromDocuments:
+                      - content: My name is Loïc!
+                """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a PGVector embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddingStore:
+                      type: io.kestra.plugin.langchain4j.store.PGVectorEmbeddingStore
+                      host: localhost
+                      port: 5432
+                      user: my_user
+                      password: my_password
+                      database: postgres
+                      table: embeddings
+                    fromDocuments:
+                      - content: My name is Loïc!
+                """
         )
     },
     beta = true
@@ -115,6 +164,8 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
     @PluginProperty
     private DocumentSplitter documentSplitter;
 
+    // TODO have a way to drop at ingestion time (pg provide this OOTB)
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         List<Document> documents = new ArrayList<>();
@@ -146,9 +197,10 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
             documents.forEach(doc -> metadataMap.forEach((k, v) -> doc.metadata().put(k, v)));
         }
 
+        var embeddingModel = provider.embeddingModel(runContext);
         var builder = EmbeddingStoreIngestor.builder()
-            .embeddingModel(provider.embeddingModel(runContext))
-            .embeddingStore(embeddingStore.embeddingStore(runContext));
+            .embeddingModel(embeddingModel)
+            .embeddingStore(embeddingStore.embeddingStore(runContext, embeddingModel.dimension()));
 
         if (documentSplitter != null) {
             builder.documentSplitter(from(documentSplitter));

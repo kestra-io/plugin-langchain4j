@@ -37,7 +37,7 @@ public class KvEmbeddingStore extends EmbeddingStoreProvider {
     private Property<String> kvName = new Property<>("{{flow.id}}-embedding-store");
 
     @Override
-    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext) throws IOException, IllegalVariableEvaluationException {
+    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension) throws IOException, IllegalVariableEvaluationException {
         String key = runContext.render(kvName).as(String.class).orElseThrow();
         Optional<KVEntry> kvEntry = runContext.namespaceKv(runContext.flowInfo().namespace()).get(key);
         if (kvEntry.isPresent()) {
