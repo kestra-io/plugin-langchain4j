@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j;
+package io.kestra.plugin.langchain4j.rag;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
@@ -39,7 +39,7 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Ingest documents into an embedded store",
+    title = "Ingest documents into an embedding store",
     description = "Only text documents (TXT, HTML, Markdown) are supported for now."
 )
 @Plugin(
@@ -55,11 +55,11 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.IngestDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
                       apiKey: my_api_key
                     embeddingStore:
-                      type: io.kestra.plugin.langchain4j.store.KvEmbeddingStore
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     fromDocuments:
                       - content: My name is Loïc!
                 """
@@ -75,11 +75,11 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.IngestDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
                       apiKey: my_api_key
                     embeddingStore:
-                        type: io.kestra.plugin.langchain4j.store.ElasticsearchEmbeddingStore
+                        type: io.kestra.plugin.langchain4j.embeddings.Elasticsearch
                         connection:
                           hosts:
                             - http://localhost:9200
@@ -98,11 +98,11 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.IngestDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
                       apiKey: my_api_key
-                    embeddingStore:
-                      type: io.kestra.plugin.langchain4j.store.PGVectorEmbeddingStore
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.PGVector
                       host: localhost
                       port: 5432
                       user: my_user
@@ -125,10 +125,10 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
     @PluginProperty
     private ModelProvider provider;
 
-    @Schema(title = "Embedding Store")
+    @Schema(title = "Embedding Store Provider")
     @NotNull
     @PluginProperty
-    private EmbeddingStoreProvider embeddingStore;
+    private EmbeddingStoreProvider embeddings;
 
     @Schema(
         title = "A path inside the task working directory that contains documents to ingest",
@@ -164,7 +164,11 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
     @PluginProperty
     private DocumentSplitter documentSplitter;
 
-    // TODO have a way to drop at ingestion time (pg provide this OOTB)
+    @Schema(
+        title = "Whether to drop the store before ingestion. Useful for testing purpose."
+    )
+    @Builder.Default
+    private Property<Boolean> drop = Property.of(Boolean.FALSE);
 
     @Override
     public Output run(RunContext runContext) throws Exception {
@@ -200,7 +204,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
         var embeddingModel = provider.embeddingModel(runContext);
         var builder = EmbeddingStoreIngestor.builder()
             .embeddingModel(embeddingModel)
-            .embeddingStore(embeddingStore.embeddingStore(runContext, embeddingModel.dimension()));
+            .embeddingStore(embeddings.embeddingStore(runContext, embeddingModel.dimension(), runContext.render(drop).as(Boolean.class).orElseThrow()));
 
         if (documentSplitter != null) {
             builder.documentSplitter(from(documentSplitter));
@@ -224,7 +228,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
 
         var output = Output.builder()
             .ingestedDocuments(documents.size())
-            .embeddingStoreOutputs(embeddingStore.outputs(runContext));
+            .embeddingStoreOutputs(embeddings.outputs(runContext));
 
         if (result.tokenUsage() != null) {
             output = output.inputTokenCount(result.tokenUsage().inputTokenCount())

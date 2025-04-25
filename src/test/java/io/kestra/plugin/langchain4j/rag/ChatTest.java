@@ -1,11 +1,12 @@
-package io.kestra.plugin.langchain4j;
+package io.kestra.plugin.langchain4j.rag;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.store.KvEmbeddingStore;
+import io.kestra.plugin.langchain4j.ContainerTest;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.embeddings.KestraKVStore;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class RAGTest extends ContainerTest {
+class ChatTest extends ContainerTest {
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -29,28 +30,28 @@ class RAGTest extends ContainerTest {
 
         var ingest = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(KvEmbeddingStore.builder().build())
+            .embeddings(KestraKVStore.builder().build())
             .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("It rains today")).build()))
             .build();
 
         IngestDocument.Output ingestOutput = ingest.run(runContext);
         assertThat(ingestOutput.getIngestedDocuments()).isEqualTo(1);
 
-        var rag = RAG.builder()
-            .chatModelProvider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+        var rag = Chat.builder()
+            .chatProvider(
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(KvEmbeddingStore.builder().build())
+            .embeddings(KestraKVStore.builder().build())
             .prompt(Property.of("How's the weather today?"))
             .build();
 

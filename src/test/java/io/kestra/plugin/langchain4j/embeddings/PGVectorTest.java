@@ -1,12 +1,12 @@
-package io.kestra.plugin.langchain4j.store;
+package io.kestra.plugin.langchain4j.embeddings;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.ContainerTest;
-import io.kestra.plugin.langchain4j.IngestDocument;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.rag.IngestDocument;
+import io.kestra.plugin.langchain4j.provider.Ollama;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +19,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class PGVectorEmbeddingStoreTest extends ContainerTest {
+class PGVectorTest extends ContainerTest {
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -49,14 +49,14 @@ class PGVectorEmbeddingStoreTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                PGVectorEmbeddingStore.builder()
+            .embeddings(
+                PGVector.builder()
                     .host(Property.of("localhost"))
                     .port(Property.of(pg.getMappedPort(5432)))
                     .user(Property.of("kestra"))

@@ -30,7 +30,7 @@ java {
 }
 
 group "io.kestra.plugin"
-description 'Plugin template for Kestra'
+description 'Plugin for AI with Langchain4j for Kestra'
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"

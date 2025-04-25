@@ -6,9 +6,9 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.serializers.JacksonMapper;
-import io.kestra.plugin.langchain4j.model.GeminiModelProvider;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.provider.GoogleGemini;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.provider.OpenAI;
 import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -43,8 +43,8 @@ class JSONStructuredExtractionTest extends ContainerTest {
             .prompt(new Property<>("{{ prompt }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .build()
@@ -77,8 +77,8 @@ class JSONStructuredExtractionTest extends ContainerTest {
             .prompt(new Property<>("{{ prompt }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ endpoint }}"))
                 .build()
@@ -109,8 +109,8 @@ class JSONStructuredExtractionTest extends ContainerTest {
             .prompt(new Property<>("{{ prompt }}"))
             .schemaName(new Property<>("{{ schemaName }}"))
             .jsonFields(new Property<>("{{ jsonFields }}"))
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .baseUrl(new Property<>("{{ baseUrl}}"))
