@@ -104,9 +104,10 @@ public class RAG  extends Task implements RunnableTask<RAG.Output> {
 
     @Override
     public Output run(RunContext runContext) throws Exception {
+        var embeddingModel = Optional.ofNullable(embeddingModelProvider).orElse(chatModelProvider).embeddingModel(runContext);
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-            .embeddingStore(embeddingStore.embeddingStore(runContext))
-            .embeddingModel(Optional.ofNullable(embeddingModelProvider).orElse(chatModelProvider).embeddingModel(runContext))
+            .embeddingModel(embeddingModel)
+            .embeddingStore(embeddingStore.embeddingStore(runContext, embeddingModel.dimension()))
             .maxResults(contentRetrieverConfiguration.getMaxResults())
             .minScore(contentRetrieverConfiguration.getMinScore())
             .build();

@@ -57,7 +57,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion"
     implementation "dev.langchain4j:langchain4j-vertex-ai:$langchain4jVersion"
 
-    testImplementation 'org.testcontainers:ollama:1.20.6'
+    implementation "dev.langchain4j:langchain4j-elasticsearch:$langchain4jVersion"
 }
 
 
@@ -107,6 +107,9 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library"
     testImplementation "org.wiremock:wiremock-jetty12"
 
+
+    testImplementation 'org.testcontainers:ollama:1.20.6'
+    testImplementation 'org.testcontainers:elasticsearch:1.20.6'
 }
 
 /**********************************************************************************************************************\
