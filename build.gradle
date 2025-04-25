@@ -56,7 +56,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-ollama:$langchain4jVersion"
     implementation "dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion"
     implementation "dev.langchain4j:langchain4j-vertex-ai:$langchain4jVersion"
-
+    implementation "dev.langchain4j:langchain4j-pgvector:$langchain4jVersion"
     implementation "dev.langchain4j:langchain4j-elasticsearch:$langchain4jVersion"
 }
 
