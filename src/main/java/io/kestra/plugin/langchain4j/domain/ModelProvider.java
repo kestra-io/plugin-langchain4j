@@ -10,6 +10,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.plugins.AdditionalPlugin;
 import io.kestra.core.plugins.serdes.PluginDeserializer;
 import io.kestra.core.runners.RunContext;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 // AND concrete subclasses must be annotated by @JsonDeserialize() to avoid StackOverflow.
 @JsonDeserialize(using = PluginDeserializer.class)
 public abstract class ModelProvider extends AdditionalPlugin {
+    @Schema(title = "Model name")
     @NotNull
     private Property<String> modelName;
 

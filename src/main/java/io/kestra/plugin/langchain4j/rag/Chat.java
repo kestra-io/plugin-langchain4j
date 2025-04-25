@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j;
+package io.kestra.plugin.langchain4j.rag;
 
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -40,28 +40,28 @@ import java.util.Optional;
 
                 tasks:
                   - id: ingest
-                    type: io.kestra.plugin.langchain4j.IndexDocument
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
                     provider:
                       type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-embedding-exp-03-07
                       apiKey: your_api_key
-                    embeddingStore:
+                    embeddings:
                       type: io.kestra.plugin.langchain4j.store.KvEmbeddingStore
                     fromDocuments:
                       - content: My name is Loïc
                       - content: I live in Lille
                       - content: My tailor is rich
                   - id: rag
-                    type: io.kestra.plugin.langchain4j.RAG
-                    chatModelProvider:
+                    type: io.kestra.plugin.langchain4j.Chat
+                    chatProvider:
                       type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-1.5-flash
                       apiKey: your_api_key
-                    embeddingModelProvider:
+                    embeddingProvider:
                       type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
                       modelName: gemini-embedding-exp-03-07
                       apiKey: your_api_key
-                    embeddingStore:
+                    embeddings:
                       type: io.kestra.plugin.langchain4j.store.KvEmbeddingStore
                     prompt: Hello AI!
                 """
@@ -69,27 +69,27 @@ import java.util.Optional;
     },
     beta = true
 )
-public class RAG  extends Task implements RunnableTask<RAG.Output> {
+public class Chat extends Task implements RunnableTask<Chat.Output> {
     @Schema(title = "Text prompt", description = "The input prompt for the language model")
     @NotNull
     protected Property<String> prompt;
 
-    @Schema(title = "Embedding Store")
+    @Schema(title = "Embedding Store Provider")
     @NotNull
     @PluginProperty
-    private EmbeddingStoreProvider embeddingStore;
+    private EmbeddingStoreProvider embeddings;
 
     @Schema(
-        title = "Embedding Store Model Provider",
+        title = "Embedding Model Provider",
         description = "Optional, if not set the embedding model will be created by the `chatModelProvider`. In this case, be sure that the `chatModelProvider` supports embeddings."
     )
     @PluginProperty
-    private ModelProvider embeddingModelProvider;
+    private ModelProvider embeddingProvider;
 
     @Schema(title = "Chat Model Provider")
     @NotNull
     @PluginProperty
-    private ModelProvider chatModelProvider;
+    private ModelProvider chatProvider;
 
     @Schema(title = "Chat configuration")
     @NotNull
@@ -104,16 +104,16 @@ public class RAG  extends Task implements RunnableTask<RAG.Output> {
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        var embeddingModel = Optional.ofNullable(embeddingModelProvider).orElse(chatModelProvider).embeddingModel(runContext);
+        var embeddingModel = Optional.ofNullable(embeddingProvider).orElse(chatProvider).embeddingModel(runContext);
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
             .embeddingModel(embeddingModel)
-            .embeddingStore(embeddingStore.embeddingStore(runContext, embeddingModel.dimension()))
+            .embeddingStore(embeddings.embeddingStore(runContext, embeddingModel.dimension(), false))
             .maxResults(contentRetrieverConfiguration.getMaxResults())
             .minScore(contentRetrieverConfiguration.getMinScore())
             .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
-            .chatLanguageModel(chatModelProvider.chatLanguageModel(runContext, chatConfiguration))
+            .chatLanguageModel(chatProvider.chatLanguageModel(runContext, chatConfiguration))
             .contentRetriever(contentRetriever)
             .build();
 

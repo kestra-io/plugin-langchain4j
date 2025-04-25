@@ -4,9 +4,9 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.model.GeminiModelProvider;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.provider.GoogleGemini;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.provider.OpenAI;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -40,8 +40,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -68,8 +68,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -102,8 +102,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -128,8 +128,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -160,8 +160,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
@@ -186,8 +186,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()

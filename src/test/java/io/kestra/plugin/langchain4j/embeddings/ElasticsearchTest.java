@@ -1,15 +1,12 @@
-package io.kestra.plugin.langchain4j.store;
+package io.kestra.plugin.langchain4j.embeddings;
 
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.ContainerTest;
-import io.kestra.plugin.langchain4j.IngestDocument;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
+import io.kestra.plugin.langchain4j.rag.IngestDocument;
+import io.kestra.plugin.langchain4j.provider.Ollama;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,7 +20,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class ElasticsearchEmbeddingStoreTest extends ContainerTest {
+class ElasticsearchTest extends ContainerTest {
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -54,15 +51,15 @@ class ElasticsearchEmbeddingStoreTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                ElasticsearchEmbeddingStore.builder()
-                    .connection(ElasticsearchEmbeddingStore.ElasticsearchConnection.builder()
+            .embeddings(
+                Elasticsearch.builder()
+                    .connection(Elasticsearch.ElasticsearchConnection.builder()
                         .hosts(List.of("http://localhost:" + elasticsearchContainer.getMappedPort(9200)))
                         .build()
                     )

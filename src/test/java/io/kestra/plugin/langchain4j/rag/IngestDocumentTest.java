@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j;
+package io.kestra.plugin.langchain4j.rag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.kestra.core.exceptions.ResourceExpiredException;
@@ -10,8 +10,9 @@ import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.storages.kv.KVEntry;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVValue;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.store.KvEmbeddingStore;
+import io.kestra.plugin.langchain4j.ContainerTest;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.embeddings.KestraKVStore;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -40,15 +41,16 @@ class IngestDocumentTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                KvEmbeddingStore.builder().build()
+            .embeddings(
+                KestraKVStore.builder().build()
             )
+            .drop(Property.of(true))
             .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("I'm Loïc")).build()))
             .build();
 
@@ -57,7 +59,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey);
+        assertKvSore(kvStore, kvKey, 1);
     }
 
     @Test
@@ -74,15 +76,16 @@ class IngestDocumentTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                KvEmbeddingStore.builder().build()
+            .embeddings(
+                KestraKVStore.builder().build()
             )
+            .drop(Property.of(true))
             .fromInternalURIs(Property.of(List.of(uri.toString())))
             .build();
 
@@ -91,7 +94,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey);
+        assertKvSore(kvStore, kvKey, 1);
     }
 
     @Test
@@ -109,15 +112,16 @@ class IngestDocumentTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                KvEmbeddingStore.builder().build()
+            .embeddings(
+                KestraKVStore.builder().build()
             )
+            .drop(Property.of(true))
             .fromPath(Property.of("ingest"))
             .build();
 
@@ -126,7 +130,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey);
+        assertKvSore(kvStore, kvKey, 2);
     }
 
     @Test
@@ -139,15 +143,16 @@ class IngestDocumentTest extends ContainerTest {
 
         var task = IngestDocument.builder()
             .provider(
-                OllamaModelProvider.builder()
-                    .type(OllamaModelProvider.class.getName())
+                Ollama.builder()
+                    .type(Ollama.class.getName())
                     .modelName(new Property<>("{{ modelName }}"))
                     .endpoint(new Property<>("{{ endpoint }}"))
                     .build()
             )
-            .embeddingStore(
-                KvEmbeddingStore.builder().build()
+            .embeddings(
+                KestraKVStore.builder().build()
             )
+            .drop(Property.of(true))
             .fromExternalURLs(Property.of(List.of("https://dummyjson.com/products/1", "https://dummyjson.com/products/2")))
             .build();
 
@@ -156,10 +161,10 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey);
+        assertKvSore(kvStore, kvKey, 2);
     }
 
-    private void assertKvSore(KVStore kvStore, String kvKey) throws IOException, ResourceExpiredException {
+    private void assertKvSore(KVStore kvStore, String kvKey, int nbDocuments) throws IOException, ResourceExpiredException {
         Optional<KVEntry> kvEntry = kvStore.get(kvKey);
         assertThat(kvEntry.isPresent()).isTrue();
         Optional<KVValue> kvValue = kvStore.getValue(kvEntry.get().key());
@@ -168,5 +173,6 @@ class IngestDocumentTest extends ContainerTest {
         String value  = kvValue.get().value().toString();
         JsonNode jsonNode = JacksonMapper.ofJson().readTree(value);
         assertThat(jsonNode.get("entries")).isNotNull();
+        assertThat(jsonNode.get("entries").size()).isEqualTo(nbDocuments);
     }
 }

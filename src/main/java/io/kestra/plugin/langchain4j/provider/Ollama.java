@@ -1,18 +1,18 @@
-package io.kestra.plugin.langchain4j.model;
+package io.kestra.plugin.langchain4j.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
-import dev.langchain4j.model.vertexai.VertexAiChatModel;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
-import dev.langchain4j.model.vertexai.VertexAiImageModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,23 +25,19 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Plugin(beta = true)
 @JsonDeserialize
-public class VertexAIModelProvider extends ModelProvider {
+@Schema(
+    title = "Ollama Model Provider"
+)
+public class Ollama extends ModelProvider {
+    @Schema(title = "Model endpoint")
     @NotNull
     private Property<String> endpoint;
 
-    @NotNull
-    private Property<String> location;
-
-    @NotNull
-    private Property<String> project;
-
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        return VertexAiChatModel.builder()
+        return OllamaChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElseThrow())
-            .location(runContext.render(this.location).as(String.class).orElseThrow())
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(this.endpoint).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
@@ -49,22 +45,15 @@ public class VertexAIModelProvider extends ModelProvider {
     }
 
     @Override
-    public ImageModel imageModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return VertexAiImageModel.builder()
-            .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
-            .location(runContext.render(this.location).as(String.class).orElse(null))
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
-            .build();
+    public ImageModel imageModel(RunContext runContext) {
+        throw new UnsupportedOperationException("Ollama didn't support image generation");
     }
 
     @Override
     public EmbeddingModel embeddingModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        return VertexAiEmbeddingModel.builder()
+        return OllamaEmbeddingModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElse(null))
-            .location(runContext.render(this.location).as(String.class).orElse(null))
-            .project(runContext.render(this.project).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(this.endpoint).as(String.class).orElseThrow())
             .build();
     }
 }

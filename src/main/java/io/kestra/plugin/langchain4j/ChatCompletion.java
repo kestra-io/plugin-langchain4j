@@ -30,7 +30,7 @@ import java.util.List;
 @Plugin(
     examples = {
         @Example(
-            title = "Chat Completion Example",
+            title = "Chat with OpenAI",
             full = true,
             code = {
                 """
@@ -40,7 +40,7 @@ import java.util.List;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.OpenAI
                         apiKey: your_openai_api_key
                         modelName: gpt-4o-mini
                     messages:
@@ -64,7 +64,7 @@ import java.util.List;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.OllamaModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.Ollama
                         modelName: llama3
                         endpoint: http://localhost:11434
                     messages:
