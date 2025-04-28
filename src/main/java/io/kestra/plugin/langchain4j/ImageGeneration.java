@@ -21,11 +21,15 @@ import org.slf4j.Logger;
 @ToString
 @EqualsAndHashCode
 @Getter
+@Schema(
+    title = "Generate an image with AI models.", 
+    description = "Generate images with a prompt using OpenAI's DALL-E 3 or Google Vertex AI."
+)
 @NoArgsConstructor
 @Plugin(
     examples = {
         @Example(
-            title = "Image Generation using OpenAI (DALL-E 3)",
+            title = "Generate an image using OpenAI (DALL-E 3).",
             full = true,
             code = {
                 """
@@ -45,7 +49,7 @@ import org.slf4j.Logger;
             }
         ),
         @Example(
-            title = "Image Generation using Google Vertex AI",
+            title = "Generate an image using Google Vertex AI.",
             full = true,
             code = {
                 """

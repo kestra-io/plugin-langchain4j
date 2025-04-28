@@ -39,14 +39,14 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Ingest documents into an embedded store",
+    title = "Ingest documents into an embedded store.",
     description = "Only text documents (TXT, HTML, Markdown) are supported for now."
 )
 @Plugin(
     examples = {
         @Example(
             full = true,
-            title = "Ingest documents into a KV embedding store.\\nWARNING: the KV embedding store is for quick prototyping only as it stores the embedding vectors in a K/V Store and load them all in memory.",
+            title = "Ingest documents into a KV embedding store.\\nWARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in a K/V Store and load them all in memory.",
             code = """
                 id: document-ingestion
                 namespace: company.team

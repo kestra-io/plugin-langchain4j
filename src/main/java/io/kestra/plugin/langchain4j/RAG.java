@@ -25,7 +25,7 @@ import java.util.Optional;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Retrieval Augmented Generation")
+@Schema(title = "Create a Retrieval Augmented Generation (RAG) pipeline.")
 @Plugin(
     examples = {
         @Example(
@@ -81,7 +81,7 @@ public class RAG  extends Task implements RunnableTask<RAG.Output> {
 
     @Schema(
         title = "Embedding Store Model Provider",
-        description = "Optional, if not set the embedding model will be created by the `chatModelProvider`. In this case, be sure that the `chatModelProvider` supports embeddings."
+        description = "Optional, if not set, the embedding model will be created by the `chatModelProvider`. In this case, be sure that the `chatModelProvider` supports embeddings."
     )
     @PluginProperty
     private ModelProvider embeddingModelProvider;

@@ -26,7 +26,9 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Chat Completion Task", description = "Handles chat interactions using AI models (OpenAI, Ollama, Gemini).")
+@Schema(
+    title = "Complete chats with AI models.", 
+    description = "Handles chat interactions using AI models (OpenAI, Ollama, Gemini).")
 @Plugin(
     examples = {
         @Example(

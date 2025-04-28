@@ -23,7 +23,10 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @NoArgsConstructor
-@Schema(title = "Text Classification Task", description = "Classifies text using AI models")
+@Schema(
+    title = "Classify text with AI models.",
+    description = "The task is currently compatible with OpenAI, Ollama, and Gemini models."
+)
 @Plugin(
     examples = {
         @Example(

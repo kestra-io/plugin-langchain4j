@@ -31,8 +31,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "JSON Structured Extraction Task",
-    description = "Generates JSON structured extraction using AI models (Ollama, OpenAI, Gemini)"
+    title = "Generate JSON-Structured Extraction with AI models.",
+    description = "The task is currently compatible with OpenAI, Ollama, and Gemini models."
 )
 @Plugin(
     examples = {
