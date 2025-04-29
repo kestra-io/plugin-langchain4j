@@ -4,10 +4,11 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.model.GeminiModelProvider;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.provider.GoogleGemini;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.provider.OpenAI;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class ChatCompletionTest extends ContainerTest {
-    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -28,6 +29,7 @@ class ChatCompletionTest extends ContainerTest {
      * Test Chat Completion using OpenAI.
      */
     @Test
+    @Disabled("demo apikey has quotas")
     void testChatCompletionOpenAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
             "apiKey", "demo",
@@ -40,8 +42,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -68,8 +70,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -90,10 +92,10 @@ class ChatCompletionTest extends ContainerTest {
      * Test Chat Completion using Gemini.
      */
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
     void testChatCompletionGemini() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", GEMINI_API_KEY,
+            "apiKey", GEMINI_APIKEY,
             "modelName", "gemini-1.5-flash",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -102,8 +104,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -122,14 +124,14 @@ class ChatCompletionTest extends ContainerTest {
             .build());
 
         runContext = runContextFactory.of(Map.of(
-            "apiKey", GEMINI_API_KEY,
+            "apiKey", GEMINI_APIKEY,
             "modelName", "gemini-1.5-flash",
             "messages", updatedMessages
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -160,8 +162,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()
@@ -186,8 +188,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ ollamaEndpoint }}"))
                 .build()

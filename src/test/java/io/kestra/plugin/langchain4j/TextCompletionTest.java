@@ -4,10 +4,11 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.model.GeminiModelProvider;
-import io.kestra.plugin.langchain4j.model.OllamaModelProvider;
-import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.provider.GoogleGemini;
+import io.kestra.plugin.langchain4j.provider.Ollama;
+import io.kestra.plugin.langchain4j.provider.OpenAI;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -19,25 +20,25 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
 public class TextCompletionTest extends ContainerTest {
-    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
     void testTextCompletionGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "What is the capital of France?",
-            "apiKey", GEMINI_API_KEY,
+            "apiKey", GEMINI_APIKEY,
             "modelName", "gemini-1.5-flash"
         ));
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .provider(GeminiModelProvider.builder()
-                .type(GeminiModelProvider.class.getName())
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
@@ -63,8 +64,8 @@ public class TextCompletionTest extends ContainerTest {
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .provider(OllamaModelProvider.builder()
-                .type(OllamaModelProvider.class.getName())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .endpoint(new Property<>("{{ endpoint }}"))
                 .build()
@@ -80,6 +81,7 @@ public class TextCompletionTest extends ContainerTest {
     }
 
     @Test
+    @Disabled("demo apikey has quotas")
     void testTextCompletionOpenAI() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
@@ -92,8 +94,8 @@ public class TextCompletionTest extends ContainerTest {
 
         TextCompletion task = TextCompletion.builder()
             .prompt(new Property<>("{{ prompt }}"))
-            .provider(OpenAIModelProvider.builder()
-                .type(OpenAIModelProvider.class.getName())
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))

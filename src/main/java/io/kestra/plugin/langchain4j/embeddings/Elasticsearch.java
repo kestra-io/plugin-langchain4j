@@ -1,5 +1,6 @@
-package io.kestra.plugin.langchain4j.store;
+package io.kestra.plugin.langchain4j.embeddings;
 
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.instrumentation.NoopInstrumentation;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -34,6 +35,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 
@@ -49,7 +51,10 @@ import java.util.Map;
 @NoArgsConstructor
 @Plugin(beta = true)
 @JsonDeserialize
-public class ElasticsearchEmbeddingStore extends EmbeddingStoreProvider {
+@Schema(
+    title = "Elasticsearch Embedding Store"
+)
+public class Elasticsearch extends EmbeddingStoreProvider {
     @JsonIgnore
     private transient RestClient restClient;
 
@@ -57,11 +62,16 @@ public class ElasticsearchEmbeddingStore extends EmbeddingStoreProvider {
     private ElasticsearchConnection connection;
 
     @NotNull
+    @Schema(title = "The name of the index to store embeddings")
     private Property<String> indexName;
 
     @Override
-    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension) throws IOException, IllegalVariableEvaluationException {
+    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IOException, IllegalVariableEvaluationException {
         restClient = connection.client(runContext).restClient();
+
+        if (drop) {
+            restClient.performRequest(new Request("DELETE", runContext.render(indexName).as(String.class).orElseThrow()));
+        }
 
         return dev.langchain4j.store.embedding.elasticsearch.ElasticsearchEmbeddingStore.builder()
             .restClient(restClient)

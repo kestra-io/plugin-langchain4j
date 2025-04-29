@@ -6,7 +6,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.model.OpenAIModelProvider;
+import io.kestra.plugin.langchain4j.provider.OpenAI;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,8 +58,8 @@ public class ImageGenerationTest {
 
         ImageGeneration task = ImageGeneration.builder()
                 .prompt(new Property<>("{{ prompt }}"))
-                .provider(OpenAIModelProvider.builder()
-                        .type(OpenAIModelProvider.class.getName())
+                .provider(OpenAI.builder()
+                        .type(OpenAI.class.getName())
                         .apiKey(new Property<>("{{ apiKey }}"))
                         .modelName(new Property<>("{{ modelName }}"))
                         .baseUrl(new Property<>("{{ endpoint }}"))

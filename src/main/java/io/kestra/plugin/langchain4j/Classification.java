@@ -44,7 +44,7 @@ import java.util.List;
                       - true
                       - false
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.OpenAI
                         apiKey: your_openai_api_key
                         modelName: gpt-4o
                 """
@@ -65,7 +65,7 @@ import java.util.List;
                       - true
                       - false
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.OllamaModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.Ollama
                         modelName: llama3
                         endpoint: http://localhost:11434
                 """
@@ -87,7 +87,7 @@ import java.util.List;
                       - negative
                       - neutral
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                         apiKey: your_gemini_api_key
                         modelName: gemini-1.5-flash
                 """

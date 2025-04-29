@@ -40,7 +40,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: "A futuristic cityscape at sunset"
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.OpenAIModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.OpenAI
                         apiKey: your_openai_api_key
                         modelName: dall-e-3
                         size: LARGE
@@ -60,7 +60,7 @@ import org.slf4j.Logger;
                     type: io.kestra.core.plugin.langchain4j.ImageGeneration
                     prompt: A realistic portrait of a medieval knight
                     provider:
-                        type: io.kestra.plugin.langchain4j.model.VertexAIModelProvider
+                        type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
                         apiKey: your_google_api_key
                         modelName: imagegeneration@005
                         projectId: my-gcp-project
