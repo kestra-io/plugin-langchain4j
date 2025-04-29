@@ -9,6 +9,7 @@ import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.plugin.langchain4j.provider.GoogleGemini;
 import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.provider.OpenAI;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -22,13 +23,13 @@ import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class JSONStructuredExtractionTest extends ContainerTest {
-    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
     void testJSONStructuredGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
@@ -36,7 +37,7 @@ class JSONStructuredExtractionTest extends ContainerTest {
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
             "modelName", "gemini-1.5-flash",
-            "apiKey", GEMINI_API_KEY
+            "apiKey", GEMINI_APIKEY
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
@@ -93,7 +94,9 @@ class JSONStructuredExtractionTest extends ContainerTest {
         assertThat(runOutput.getExtractedJson().toLowerCase().contains("alice"), is(Boolean.TRUE));
         assertThat(runOutput.getExtractedJson().toLowerCase().contains("london"), is(Boolean.TRUE));
     }
+
     @Test
+    @Disabled("demo apikey has quotas")
     void testJSONStructuredOpenAI() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(

@@ -8,6 +8,7 @@ import io.kestra.plugin.langchain4j.provider.GoogleGemini;
 import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.provider.OpenAI;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -20,19 +21,19 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
 class ClassificationTest extends ContainerTest {
-    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
     void testClassificationGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
-            "apiKey", GEMINI_API_KEY,
+            "apiKey", GEMINI_APIKEY,
             "modelName", "gemini-1.5-flash"
 
         ));
@@ -86,6 +87,7 @@ class ClassificationTest extends ContainerTest {
 
 
     @Test
+    @Disabled("demo apikey has quotas")
     void testClassificationOpenAI() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
