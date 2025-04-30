@@ -53,15 +53,16 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 
                 tasks:
                   - id: ingest
-                    type: io.kestra.plugin.langchain4j.IngestDocument
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
-                      apiKey: my_api_key
-                    embeddingStore:
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
-                    fromDocuments:
-                      - content: My name is Loïc!
+                    drop: true
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         ),
         @Example(
@@ -73,18 +74,18 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 
                 tasks:
                   - id: ingest
-                    type: io.kestra.plugin.langchain4j.IngestDocument
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
-                      apiKey: my_api_key
-                    embeddingStore:
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
                         type: io.kestra.plugin.langchain4j.embeddings.Elasticsearch
                         connection:
                           hosts:
                             - http://localhost:9200
-                    fromDocuments:
-                      - content: My name is Loïc!
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         ),
         @Example(
@@ -96,7 +97,7 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 
                 tasks:
                   - id: ingest
-                    type: io.kestra.plugin.langchain4j.IngestDocument
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
@@ -105,12 +106,12 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                       type: io.kestra.plugin.langchain4j.embeddings.PGVector
                       host: localhost
                       port: 5432
-                      user: my_user
-                      password: my_password
+                      user:  "{{ secret('POSTGRES_USER') }}"
+                      password:  "{{ secret('POSTGRES_PASSWORD') }}"
                       database: postgres
                       table: embeddings
-                    fromDocuments:
-                      - content: My name is Loïc!
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         )
     },
