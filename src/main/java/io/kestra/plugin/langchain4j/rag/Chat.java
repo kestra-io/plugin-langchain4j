@@ -31,8 +31,8 @@ import java.util.Optional;
         @Example(
             full = true,
             title = """
-                A Retrieval Augmented Generation (RAG) pipeline that first index documents, then use the RAG task to call an LLM with embedding retrieval.
-                WARNING: the KV embedding store is for quick prototyping only as it store the embedding vectors in a K/V store an load them all in memory.
+                Chat with your data using Retrieval Augmented Generation (RAG). This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating. 
+                WARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in Kestra's KV store an loads them all into memory.
                 """,
             code = """
                 id: rag
@@ -42,28 +42,36 @@ import java.util.Optional;
                   - id: ingest
                     type: io.kestra.plugin.langchain4j.rag.IngestDocument
                     provider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
-                      apiKey: your_api_key
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddings:
-                      type: io.kestra.plugin.langchain4j.store.KvEmbeddingStore
-                    fromDocuments:
-                      - content: My name is Loïc
-                      - content: I live in Lille
-                      - content: My tailor is rich
-                  - id: rag
-                    type: io.kestra.plugin.langchain4j.Chat
-                    chatProvider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    drop: true
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+
+                  - id: chat_without_rag
+                    type: io.kestra.plugin.langchain4j.TextCompletion
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-1.5-flash
-                      apiKey: your_api_key
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    prompt: Which features were released in Kestra 0.22?
+
+                  - id: chat_with_rag
+                    type: io.kestra.plugin.langchain4j.rag.Chat
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-1.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddingProvider:
-                      type: io.kestra.plugin.langchain4j.model.GeminiModelProvider
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-embedding-exp-03-07
-                      apiKey: your_api_key
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddings:
-                      type: io.kestra.plugin.langchain4j.store.KvEmbeddingStore
-                    prompt: Hello AI!
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    prompt: Which features were released in Kestra 0.22?
                 """
         )
     },
