@@ -39,16 +39,12 @@ public class DeepseekAI extends ModelProvider {
 
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        if (configuration.getTopK() != null) {
-            throw new IllegalArgumentException("OpenAI models didn't support topK");
-        }
-
         return OpenAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
             .build();
     }
 
