@@ -8,6 +8,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.provider.AnthropicAI;
+import io.kestra.plugin.langchain4j.provider.DeepseekAI;
 import io.kestra.plugin.langchain4j.provider.GoogleGemini;
 import io.kestra.plugin.langchain4j.provider.MistralAI;
 import io.kestra.plugin.langchain4j.provider.Ollama;
@@ -31,6 +32,7 @@ class ChatCompletionTest extends ContainerTest {
     private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
     private final String ANTHROPIC_APIKEY = System.getenv("ANTHROPIC_API_KEY");
     private final String MISTRAL_APIKEY = System.getenv("MISTRAL_API_KEY");
+    private final String DEEPSEEK_APIKEY = System.getenv("DEEPSEEK_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -216,7 +218,7 @@ class ChatCompletionTest extends ContainerTest {
     }
 
 
-    @Disabled("demo apikey has quotas")
+    @EnabledIfEnvironmentVariable(named = "ANTHROPIC_APIKEY", matches = ".*")
     @Test
     void testChatCompletionAnthropicAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
@@ -301,7 +303,7 @@ class ChatCompletionTest extends ContainerTest {
     }
 
 
-    @Disabled("demo apikey has quotas")
+    @EnabledIfEnvironmentVariable(named = "MISTRAL_APIKEY", matches = ".*")
     @Test
     void testChatCompletionMistralAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
@@ -421,5 +423,96 @@ class ChatCompletionTest extends ContainerTest {
 
         // Verify error message contains 404 details
         assertThat(exception.getMessage(), containsString("404"));
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "DEEPSEEK_APIKEY", matches = ".*")
+    void testChatCompletionDeepseek() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", DEEPSEEK_APIKEY,
+            "modelName", "deepseek-chat",
+            "baseUrl", "https://api.deepseek.com/v1",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            .provider(DeepseekAI.builder()
+                .type(DeepseekAI.class.getName())
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .modelName(new Property<>("{{ modelName }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
+
+        // GIVEN: Second prompt using the updated messages
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
+            .content("What's my name?")
+            .build());
+
+        runContext = runContextFactory.of(Map.of(
+            "apiKey", DEEPSEEK_APIKEY,
+            "modelName", "deepseek-chat",
+            "baseUrl", "https://api.deepseek.com/v1",
+            "messages", updatedMessages
+        ));
+
+        ChatCompletion secondTask = ChatCompletion.builder()
+            .provider(DeepseekAI.builder()
+                .type(DeepseekAI.class.getName())
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .modelName(new Property<>("{{ modelName }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .build()
+            )
+            .messages(new Property<>("{{ messages }}"))
+            .build();
+
+        // WHEN: Run the second task
+        ChatCompletion.Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
+    }
+
+    @Test
+    void testChatCompletionDeepseek_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "DEEPSEEK_APIKEY",
+            "modelName", "deepseek-chat",
+            "baseUrl", "https://api.deepseek.com/v1",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            .provider(DeepseekAI.builder()
+                .type(DeepseekAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .build()
+            )
+            .build();
+
+        // Assert RuntimeException and error message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            ChatCompletion.Output output = task.run(runContext);
+        }, "status code: 401");
+
+        // Verify error message contains 404 details
+        assertThat(exception.getMessage(), containsString("Authentication Fails, Your api key: ****IKEY is invalid"));
     }
 }
