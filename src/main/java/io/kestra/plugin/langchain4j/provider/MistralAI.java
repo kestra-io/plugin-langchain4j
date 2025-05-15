@@ -39,6 +39,9 @@ public class MistralAI extends ModelProvider {
 
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
+        if (configuration.getTopK() != null) {
+            throw new IllegalArgumentException("Mistral models didn't support topK");
+        }
         return MistralAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())

@@ -27,8 +27,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Complete chats with AI models.", 
-    description = "Handles chat interactions using AI models (OpenAI, Ollama, Gemini).")
+    title = "Complete chats with AI models.",
+    description = "Handles chat interactions using AI models (OpenAI, Ollama, Gemini, Anthropic, MistralAI, Deepseek).")
 @Plugin(
     examples = {
         @Example(
@@ -72,6 +72,68 @@ import java.util.List;
                     messages:
                       - type: USER
                         content: Hello, I need information about your services
+                """
+            }
+        ),
+        @Example(
+            title = "Chat Completion with Anthropic AI",
+            full = true,
+            code = {
+                """
+                id: anthropic_chat_completion
+                namespace: company.team
+                 task:
+                    id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AnthropicAI
+                        apiKey: your_anthropic_api_key
+                        modelName: claude-3-haiku-20240307
+                    messages:
+                      - type: USER
+                        content: Hello, my name is John
+                """
+            }
+        ),
+        @Example(
+            title = "Chat Completion with Deepseek",
+            full = true,
+            code = {
+                """
+                id: deepseek_chat_completion
+                namespace: company.team
+                 task:
+                    id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.DeepseekAI
+                        apiKey: your_deepseek_api_key
+                        modelName: deepseek-chat
+                        baseUrl: https://api.deepseek.com
+                    messages:
+                      - type: USER
+                        content: Hello, my name is John
+                """
+            }
+        ),
+        @Example(
+            title = "Chat Completion with MistralAI",
+            full = true,
+            code = {
+                """
+                id: mistral_chat_completion
+                namespace: company.team
+                 task:
+                    id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.MistralAI
+                        apiKey: your_mistral_api_key
+                        modelName: mistral:7b
+                        baseUrl: https://api.mistral.ai/v1
+                    messages:
+                      - type: USER
+                        content: Hello, my name is John
                 """
             }
         )
