@@ -1,10 +1,12 @@
 package io.kestra.plugin.langchain4j.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
@@ -14,6 +16,7 @@ import io.kestra.plugin.langchain4j.domain.ModelProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -25,32 +28,50 @@ import lombok.experimental.SuperBuilder;
 @Plugin(beta = true)
 @JsonDeserialize
 @Schema(
-    title = "Anthropic AI Model Provider"
+    title = "Deepseek Model Provider"
 )
-public class AnthropicAI extends ModelProvider {
+public class DeepSeek extends ModelProvider {
+    private static final String BASE_URL = "https://api.deepseek.com/v1";
+
     @Schema(title = "API Key")
     @NotNull
     private Property<String> apiKey;
 
+    @Schema(title = "API base URL")
+    @NotNull
+    @Builder.Default
+    private Property<String> baseUrl = Property.of(BASE_URL);
+
     @Override
     public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        return AnthropicChatModel.builder()
+        if (configuration.getTopK() != null) {
+            throw new IllegalArgumentException("OpenAI models didn't support topK");
+        }
+        return OpenAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(BASE_URL))
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
-            .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
             .build();
     }
 
     @Override
-    public ImageModel imageModel(RunContext runContext) {
-        throw new UnsupportedOperationException("Anthropic didn't support image model");
+    public ImageModel imageModel(RunContext runContext) throws IllegalVariableEvaluationException {
+        return OpenAiImageModel.builder()
+            .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(null))
+            .build();
     }
 
     @Override
     public EmbeddingModel embeddingModel(RunContext runContext) throws IllegalVariableEvaluationException {
-        throw new UnsupportedOperationException("Anthropic doesn’t support embeddings");
+        return OpenAiEmbeddingModel.builder()
+            .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
+            .baseUrl(runContext.render(baseUrl).as(String.class).orElse(BASE_URL))
+            .build();
     }
 
 }

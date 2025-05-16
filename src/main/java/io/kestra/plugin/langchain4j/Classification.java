@@ -92,6 +92,72 @@ import java.util.List;
                         modelName: gemini-1.5-flash
                 """
             }
+        ),
+        @Example(
+            title = "Text Classification using Anthropic",
+            full = true,
+            code = {
+                """
+                id: anthropic_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
+                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                    classes:
+                      - positive
+                      - negative
+                      - neutral
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.Anthropic
+                        apiKey: your_anthropic_api_key
+                        modelName: claude-3-haiku-20240307
+                """
+            }
+        ),
+        @Example(
+            title = "Text Classification using DeepSeek",
+            full = true,
+            code = {
+                """
+                id: deepseek_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
+                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                    classes:
+                      - positive
+                      - negative
+                      - neutral
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
+                        apiKey: your_deepseek_api_key
+                        modelName: deepseek-chat
+                """
+            }
+        ),
+        @Example(
+            title = "Text Classification using Mistral AI",
+            full = true,
+            code = {
+                """
+                id: mistral_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
+                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                    classes:
+                      - positive
+                      - negative
+                      - neutral
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.MistralAI
+                        apiKey: your_mistral_api_key
+                        modelName: mistral:7b
+                """
+            }
         )
     },
     beta = true

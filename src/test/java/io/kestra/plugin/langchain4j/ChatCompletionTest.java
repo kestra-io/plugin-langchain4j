@@ -1,21 +1,17 @@
 package io.kestra.plugin.langchain4j;
 
-import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.anthropic.AnthropicChatModelName;
-import dev.langchain4j.model.mistralai.MistralAiModels;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.plugin.langchain4j.provider.AnthropicAI;
-import io.kestra.plugin.langchain4j.provider.DeepseekAI;
+import io.kestra.plugin.langchain4j.provider.Anthropic;
+import io.kestra.plugin.langchain4j.provider.DeepSeek;
 import io.kestra.plugin.langchain4j.provider.GoogleGemini;
 import io.kestra.plugin.langchain4j.provider.MistralAI;
 import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.provider.OpenAI;
-import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -231,8 +227,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(AnthropicAI.builder()
-                .type(AnthropicAI.class.getName())
+            .provider(Anthropic.builder()
+                .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .build()
@@ -258,7 +254,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion secondTask = ChatCompletion.builder()
             .provider(Ollama.builder()
-                .type(AnthropicAI.class.getName())
+                .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .build()
             )
@@ -285,8 +281,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(AnthropicAI.builder()
-                .type(AnthropicAI.class.getName())
+            .provider(Anthropic.builder()
+                .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .build()
@@ -439,8 +435,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(DeepseekAI.builder()
-                .type(DeepseekAI.class.getName())
+            .provider(DeepSeek.builder()
+                .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -467,8 +463,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-            .provider(DeepseekAI.builder()
-                .type(DeepseekAI.class.getName())
+            .provider(DeepSeek.builder()
+                .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .modelName(new Property<>("{{ modelName }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
@@ -498,8 +494,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
-            .provider(DeepseekAI.builder()
-                .type(DeepseekAI.class.getName())
+            .provider(DeepSeek.builder()
+                .type(DeepSeek.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
                 .apiKey(new Property<>("{{ apiKey }}"))
                 .baseUrl(new Property<>("{{ baseUrl }}"))
