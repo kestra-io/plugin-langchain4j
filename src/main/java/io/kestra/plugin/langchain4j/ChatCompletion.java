@@ -76,7 +76,7 @@ import java.util.List;
             }
         ),
         @Example(
-            title = "Chat Completion with Anthropic AI",
+            title = "Chat Completion with Anthropic",
             full = true,
             code = {
                 """
@@ -86,7 +86,7 @@ import java.util.List;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.AnthropicAI
+                        type: io.kestra.plugin.langchain4j.provider.Anthropic
                         apiKey: your_anthropic_api_key
                         modelName: claude-3-haiku-20240307
                     messages:
@@ -96,7 +96,7 @@ import java.util.List;
             }
         ),
         @Example(
-            title = "Chat Completion with Deepseek",
+            title = "Chat Completion with DeepSeek",
             full = true,
             code = {
                 """
@@ -106,10 +106,9 @@ import java.util.List;
                     id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.DeepseekAI
+                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
                         apiKey: your_deepseek_api_key
                         modelName: deepseek-chat
-                        baseUrl: https://api.deepseek.com
                     messages:
                       - type: USER
                         content: Hello, my name is John
@@ -130,7 +129,6 @@ import java.util.List;
                         type: io.kestra.plugin.langchain4j.provider.MistralAI
                         apiKey: your_mistral_api_key
                         modelName: mistral:7b
-                        baseUrl: https://api.mistral.ai/v1
                     messages:
                       - type: USER
                         content: Hello, my name is John

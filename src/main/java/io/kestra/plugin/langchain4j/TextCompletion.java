@@ -78,6 +78,63 @@ import org.slf4j.Logger;
                         modelName: gemini-1.5-flash
                 """
             }
+        ),
+        @Example(
+            title = "Text Completion using Anthropic",
+            full = true,
+            code = {
+                """
+                id: anthropic_text_completion
+                namespace: company.team
+
+                task:
+                    id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
+                    prompt: Summarize the history of the Eiffel Tower
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.Anthropic
+                        apiKey: your_anthropic_api_key
+                        modelName: claude-3-haiku-20240307
+                """
+            }
+        ),
+        @Example(
+            title = "Text Completion using DeepSeek",
+            full = true,
+            code = {
+                """
+                id: deepseek_text_completion
+                namespace: company.team
+
+                task:
+                    id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
+                    prompt: Summarize the history of the Eiffel Tower
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
+                        apiKey: your_deepseek_api_key
+                        modelName: deepseek-chat
+                """
+            }
+        ),
+        @Example(
+            title = "Text Completion using Mistal AI",
+            full = true,
+            code = {
+                """
+                id: mistral_text_completion
+                namespace: company.team
+
+                task:
+                    id: text_completion
+                    type: io.kestra.core.plugin.langchain4j.TextCompletion
+                    prompt: Summarize the history of the Eiffel Tower
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.MistralAI
+                        apiKey: your_mistral_api_key
+                        modelName: mistral:7b
+                """
+            }
         )
     },
     beta = true
