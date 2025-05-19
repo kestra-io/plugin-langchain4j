@@ -1,6 +1,6 @@
 package io.kestra.plugin.langchain4j;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -192,7 +192,7 @@ public class Classification extends Task implements RunnableTask<Classification.
         List<String> renderedClasses = runContext.render(classes).asList(String.class);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
+        ChatModel model = this.provider.chatModel(runContext, configuration);
 
         String classificationPrompt = renderedPrompt +
             "\nRespond by only one of the following classes by typing just the exact class name: " + renderedClasses;

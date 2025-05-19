@@ -31,7 +31,7 @@ import java.util.Optional;
         @Example(
             full = true,
             title = """
-                Chat with your data using Retrieval Augmented Generation (RAG). This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating. 
+                Chat with your data using Retrieval Augmented Generation (RAG). This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating.
                 WARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in Kestra's KV store an loads them all into memory.
                 """,
             code = """
@@ -121,7 +121,7 @@ public class Chat extends Task implements RunnableTask<Chat.Output> {
             .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
-            .chatLanguageModel(chatProvider.chatLanguageModel(runContext, chatConfiguration))
+            .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
             .contentRetriever(contentRetriever)
             .build();
 

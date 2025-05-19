@@ -39,6 +39,7 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
     // Platform
+    implementation enforcedPlatform("dev.langchain4j:langchain4j-bom:$langchain4jVersion")
     annotationProcessor enforcedPlatform("io.kestra:platform:$kestraVersion")
     implementation enforcedPlatform("io.kestra:platform:$kestraVersion")
     api enforcedPlatform("io.kestra:platform:$kestraVersion")
@@ -51,15 +52,16 @@ dependencies {
     annotationProcessor group: "io.kestra", name: "processor", version: kestraVersion
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
-    implementation "dev.langchain4j:langchain4j:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-open-ai:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-ollama:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-vertex-ai:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-anthropic:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-mistral-ai:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-pgvector:$langchain4jVersion"
-    implementation "dev.langchain4j:langchain4j-elasticsearch:$langchain4jVersion"
+    implementation "dev.langchain4j:langchain4j"
+    implementation "dev.langchain4j:langchain4j-open-ai"
+    implementation "dev.langchain4j:langchain4j-ollama"
+    implementation "dev.langchain4j:langchain4j-google-ai-gemini"
+    implementation "dev.langchain4j:langchain4j-vertex-ai"
+    implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
+    implementation "dev.langchain4j:langchain4j-anthropic"
+    implementation "dev.langchain4j:langchain4j-mistral-ai"
+    implementation "dev.langchain4j:langchain4j-pgvector"
+    implementation "dev.langchain4j:langchain4j-elasticsearch"
 }
 
 

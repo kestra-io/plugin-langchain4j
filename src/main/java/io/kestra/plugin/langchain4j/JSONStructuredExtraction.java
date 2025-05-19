@@ -1,7 +1,7 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.request.ResponseFormat;
@@ -184,7 +184,7 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
         List<String> renderedJsonFields = Property.asList(jsonFields, runContext, String.class);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
+        ChatModel model = this.provider.chatModel(runContext, configuration);
 
         // Build JSON schema
         ResponseFormat responseFormat = ResponseFormat.builder()

@@ -1,7 +1,7 @@
 package io.kestra.plugin.langchain4j.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
@@ -28,7 +28,7 @@ public abstract class ModelProvider extends AdditionalPlugin {
     @NotNull
     private Property<String> modelName;
 
-    public abstract ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException;
+    public abstract ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException;
 
     public abstract ImageModel imageModel(RunContext runContext) throws IllegalVariableEvaluationException;
 
