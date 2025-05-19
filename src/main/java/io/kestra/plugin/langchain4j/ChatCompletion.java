@@ -3,7 +3,7 @@ package io.kestra.plugin.langchain4j;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -164,7 +164,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertMessages(renderedChatMessagesInput);
 
         // Get the appropriate model from the factory
-        ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
+        ChatModel model = this.provider.chatModel(runContext, configuration);
 
         // Generate AI response
         AiMessage aiResponse = model.chat(chatMessages).aiMessage();

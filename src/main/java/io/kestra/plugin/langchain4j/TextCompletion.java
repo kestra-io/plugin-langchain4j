@@ -1,6 +1,6 @@
 package io.kestra.plugin.langchain4j;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -164,7 +164,7 @@ public class TextCompletion extends Task implements RunnableTask<TextCompletion.
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
 
         // Get the model
-        ChatLanguageModel model = this.provider.chatLanguageModel(runContext, configuration);
+        ChatModel model = this.provider.chatModel(runContext, configuration);
 
         String completion = model.chat(renderedPrompt);
         logger.debug("Generated Completion: {}", completion);

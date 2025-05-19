@@ -1,8 +1,7 @@
 package io.kestra.plugin.langchain4j.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import dev.langchain4j.model.anthropic.AnthropicChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.mistralai.MistralAiChatModel;
@@ -38,7 +37,7 @@ public class MistralAI extends ModelProvider {
     private Property<String> baseUrl;
 
     @Override
-    public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
+    public ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
         if (configuration.getTopK() != null) {
             throw new IllegalArgumentException("Mistral models didn't support topK");
         }

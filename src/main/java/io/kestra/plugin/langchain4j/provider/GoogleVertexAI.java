@@ -1,11 +1,11 @@
 package io.kestra.plugin.langchain4j.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
-import dev.langchain4j.model.vertexai.VertexAiChatModel;
 import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
+import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
 import dev.langchain4j.model.vertexai.VertexAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
@@ -43,15 +43,18 @@ public class GoogleVertexAI extends ModelProvider {
     private Property<String> project;
 
     @Override
-    public ChatLanguageModel chatLanguageModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        return VertexAiChatModel.builder()
+    public ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
+        if (this.endpoint != null) {
+            throw new IllegalArgumentException("The `endpoint` property cannot be used for the Chat Model which uses Gemini only.");
+        }
+
+        return VertexAiGeminiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-            .endpoint(runContext.render(this.endpoint).as(String.class).orElseThrow())
             .location(runContext.render(this.location).as(String.class).orElseThrow())
             .project(runContext.render(this.project).as(String.class).orElseThrow())
-            .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
+            .temperature(runContext.render(configuration.getTemperature()).as(Double.class).map(d -> d.floatValue()).orElse(null))
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
-            .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
+            .topP(runContext.render(configuration.getTopP()).as(Double.class).map(d -> d.floatValue()).orElse(null))
             .build();
     }
 
