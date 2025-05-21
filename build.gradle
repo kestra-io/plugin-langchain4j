@@ -112,7 +112,7 @@ dependencies {
     testImplementation "org.wiremock:wiremock-jetty12"
 
 
-    testImplementation 'org.testcontainers:ollama:1.20.6'
+    testImplementation 'org.testcontainers:ollama:1.21.0'
     testImplementation 'org.testcontainers:elasticsearch:1.20.6'
 }
 
