@@ -38,20 +38,23 @@ import java.util.List;
                 """
                 id: openai_chat_completion
                 namespace: company.team
-                task:
-                    id: chat_completion
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.OpenAI
                         apiKey: your_openai_api_key
                         modelName: gpt-4o-mini
                     messages:
+                      - type: SYSTEM
+                        content: You are a french AI
                       - type: USER
-                        content: Hello, my name is John
-                      - type: AI
-                        content: Welcome John, how can I assist you today?
-                      - type: USER
-                        content: I need help with my account
+                        content: "{{inputs.prompt}}"
                 """
             }
         ),
@@ -62,16 +65,23 @@ import java.util.List;
                 """
                 id: ollama_chat_completion
                 namespace: company.team
-                task:
-                    id: chat_completion
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.Ollama
                         modelName: llama3
                         endpoint: http://localhost:11434
                     messages:
+                      - type: SYSTEM
+                        content: You are a french AI
                       - type: USER
-                        content: Hello, I need information about your services
+                        content: "{{inputs.prompt}}"
                 """
             }
         ),
@@ -82,16 +92,23 @@ import java.util.List;
                 """
                 id: anthropic_chat_completion
                 namespace: company.team
-                 task:
-                    id: chat_completion
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.Anthropic
                         apiKey: your_anthropic_api_key
                         modelName: claude-3-haiku-20240307
                     messages:
+                      - type: SYSTEM
+                        content: You are a french AI
                       - type: USER
-                        content: Hello, my name is John
+                        content: "{{inputs.prompt}}"
                 """
             }
         ),
@@ -102,16 +119,23 @@ import java.util.List;
                 """
                 id: deepseek_chat_completion
                 namespace: company.team
-                 task:
-                    id: chat_completion
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.DeepSeek
                         apiKey: your_deepseek_api_key
                         modelName: deepseek-chat
                     messages:
+                      - type: SYSTEM
+                        content: You are a french AI
                       - type: USER
-                        content: Hello, my name is John
+                        content: "{{inputs.prompt}}"
                 """
             }
         ),
@@ -122,16 +146,23 @@ import java.util.List;
                 """
                 id: mistral_chat_completion
                 namespace: company.team
-                 task:
-                    id: chat_completion
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.MistralAI
                         apiKey: your_mistral_api_key
                         modelName: mistral:7b
                     messages:
+                      - type: SYSTEM
+                        content: You are a french AI
                       - type: USER
-                        content: Hello, my name is John
+                        content: "{{inputs.prompt}}"
                 """
             }
         )

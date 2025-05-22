@@ -241,7 +241,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
     }
 
     private dev.langchain4j.data.document.DocumentSplitter from(DocumentSplitter splitter) {
-        return switch (splitter.type) {
+        return switch (splitter.splitter) {
             case RECURSIVE -> DocumentSplitters.recursive(splitter.getMaxSegmentSizeInChars(), splitter.getMaxOverlapSizeInChars());
             case PARAGRAPH -> new DocumentByParagraphSplitter(splitter.getMaxSegmentSizeInChars(), splitter.getMaxOverlapSizeInChars());
             case LINE -> new DocumentByLineSplitter(splitter.getMaxSegmentSizeInChars(), splitter.getMaxOverlapSizeInChars());
@@ -277,7 +277,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
                 It tries to split the document into paragraphs first and fits as many paragraphs into a single TextSegment as possible.
                 If some paragraphs are too long, they are recursively split into lines, then sentences, then words, and then characters until they fit into a segment."""
         )
-        private Type type = Type.RECURSIVE;
+        private Type splitter = Type.RECURSIVE;
 
         @NotNull
         @Schema(title = "The maximum size of the segment, defined in characters.")

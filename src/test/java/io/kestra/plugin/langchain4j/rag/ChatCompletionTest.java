@@ -16,7 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class ChatTest extends ContainerTest {
+class ChatCompletionTest extends ContainerTest {
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -43,7 +43,7 @@ class ChatTest extends ContainerTest {
         IngestDocument.Output ingestOutput = ingest.run(runContext);
         assertThat(ingestOutput.getIngestedDocuments()).isEqualTo(1);
 
-        var rag = Chat.builder()
+        var rag = ChatCompletion.builder()
             .chatProvider(
                 Ollama.builder()
                     .type(Ollama.class.getName())

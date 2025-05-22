@@ -52,15 +52,17 @@ import java.util.Optional;
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
 
                   - id: chat_without_rag
-                    type: io.kestra.plugin.langchain4j.TextCompletion
+                    type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-1.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
-                    prompt: Which features were released in Kestra 0.22?
+                    messages:
+                    - type: user
+                      content: Which features were released in Kestra 0.22?
 
                   - id: chat_with_rag
-                    type: io.kestra.plugin.langchain4j.rag.Chat
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       modelName: gemini-1.5-flash
@@ -77,7 +79,7 @@ import java.util.Optional;
     },
     beta = true
 )
-public class Chat extends Task implements RunnableTask<Chat.Output> {
+public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
     @Schema(title = "Text prompt", description = "The input prompt for the language model")
     @NotNull
     protected Property<String> prompt;
