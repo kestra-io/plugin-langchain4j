@@ -5,6 +5,7 @@ import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
+import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.provider.Anthropic;
 import io.kestra.plugin.langchain4j.provider.DeepSeek;
 import io.kestra.plugin.langchain4j.provider.GoogleGemini;
@@ -50,6 +51,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -78,6 +81,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -111,6 +116,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .messages(new Property<>("{{ messages }}"))
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
@@ -138,6 +145,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -170,6 +179,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -196,6 +207,8 @@ class ChatCompletionTest extends ContainerTest {
             ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+                // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -227,6 +240,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -253,6 +268,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(Ollama.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -281,6 +298,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -313,6 +332,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -341,6 +362,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -372,6 +395,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -403,6 +428,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -435,6 +462,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -463,6 +492,8 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -494,6 +525,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))

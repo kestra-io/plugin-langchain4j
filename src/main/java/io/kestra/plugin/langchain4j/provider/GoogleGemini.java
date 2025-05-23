@@ -35,6 +35,10 @@ public class GoogleGemini extends ModelProvider {
 
     @Override
     public ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
+        if (configuration.getSeed() != null) {
+            throw new IllegalArgumentException("Gemini models didn't support setting the seed");
+        }
+
         return GoogleAiGeminiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())

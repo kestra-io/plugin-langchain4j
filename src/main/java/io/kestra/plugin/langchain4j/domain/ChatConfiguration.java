@@ -17,6 +17,9 @@ public class ChatConfiguration {
     @Schema(title = "topP")
     private Property<Double> topP;
 
+    @Schema(title = "seed")
+    private Property<Integer> seed;
+
     public static ChatConfiguration empty() {
         return ChatConfiguration.builder().build();
     }

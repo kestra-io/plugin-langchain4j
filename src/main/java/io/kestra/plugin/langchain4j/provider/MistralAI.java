@@ -41,12 +41,14 @@ public class MistralAI extends ModelProvider {
         if (configuration.getTopK() != null) {
             throw new IllegalArgumentException("Mistral models didn't support topK");
         }
+
         return MistralAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .baseUrl(runContext.render(this.baseUrl).as(String.class).orElse(null))
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
+            .randomSeed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
             .build();
     }
 
