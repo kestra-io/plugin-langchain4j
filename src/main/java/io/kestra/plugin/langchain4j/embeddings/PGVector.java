@@ -56,7 +56,7 @@ public class PGVector extends EmbeddingStoreProvider {
         description = "An IVFFlat index divides vectors into lists, and then searches a subset of those lists closest to the query vector. It has faster build times and uses less memory than HNSW but has lower query performance (in terms of speed-recall tradeoff)."
     )
     @Builder.Default
-    private Property<Boolean> useIndex = Property.of(false);
+    private Property<Boolean> useIndex = Property.ofValue(false);
 
     @Override
     public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IOException, IllegalVariableEvaluationException {

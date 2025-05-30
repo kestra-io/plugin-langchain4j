@@ -6,12 +6,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
-import io.kestra.plugin.langchain4j.provider.Anthropic;
-import io.kestra.plugin.langchain4j.provider.DeepSeek;
-import io.kestra.plugin.langchain4j.provider.GoogleGemini;
-import io.kestra.plugin.langchain4j.provider.MistralAI;
-import io.kestra.plugin.langchain4j.provider.Ollama;
-import io.kestra.plugin.langchain4j.provider.OpenAI;
+import io.kestra.plugin.langchain4j.provider.*;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -30,6 +25,9 @@ class ChatCompletionTest extends ContainerTest {
     private final String ANTHROPIC_APIKEY = System.getenv("ANTHROPIC_API_KEY");
     private final String MISTRAL_APIKEY = System.getenv("MISTRAL_API_KEY");
     private final String DEEPSEEK_APIKEY = System.getenv("DEEPSEEK_API_KEY");
+    private final String AMAZON_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
+    private final String AMAZON_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
+    private final String AZURE_OPENAI_API_KEY = System.getenv("AZURE_OPENAI_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -52,7 +50,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -78,11 +76,11 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "gpt-4o-mini",
             "baseUrl", "http://langchain4j.dev/demo/openai/v1",
             "messages", updatedMessages
-            ));
+        ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -117,7 +115,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion task = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .messages(new Property<>("{{ messages }}"))
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
@@ -146,7 +144,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -180,7 +178,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -204,11 +202,11 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
             "messages", updatedMessages
-            ));
+        ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-                // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -241,7 +239,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -269,7 +267,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -299,7 +297,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -324,7 +322,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
             "apiKey", "MISTRAL_APIKEY",
-             "baseUrl", "https://api.mistral.ai/v1",
+            "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
@@ -333,7 +331,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -363,7 +361,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -396,7 +394,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -429,7 +427,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -463,7 +461,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -493,7 +491,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .apiKey(new Property<>("{{ apiKey }}"))
@@ -526,7 +524,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             .messages(new Property<>("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
@@ -543,5 +541,205 @@ class ChatCompletionTest extends ContainerTest {
 
         // Verify error message contains 404 details
         assertThat(exception.getMessage(), containsString("Authentication Fails, Your api key: ****IKEY is invalid"));
+    }
+
+
+    @EnabledIfEnvironmentVariable(named = "AWS_ACCESS_KEY_ID", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AWS_SECRET_ACCESS_KEY", matches = ".*")
+    @Test
+    void testChatCompletionAmazonBedrockAI() throws Exception {
+        String modelName = "anthropic.claude-3-sonnet-20240229-v1:0";
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "accessKeyId", AMAZON_ACCESS_KEY_ID,
+            "secretAccessKey", AMAZON_SECRET_ACCESS_KEY,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(AmazonBedrock.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
+
+        // GIVEN: Second prompt using the updated messages
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
+            .content("What's my name?")
+            .build());
+
+        runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "accessKeyId", AMAZON_ACCESS_KEY_ID,
+            "secretAccessKey", AMAZON_SECRET_ACCESS_KEY,
+            "messages", updatedMessages
+        ));
+
+        ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(AmazonBedrock.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .build()
+            )
+            .messages(new Property<>("{{ messages }}"))
+            .build();
+
+        // WHEN: Run the second task
+        ChatCompletion.Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
+    }
+
+    @Test
+    void testChatCompletionAmazonBedrockAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "anthropic.claude-3-sonnet-20240229-v1:0",
+            "accessKeyId", "DUMMY_ACCESS_KEY_ID",
+            "secretAccessKey", "DUMMY_SECRET_ACCESS_KEY",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
+            .provider(AmazonBedrock.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .build()
+            )
+            .build();
+
+        // Assert RuntimeException and error message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            ChatCompletion.Output output = task.run(runContext);
+        }, "status code: 401");
+
+        // Verify error message
+        assertThat(exception.getMessage(), containsString("Unable to load region from any of the providers in the chain"));
+    }
+
+
+    @EnabledIfEnvironmentVariable(named = "AZURE_OPENAI_API_KEY", matches = ".*")
+    @Test
+    void testChatCompletionAzureOpenAI() throws Exception {
+        String modelName = "anthropic.claude-3-sonnet-20240229-v1:0";
+        String azureEndpoint = "https://kestra.openai.azure.com/";
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "apiKey", AZURE_OPENAI_API_KEY,
+            "endpoint", azureEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
+
+        // GIVEN: Second prompt using the updated messages
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
+            .content("What's my name?")
+            .build());
+
+        runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "apiKey", AZURE_OPENAI_API_KEY,
+            "endpoint", azureEndpoint,
+            "messages", updatedMessages
+        ));
+
+        ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .messages(new Property<>("{{ messages }}"))
+            .build();
+
+        // WHEN: Run the second task
+        ChatCompletion.Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
+    }
+
+    @Test
+    void testChatCompletionAzureOpenAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "anthropic.claude-3-sonnet-20240229-v1:0",
+            "apiKey", "DUMMY_API_KEY",
+            "endpoint", "https://kestra.openai.azure.com/",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .build();
+
+        // Assert RuntimeException and error message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            ChatCompletion.Output output = task.run(runContext);
+        }, "status code: 401");
+
+        // Verify error message
+        assertThat(exception.getMessage(), containsString("UnknownHostException"));
     }
 }

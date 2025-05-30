@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 @EqualsAndHashCode
 @Getter
 @Schema(
-    title = "Generate an image with AI models.", 
+    title = "Generate an image with AI models.",
     description = "Generate images with a prompt using OpenAI's DALL-E 3 or Google Vertex AI."
 )
 @NoArgsConstructor
@@ -67,6 +67,25 @@ import org.slf4j.Logger;
                         location: us-central1
                         endpoint: us-central1-aiplatform.googleapis.com
                         publisher: google
+                """
+            }
+        ),
+        @Example(
+            title = "Generate an image using Azure OpenAI.",
+            full = true,
+            code = {
+                """
+                id: azure_openai_image_generation
+                namespace: company.team
+                task:
+                    id: image_generation
+                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
+                    prompt: A great photo of a dog
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
+                        apiKey: your_azure_api_key
+                        endpoint: https://your-resource.openai.azure.com/
+                        modelName: dall-e-3
                 """
             }
         )

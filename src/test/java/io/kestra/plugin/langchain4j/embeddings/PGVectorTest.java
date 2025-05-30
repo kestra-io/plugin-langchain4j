@@ -57,15 +57,15 @@ class PGVectorTest extends ContainerTest {
             )
             .embeddings(
                 PGVector.builder()
-                    .host(Property.of("localhost"))
-                    .port(Property.of(pg.getMappedPort(5432)))
-                    .user(Property.of("kestra"))
-                    .password(Property.of("kestra"))
-                    .database(Property.of("postgres"))
-                    .table(Property.of("embeddings"))
+                    .host(Property.ofValue("localhost"))
+                    .port(Property.ofValue(pg.getMappedPort(5432)))
+                    .user(Property.ofValue("kestra"))
+                    .password(Property.ofValue("kestra"))
+                    .database(Property.ofValue("postgres"))
+                    .table(Property.ofValue("embeddings"))
                     .build()
             )
-            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("I'm Loïc")).build()))
+            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("I'm Loïc")).build()))
             .build();
 
         IngestDocument.Output output = task.run(runContext);

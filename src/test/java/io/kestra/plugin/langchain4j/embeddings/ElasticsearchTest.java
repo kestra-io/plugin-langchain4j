@@ -63,10 +63,10 @@ class ElasticsearchTest extends ContainerTest {
                         .hosts(List.of("http://localhost:" + elasticsearchContainer.getMappedPort(9200)))
                         .build()
                     )
-                    .indexName(Property.of("embeddings"))
+                    .indexName(Property.ofValue("embeddings"))
                     .build()
             )
-            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("I'm Loïc")).build()))
+            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("I'm Loïc")).build()))
             .build();
 
         IngestDocument.Output output = task.run(runContext);
