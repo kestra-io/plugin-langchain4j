@@ -37,7 +37,7 @@ class ChatCompletionTest extends ContainerTest {
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())
-            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("It rains today")).build()))
+            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("It rains today")).build()))
             .build();
 
         IngestDocument.Output ingestOutput = ingest.run(runContext);
@@ -52,7 +52,7 @@ class ChatCompletionTest extends ContainerTest {
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())
-            .prompt(Property.of("How's the weather today?"))
+            .prompt(Property.ofValue("How's the weather today?"))
             .build();
 
         var ragOutput = rag.run(runContext);

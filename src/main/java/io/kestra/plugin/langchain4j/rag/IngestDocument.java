@@ -169,7 +169,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
         title = "Whether to drop the store before ingestion. Useful for testing purpose."
     )
     @Builder.Default
-    private Property<Boolean> drop = Property.of(Boolean.FALSE);
+    private Property<Boolean> drop = Property.ofValue(Boolean.FALSE);
 
     @Override
     public Output run(RunContext runContext) throws Exception {

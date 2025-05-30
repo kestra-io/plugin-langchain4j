@@ -40,7 +40,7 @@ public class DeepSeek extends ModelProvider {
     @Schema(title = "API base URL")
     @NotNull
     @Builder.Default
-    private Property<String> baseUrl = Property.of(BASE_URL);
+    private Property<String> baseUrl = Property.ofValue(BASE_URL);
 
     @Override
     public ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {

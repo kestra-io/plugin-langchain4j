@@ -50,8 +50,8 @@ class IngestDocumentTest extends ContainerTest {
             .embeddings(
                 KestraKVStore.builder().build()
             )
-            .drop(Property.of(true))
-            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.of("I'm Loïc")).build()))
+            .drop(Property.ofValue(true))
+            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("I'm Loïc")).build()))
             .build();
 
         IngestDocument.Output output = task.run(runContext);
@@ -85,8 +85,8 @@ class IngestDocumentTest extends ContainerTest {
             .embeddings(
                 KestraKVStore.builder().build()
             )
-            .drop(Property.of(true))
-            .fromInternalURIs(Property.of(List.of(uri.toString())))
+            .drop(Property.ofValue(true))
+            .fromInternalURIs(Property.ofValue(List.of(uri.toString())))
             .build();
 
         IngestDocument.Output output = task.run(runContext);
@@ -121,8 +121,8 @@ class IngestDocumentTest extends ContainerTest {
             .embeddings(
                 KestraKVStore.builder().build()
             )
-            .drop(Property.of(true))
-            .fromPath(Property.of("ingest"))
+            .drop(Property.ofValue(true))
+            .fromPath(Property.ofValue("ingest"))
             .build();
 
         IngestDocument.Output output = task.run(runContext);
@@ -152,8 +152,8 @@ class IngestDocumentTest extends ContainerTest {
             .embeddings(
                 KestraKVStore.builder().build()
             )
-            .drop(Property.of(true))
-            .fromExternalURLs(Property.of(List.of("https://dummyjson.com/products/1", "https://dummyjson.com/products/2")))
+            .drop(Property.ofValue(true))
+            .fromExternalURLs(Property.ofValue(List.of("https://dummyjson.com/products/1", "https://dummyjson.com/products/2")))
             .build();
 
         IngestDocument.Output output = task.run(runContext);
