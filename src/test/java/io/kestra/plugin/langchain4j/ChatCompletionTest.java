@@ -6,12 +6,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
-import io.kestra.plugin.langchain4j.provider.Anthropic;
-import io.kestra.plugin.langchain4j.provider.DeepSeek;
-import io.kestra.plugin.langchain4j.provider.GoogleGemini;
-import io.kestra.plugin.langchain4j.provider.MistralAI;
-import io.kestra.plugin.langchain4j.provider.Ollama;
-import io.kestra.plugin.langchain4j.provider.OpenAI;
+import io.kestra.plugin.langchain4j.provider.*;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -30,6 +25,8 @@ class ChatCompletionTest extends ContainerTest {
     private final String ANTHROPIC_APIKEY = System.getenv("ANTHROPIC_API_KEY");
     private final String MISTRAL_APIKEY = System.getenv("MISTRAL_API_KEY");
     private final String DEEPSEEK_APIKEY = System.getenv("DEEPSEEK_API_KEY");
+    private final String AMAZON_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
+    private final String AMAZON_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -78,7 +75,7 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "gpt-4o-mini",
             "baseUrl", "http://langchain4j.dev/demo/openai/v1",
             "messages", updatedMessages
-            ));
+        ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
@@ -204,10 +201,10 @@ class ChatCompletionTest extends ContainerTest {
             "modelName", "tinydolphin",
             "ollamaEndpoint", ollamaEndpoint,
             "messages", updatedMessages
-            ));
+        ));
 
         ChatCompletion secondTask = ChatCompletion.builder()
-                // Use a low temperature and a fixed seed so the completion would be more deterministic
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
@@ -324,7 +321,7 @@ class ChatCompletionTest extends ContainerTest {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
             "apiKey", "MISTRAL_APIKEY",
-             "baseUrl", "https://api.mistral.ai/v1",
+            "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
@@ -543,5 +540,101 @@ class ChatCompletionTest extends ContainerTest {
 
         // Verify error message contains 404 details
         assertThat(exception.getMessage(), containsString("Authentication Fails, Your api key: ****IKEY is invalid"));
+    }
+
+
+    @EnabledIfEnvironmentVariable(named = "AWS_ACCESS_KEY_ID", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "AWS_SECRET_ACCESS_KEY", matches = ".*")
+    @Test
+    void testChatCompletionAmazonBedrockAI() throws Exception {
+        String modelName = "anthropic.claude-3-sonnet-20240229-v1:0";
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "accessKeyId", AMAZON_ACCESS_KEY_ID,
+            "secretAccessKey", AMAZON_SECRET_ACCESS_KEY,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .provider(AmazonBedrock.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
+
+        // GIVEN: Second prompt using the updated messages
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
+            .content("What's my name?")
+            .build());
+
+        runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "accessKeyId", AMAZON_ACCESS_KEY_ID,
+            "secretAccessKey", AMAZON_SECRET_ACCESS_KEY,
+            "messages", updatedMessages
+        ));
+
+        ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .provider(Ollama.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .build()
+            )
+            .messages(new Property<>("{{ messages }}"))
+            .build();
+
+        // WHEN: Run the second task
+        ChatCompletion.Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
+    }
+
+    @Test
+    void testChatCompletionAmazonBedrockAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "anthropic.claude-3-sonnet-20240229-v1:0",
+            "accessKeyId", "DUMMY_ACCESS_KEY_ID",
+            "secretAccessKey", "DUMMY_SECRET_ACCESS_KEY",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).build())
+            .provider(AmazonBedrock.builder()
+                .type(AmazonBedrock.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .build()
+            )
+            .build();
+
+        // Assert RuntimeException and error message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {}, "status code: 401");
+
+        // Verify error message
+        assertThat(exception.getMessage(), containsString("Unable to load region from any of the providers in the chain"));
     }
 }

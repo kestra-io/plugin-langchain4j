@@ -165,6 +165,36 @@ import java.util.List;
                         content: "{{inputs.prompt}}"
                 """
             }
+        ),
+        @Example(
+            title = "Chat Completion with Amazon Bedrock",
+            full = true,
+            code = {
+                """
+                id: mistral_chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
+                        accessKeyId: your_access_key_id
+                        secretAccessKey: your_secret_access_key
+                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
+                    configuration:
+                        temperature: 0.5
+                    messages:
+                      - type: SYSTEM
+                        content: Are you a french AI (answer with yes or no)?
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
         )
     },
     beta = true
