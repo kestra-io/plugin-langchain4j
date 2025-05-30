@@ -158,6 +158,29 @@ import java.util.List;
                         modelName: mistral:7b
                 """
             }
+        ),
+        @Example(
+            title = "Text Classification using Azure OpenAI",
+            full = true,
+            code = {
+                """
+                id: azure_openai_text_classification
+                namespace: company.team
+                task:
+                    id: text_classification
+                    type: io.kestra.core.plugin.langchain4j.Classification
+                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                    classes:
+                      - positive
+                      - negative
+                      - neutral
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
+                        apiKey: your_azure_openai_api_key
+                        endpoint: https://your-resource.openai.azure.com/
+                        modelName: mistral:7b
+                """
+            }
         )
     },
     beta = true

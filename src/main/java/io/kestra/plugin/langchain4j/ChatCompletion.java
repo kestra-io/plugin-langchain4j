@@ -171,7 +171,7 @@ import java.util.List;
             full = true,
             code = {
                 """
-                id: mistral_chat_completion
+                id: bedrock_chat_completion
                 namespace: company.team
 
                 inputs:
@@ -188,6 +188,38 @@ import java.util.List;
                         modelName: anthropic.claude-3-sonnet-20240229-v1:0
                     configuration:
                         temperature: 0.5
+                    messages:
+                      - type: SYSTEM
+                        content: Are you a french AI (answer with yes or no)?
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        ),
+        @Example(
+            title = "Chat Completion with Azure OpenAI",
+            full = true,
+            code = {
+                """
+                id: azure_openai_chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
+                        apiKey: your_openai_api_key
+                        endpoint: https://your-resource.openai.azure.com/
+                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
+                    configuration:
+                        temperature: 0.5
+                        topP: 0.5
+                        seed: 42
                     messages:
                       - type: SYSTEM
                         content: Are you a french AI (answer with yes or no)?

@@ -27,6 +27,7 @@ class ChatCompletionTest extends ContainerTest {
     private final String DEEPSEEK_APIKEY = System.getenv("DEEPSEEK_API_KEY");
     private final String AMAZON_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
     private final String AMAZON_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
+    private final String AZURE_OPENAI_API_KEY = System.getenv("AZURE_OPENAI_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -591,9 +592,11 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion secondTask = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
-            .provider(Ollama.builder()
+            .provider(AmazonBedrock.builder()
                 .type(AmazonBedrock.class.getName())
                 .modelName(new Property<>("{{ modelName }}"))
+                .accessKeyId(new Property<>("{{ accessKeyId }}"))
+                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
                 .build()
             )
             .messages(new Property<>("{{ messages }}"))
@@ -632,9 +635,111 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         // Assert RuntimeException and error message
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {}, "status code: 401");
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            ChatCompletion.Output output = task.run(runContext);
+        }, "status code: 401");
 
         // Verify error message
         assertThat(exception.getMessage(), containsString("Unable to load region from any of the providers in the chain"));
+    }
+
+
+    @EnabledIfEnvironmentVariable(named = "AZURE_OPENAI_API_KEY", matches = ".*")
+    @Test
+    void testChatCompletionAzureOpenAI() throws Exception {
+        String modelName = "anthropic.claude-3-sonnet-20240229-v1:0";
+        String azureEndpoint = "https://kestra.openai.azure.com/";
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "apiKey", AZURE_OPENAI_API_KEY,
+            "endpoint", azureEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
+
+        // GIVEN: Second prompt using the updated messages
+        updatedMessages.add(ChatCompletion.ChatMessage.builder()
+            .type(ChatCompletion.ChatMessageType.USER)
+            .content("What's my name?")
+            .build());
+
+        runContext = runContextFactory.of(Map.of(
+            "modelName", modelName,
+            "apiKey", AZURE_OPENAI_API_KEY,
+            "endpoint", azureEndpoint,
+            "messages", updatedMessages
+        ));
+
+        ChatCompletion secondTask = ChatCompletion.builder()
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).seed(Property.of(123456789)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .messages(new Property<>("{{ messages }}"))
+            .build();
+
+        // WHEN: Run the second task
+        ChatCompletion.Output secondOutput = secondTask.run(runContext);
+
+        // THEN: Validate the second response
+        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getOutputMessages().size(), is(2));
+    }
+
+    @Test
+    void testChatCompletionAzureOpenAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "anthropic.claude-3-sonnet-20240229-v1:0",
+            "apiKey", "DUMMY_API_KEY",
+            "endpoint", "https://kestra.openai.azure.com/",
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(new Property<>("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.of(0.1)).build())
+            .provider(AzureOpenAI.builder()
+                .type(AzureOpenAI.class.getName())
+                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(new Property<>("{{ apiKey }}"))
+                .endpoint(new Property<>("{{ endpoint }}"))
+                .build()
+            )
+            .build();
+
+        // Assert RuntimeException and error message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            ChatCompletion.Output output = task.run(runContext);
+        }, "status code: 401");
+
+        // Verify error message
+        assertThat(exception.getMessage(), containsString("UnknownHostException"));
     }
 }
