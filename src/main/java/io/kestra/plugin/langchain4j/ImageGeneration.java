@@ -104,7 +104,6 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
     @PluginProperty
     private ModelProvider provider;
 
-
     @Override
     public ImageGeneration.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();

@@ -11,8 +11,8 @@ import io.kestra.core.storages.kv.KVEntry;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVValue;
 import io.kestra.plugin.langchain4j.ContainerTest;
-import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.embeddings.KestraKVStore;
+import io.kestra.plugin.langchain4j.provider.Ollama;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
 class IngestDocumentTest extends ContainerTest {
+
     @Inject
     private RunContextFactory runContextFactory;
 
@@ -43,8 +44,8 @@ class IngestDocumentTest extends ContainerTest {
             .provider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(
@@ -59,7 +60,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey, 1);
+        assertKvStore(kvStore, kvKey, 1);
     }
 
     @Test
@@ -78,8 +79,8 @@ class IngestDocumentTest extends ContainerTest {
             .provider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(
@@ -94,7 +95,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey, 1);
+        assertKvStore(kvStore, kvKey, 1);
     }
 
     @Test
@@ -114,8 +115,8 @@ class IngestDocumentTest extends ContainerTest {
             .provider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(
@@ -130,7 +131,7 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey, 2);
+        assertKvStore(kvStore, kvKey, 2);
     }
 
     @Test
@@ -145,8 +146,8 @@ class IngestDocumentTest extends ContainerTest {
             .provider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(
@@ -161,16 +162,16 @@ class IngestDocumentTest extends ContainerTest {
 
         String kvKey = (String) output.getEmbeddingStoreOutputs().get("kvName");
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        assertKvSore(kvStore, kvKey, 2);
+        assertKvStore(kvStore, kvKey, 2);
     }
 
-    private void assertKvSore(KVStore kvStore, String kvKey, int nbDocuments) throws IOException, ResourceExpiredException {
+    private void assertKvStore(KVStore kvStore, String kvKey, int nbDocuments) throws IOException, ResourceExpiredException {
         Optional<KVEntry> kvEntry = kvStore.get(kvKey);
         assertThat(kvEntry.isPresent()).isTrue();
         Optional<KVValue> kvValue = kvStore.getValue(kvEntry.get().key());
         assertThat(kvValue.isPresent()).isTrue();
         assertThat(kvValue.get().value()).isNotNull();
-        String value  = kvValue.get().value().toString();
+        String value = kvValue.get().value().toString();
         JsonNode jsonNode = JacksonMapper.ofJson().readTree(value);
         assertThat(jsonNode.get("entries")).isNotNull();
         assertThat(jsonNode.get("entries").size()).isEqualTo(nbDocuments);

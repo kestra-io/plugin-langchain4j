@@ -41,13 +41,13 @@ class JSONStructuredExtractionTest extends ContainerTest {
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .schemaName(new Property<>("{{ schemaName }}"))
-            .jsonFields(new Property<>("{{ jsonFields }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .schemaName(Property.ofExpression("{{ schemaName }}"))
+            .jsonFields(Property.ofExpression("{{ jsonFields }}"))
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
                 .build()
             )
             .build();
@@ -75,13 +75,13 @@ class JSONStructuredExtractionTest extends ContainerTest {
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .schemaName(new Property<>("{{ schemaName }}"))
-            .jsonFields(new Property<>("{{ jsonFields }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .schemaName(Property.ofExpression("{{ schemaName }}"))
+            .jsonFields(Property.ofExpression("{{ jsonFields }}"))
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -109,14 +109,14 @@ class JSONStructuredExtractionTest extends ContainerTest {
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .schemaName(new Property<>("{{ schemaName }}"))
-            .jsonFields(new Property<>("{{ jsonFields }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .schemaName(Property.ofExpression("{{ schemaName }}"))
+            .jsonFields(Property.ofExpression("{{ jsonFields }}"))
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl}}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl}}"))
                 .build()
             )
             .build();
