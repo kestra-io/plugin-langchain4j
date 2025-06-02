@@ -6,18 +6,31 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
+import io.kestra.core.models.executions.metrics.Counter;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
+import io.kestra.core.models.tasks.common.FetchType;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.FileSerde;
 import io.kestra.plugin.langchain4j.domain.EmbeddingStoreProvider;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URI;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
+
+import static io.kestra.core.models.tasks.common.FetchType.NONE;
 
 @SuperBuilder
 @Getter
@@ -28,7 +41,7 @@ import java.util.List;
     examples = {
         @Example(
             full = true,
-            title = "Search using embeddings from a query against an embedding store.",
+            title = "Make a search query against an embedding store.",
             code = """
                 id: search_embeddings_flow
                 namespace: company.team
@@ -55,13 +68,16 @@ import java.util.List;
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     query: "Feature Highlights"
+                    maxResults: 5
+                    minScore: 0.5
+                    fetchType: FETCH
                 """
         ),
     },
     beta = true
 )
 @Schema(
-    title = "Search text into embeddings",
+    title = "Search from an embedding store",
     description = "Performs a semantic search using a query string"
 )
 public class Search extends Task implements RunnableTask<Search.Output> {
@@ -71,12 +87,12 @@ public class Search extends Task implements RunnableTask<Search.Output> {
     private Property<String> query;
 
     @Schema(title = "Maximum number of results to return")
-    @Builder.Default
-    private Property<Integer> maxResults = Property.ofValue(5);
+    @NotNull
+    private Property<Integer> maxResults;
 
     @Schema(title = "Minimum similarity score")
-    @Builder.Default
-    private Property<Double> minScore = Property.ofValue(0.8);
+    @NotNull
+    private Property<Double> minScore;
 
     @Schema(title = "The embedding model provider")
     @NotNull
@@ -88,6 +104,10 @@ public class Search extends Task implements RunnableTask<Search.Output> {
     @PluginProperty
     private EmbeddingStoreProvider embeddings;
 
+    @NotNull
+    @Builder.Default
+    protected Property<FetchType> fetchType = Property.ofValue(NONE);
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         var embeddingModel = provider.embeddingModel(runContext);
@@ -98,8 +118,8 @@ public class Search extends Task implements RunnableTask<Search.Output> {
 
         var request = EmbeddingSearchRequest.builder()
             .queryEmbedding(embedding)
-            .maxResults(runContext.render(maxResults).as(Integer.class).orElse(0))
-            .minScore(runContext.render(minScore).as(Double.class).orElse(0.0))
+            .maxResults(runContext.render(maxResults).as(Integer.class).orElseThrow())
+            .minScore(runContext.render(minScore).as(Double.class).orElseThrow())
             .build();
 
         var results = store.search(request).matches().stream()
@@ -107,9 +127,71 @@ public class Search extends Task implements RunnableTask<Search.Output> {
             .map(TextSegment::text)
             .toList();
 
-        return Output.builder()
-            .results(results)
-            .build();
+        Output output;
+
+        int fetchedItemsCount = results.size();
+        var renderedFetchType = runContext.render(this.fetchType).as(FetchType.class).orElse(NONE);
+        switch (renderedFetchType) {
+            case NONE:
+                output = Output.builder().build();
+                runContext.metric(Counter.of("store.fetchedItemsCount", 0));
+                runContext.metric(Counter.of("fetch.fetchedItemsCount", 0));
+                break;
+            case FETCH:
+                output = Output.builder()
+                    .results(results)
+                    .size(results.size())
+                    .build();
+                runContext.metric(Counter.of("fetch.fetchedItemsCount", fetchedItemsCount));
+                break;
+            case FETCH_ONE:
+                output = Output.builder()
+                    .results(List.of(results.getFirst()))
+                    .size(fetchedItemsCount)
+                    .build();
+                runContext.metric(Counter.of("fetch.fetchedItemsCount", fetchedItemsCount));
+                break;
+            case STORE:
+                var result = storeResult(results, runContext);
+                int storedItemsCount = result.getValue().intValue();
+                output = Output.builder()
+                    .uri(result.getKey())
+                    .size(storedItemsCount)
+                    .build();
+                runContext.metric(Counter.of("store.fetchedItemsCount", storedItemsCount));
+                break;
+            default:
+                throw new IllegalStateException("Unexpected fetchType value: " + fetchType);
+        }
+
+        return output;
+    }
+
+    private Map.Entry<URI, Long> storeResult(List<String> results, RunContext runContext) throws IOException {
+        var tempFile = runContext.workingDir().createTempFile(".ion").toFile();
+
+        try (
+            var output = new BufferedWriter(new FileWriter(tempFile), FileSerde.BUFFER_SIZE)
+        ) {
+            var flowable = Flux
+                .create(
+                    s -> {
+                        results.forEach(s::next);
+                        s.complete();
+                    },
+                    FluxSink.OverflowStrategy.BUFFER
+                );
+
+            var count = FileSerde.writeAll(output, flowable);
+            var lineCount = count.block();
+
+            output.flush();
+
+            return new AbstractMap.SimpleEntry<>(
+                runContext.storage().putFile(tempFile),
+                lineCount
+            );
+        }
     }
 
     @Builder
@@ -118,5 +200,16 @@ public class Search extends Task implements RunnableTask<Search.Output> {
 
         @Schema(title = "List of matching text results")
         private final List<String> results;
+
+        @Schema(
+            title = "The output files URI in Kestra's internal storage.",
+            description = "Only available when `fetchType` is set to `STORE`."
+        )
+        private final URI uri;
+
+        @Schema(
+            title = "The count of the fetched or stored resources."
+        )
+        private Integer size;
     }
 }

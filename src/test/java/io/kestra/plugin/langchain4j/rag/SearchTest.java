@@ -2,6 +2,7 @@ package io.kestra.plugin.langchain4j.rag;
 
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
+import io.kestra.core.models.tasks.common.FetchType;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.ContainerTest;
 import io.kestra.plugin.langchain4j.embeddings.KestraKVStore;
@@ -21,7 +22,7 @@ class SearchTest extends ContainerTest {
     private RunContextFactory runContextFactory;
 
     @Test
-    void inlineDocuments() throws Exception {
+    void searchFromStore() throws Exception {
         // Given
         var runContext = runContextFactory.of(Map.of(
             "modelName", "tinydolphin",
@@ -58,10 +59,14 @@ class SearchTest extends ContainerTest {
             .provider(ollamaProvider)
             .embeddings(kestraKVEmbeddingsStore)
             .query(Property.ofValue("Banana"))
+            .maxResults(Property.ofValue(5))
+            .minScore(Property.ofValue(0.8))
+            .fetchType(Property.ofValue(FetchType.FETCH))
             .build();
 
         // Then
         var searchTaskOutput = searchTask.run(runContext);
         assertThat(searchTaskOutput.getResults()).isEqualTo(List.of("Banana"));
+        assertThat(searchTaskOutput.getSize()).isEqualTo(1);
     }
 }
