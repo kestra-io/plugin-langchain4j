@@ -117,7 +117,7 @@ dependencies {
 
 
     testImplementation 'org.testcontainers:ollama:1.21.0'
-    testImplementation 'org.testcontainers:elasticsearch:1.21.0'
+    testImplementation 'org.testcontainers:elasticsearch:1.21.1'
 }
 
 /**********************************************************************************************************************\
