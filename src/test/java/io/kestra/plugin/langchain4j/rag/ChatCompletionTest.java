@@ -32,8 +32,8 @@ class ChatCompletionTest extends ContainerTest {
             .provider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())
@@ -47,8 +47,8 @@ class ChatCompletionTest extends ContainerTest {
             .chatProvider(
                 Ollama.builder()
                     .type(Ollama.class.getName())
-                    .modelName(new Property<>("{{ modelName }}"))
-                    .endpoint(new Property<>("{{ endpoint }}"))
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())

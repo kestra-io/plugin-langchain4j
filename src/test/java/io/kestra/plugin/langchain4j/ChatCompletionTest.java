@@ -48,14 +48,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -83,12 +83,12 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -116,11 +116,11 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion task = ChatCompletion.builder()
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
                 .build()
             )
             .build();
@@ -147,11 +147,11 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -176,13 +176,13 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
                 .build()
             )
             .build();
@@ -209,11 +209,11 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ ollamaEndpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -237,13 +237,13 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
                 .build()
             )
             .build();
@@ -270,10 +270,10 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(Ollama.builder()
                 .type(Anthropic.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -295,13 +295,13 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
             .provider(Anthropic.builder()
                 .type(Anthropic.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
                 .build()
             )
             .build();
@@ -329,14 +329,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -364,12 +364,12 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -392,14 +392,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -425,14 +425,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(MistralAI.builder()
                 .type(MistralAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -459,14 +459,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -494,12 +494,12 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -522,14 +522,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(DeepSeek.builder()
                 .type(DeepSeek.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
@@ -559,14 +559,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(AmazonBedrock.builder()
                 .type(AmazonBedrock.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .accessKeyId(new Property<>("{{ accessKeyId }}"))
-                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .accessKeyId(Property.ofExpression("{{ accessKeyId }}"))
+                .secretAccessKey(Property.ofExpression("{{ secretAccessKey }}"))
                 .build()
             )
             .build();
@@ -594,12 +594,12 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(AmazonBedrock.builder()
                 .type(AmazonBedrock.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .accessKeyId(new Property<>("{{ accessKeyId }}"))
-                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .accessKeyId(Property.ofExpression("{{ accessKeyId }}"))
+                .secretAccessKey(Property.ofExpression("{{ secretAccessKey }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -622,14 +622,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
             .provider(AmazonBedrock.builder()
                 .type(AmazonBedrock.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .accessKeyId(new Property<>("{{ accessKeyId }}"))
-                .secretAccessKey(new Property<>("{{ secretAccessKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .accessKeyId(Property.ofExpression("{{ accessKeyId }}"))
+                .secretAccessKey(Property.ofExpression("{{ secretAccessKey }}"))
                 .build()
             )
             .build();
@@ -659,14 +659,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(AzureOpenAI.builder()
                 .type(AzureOpenAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .endpoint(Property.ofExpression("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -694,12 +694,12 @@ class ChatCompletionTest extends ContainerTest {
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .provider(AzureOpenAI.builder()
                 .type(AzureOpenAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .endpoint(Property.ofExpression("{{ endpoint }}"))
                 .build()
             )
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             .build();
 
         // WHEN: Run the second task
@@ -722,14 +722,14 @@ class ChatCompletionTest extends ContainerTest {
         ));
 
         ChatCompletion task = ChatCompletion.builder()
-            .messages(new Property<>("{{ messages }}"))
+            .messages(Property.ofExpression("{{ messages }}"))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).build())
             .provider(AzureOpenAI.builder()
                 .type(AzureOpenAI.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .endpoint(Property.ofExpression("{{ endpoint }}"))
                 .build()
             )
             .build();

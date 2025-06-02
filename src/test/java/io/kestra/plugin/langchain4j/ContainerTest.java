@@ -10,7 +10,6 @@ public class ContainerTest {
     public static GenericContainer<?> ollamaContainer;
     public static String ollamaEndpoint;
 
-
     @BeforeAll
     public static void setUp() throws Exception {
         // Docker image

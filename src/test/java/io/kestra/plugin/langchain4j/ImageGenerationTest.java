@@ -57,12 +57,12 @@ public class ImageGenerationTest {
         ));
 
         ImageGeneration task = ImageGeneration.builder()
-                .prompt(new Property<>("{{ prompt }}"))
+                .prompt(Property.ofExpression("{{ prompt }}"))
                 .provider(OpenAI.builder()
                         .type(OpenAI.class.getName())
-                        .apiKey(new Property<>("{{ apiKey }}"))
-                        .modelName(new Property<>("{{ modelName }}"))
-                        .baseUrl(new Property<>("{{ endpoint }}"))
+                        .apiKey(Property.ofExpression("{{ apiKey }}"))
+                        .modelName(Property.ofExpression("{{ modelName }}"))
+                        .baseUrl(Property.ofExpression("{{ endpoint }}"))
                         .build()
                 )
                 .build();

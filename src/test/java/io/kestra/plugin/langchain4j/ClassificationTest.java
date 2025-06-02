@@ -39,12 +39,12 @@ class ClassificationTest extends ContainerTest {
         ));
 
         Classification task = Classification.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .classes(new Property<>("{{ classes }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .classes(Property.ofValue(List.of("{{ classes }}")))
             .provider(GoogleGemini.builder()
                 .type(GoogleGemini.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
                 .build()
             )
             .build();
@@ -68,12 +68,12 @@ class ClassificationTest extends ContainerTest {
         ));
 
         Classification task = Classification.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .classes(new Property<>("{{ classes }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .classes(Property.ofValue(List.of("{{ classes }}")))
             .provider(Ollama.builder()
                 .type(Ollama.class.getName())
-                .modelName(new Property<>("{{ modelName }}"))
-                .endpoint(new Property<>("{{ endpoint }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ endpoint }}"))
                 .build()
             )
             .build();
@@ -99,13 +99,13 @@ class ClassificationTest extends ContainerTest {
         ));
 
         Classification task = Classification.builder()
-            .prompt(new Property<>("{{ prompt }}"))
-            .classes(new Property<>("{{ classes }}"))
+            .prompt(Property.ofExpression("{{ prompt }}"))
+            .classes(Property.ofValue(List.of("{{ classes }}")))
             .provider(OpenAI.builder()
                 .type(OpenAI.class.getName())
-                .apiKey(new Property<>("{{ apiKey }}"))
-                .modelName(new Property<>("{{ modelName }}"))
-                .baseUrl(new Property<>("{{ baseUrl }}"))
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
             .build();
