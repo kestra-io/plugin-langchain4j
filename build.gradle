@@ -53,15 +53,19 @@ dependencies {
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
     implementation "dev.langchain4j:langchain4j"
-    implementation "dev.langchain4j:langchain4j-open-ai"
-    implementation "dev.langchain4j:langchain4j-ollama"
+    implementation "dev.langchain4j:langchain4j-anthropic"
+    implementation "dev.langchain4j:langchain4j-azure-open-ai"
+    implementation "dev.langchain4j:langchain4j-bedrock"
+    implementation "dev.langchain4j:langchain4j-elasticsearch"
     implementation "dev.langchain4j:langchain4j-google-ai-gemini"
+    implementation "dev.langchain4j:langchain4j-mistral-ai"
+    implementation "dev.langchain4j:langchain4j-ollama"
+    implementation "dev.langchain4j:langchain4j-open-ai"
+    implementation "dev.langchain4j:langchain4j-pgvector"
     implementation "dev.langchain4j:langchain4j-vertex-ai"
     implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
-    implementation "dev.langchain4j:langchain4j-anthropic"
-    implementation "dev.langchain4j:langchain4j-mistral-ai"
-    implementation "dev.langchain4j:langchain4j-pgvector"
-    implementation "dev.langchain4j:langchain4j-elasticsearch"
+
+    implementation "com.azure:azure-identity" // For Azure OpenAI
 }
 
 
