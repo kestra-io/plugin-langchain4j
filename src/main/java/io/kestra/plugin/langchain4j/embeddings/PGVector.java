@@ -59,7 +59,7 @@ public class PGVector extends EmbeddingStoreProvider {
     private Property<Boolean> useIndex = Property.ofValue(false);
 
     @Override
-    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IOException, IllegalVariableEvaluationException {
+    public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IllegalVariableEvaluationException {
         return PgVectorEmbeddingStore.builder()
             .host(runContext.render(host).as(String.class).orElseThrow())
             .port(runContext.render(port).as(Integer.class).orElseThrow())
