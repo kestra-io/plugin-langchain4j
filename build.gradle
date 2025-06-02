@@ -197,6 +197,7 @@ maven.pom {
 shadowJar {
     archiveClassifier.set(null)
     mergeServiceFiles()
+    zip64 true
 }
 
 github {
