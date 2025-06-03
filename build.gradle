@@ -113,7 +113,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.hamcrest:hamcrest"
     testImplementation "org.hamcrest:hamcrest-library"
-    testImplementation "org.wiremock:wiremock-jetty12"
+    testImplementation "org.wiremock:wiremock"
 
 
     testImplementation 'org.testcontainers:ollama:1.21.0'
