@@ -1,3 +1,4 @@
+
 plugins {
     id 'java-library'
     id "idea"
@@ -66,6 +67,8 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
 
     implementation "com.azure:azure-identity" // For Azure OpenAI
+    implementation "dev.langchain4j:langchain4j-web-search-engine-google-custom"
+    implementation "dev.langchain4j:langchain4j-web-search-engine-tavily"
 }
 
 

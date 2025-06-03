@@ -1,8 +1,14 @@
 package io.kestra.plugin.langchain4j.rag;
 
+import dev.langchain4j.rag.DefaultRetrievalAugmentor;
+import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
+import dev.langchain4j.rag.content.retriever.WebSearchContentRetriever;
+import dev.langchain4j.rag.query.router.DefaultQueryRouter;
+import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -13,11 +19,18 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.EmbeddingStoreProvider;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.tool.WebSearchTool;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @SuperBuilder
@@ -60,6 +73,10 @@ import java.util.Optional;
                     messages:
                     - type: user
                       content: Which features were released in Kestra 0.22?
+                    webSearchTool:
+                      type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearchTool
+                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
 
                   - id: chat_with_rag
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
@@ -74,6 +91,9 @@ import java.util.Optional;
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     prompt: Which features were released in Kestra 0.22?
+                    webSearchTool:
+                      type: io.kestra.plugin.langchain4j.tool.TavilyWebSearchTool
+                      apiKey: "{{ secret('TAVILY_API_KEY') }}"
                 """
         )
     },
@@ -112,6 +132,11 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Builder.Default
     private ContentRetrieverConfiguration contentRetrieverConfiguration = ContentRetrieverConfiguration.builder().build();
 
+    @Schema(title = "Web Search Tool (used for retrieval augmentation)",
+        description = "Optional, if set, the search engine will be used to retrieve additional information from the web. If not set, only the embedding store will be used.")
+    @Nullable
+    private WebSearchTool webSearchTool;
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         var embeddingModel = Optional.ofNullable(embeddingProvider).orElse(chatProvider).embeddingModel(runContext);
@@ -124,7 +149,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
         Assistant assistant = AiServices.builder(Assistant.class)
             .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
-            .contentRetriever(contentRetriever)
+            .retrievalAugmentor(buildRetrievalAugmentor(runContext, contentRetriever))
             .build();
 
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
@@ -136,8 +161,41 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .build();
     }
 
+    private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext,  ContentRetriever contentRetriever) throws IllegalVariableEvaluationException {
+
+        // If no search engine is provided, we only use the content retriever
+        WebSearchContentRetriever webSearchContentRetriever = null;
+        if (Objects.nonNull(webSearchTool)) {
+            webSearchContentRetriever = webSearchTool.from(runContext);
+            if (webSearchContentRetriever == null) {
+                runContext.logger().warn("Web search content retriever is null, it will not be used in the query router.");
+            }
+        }
+        // Create a query router that will route each query to the content retriever and the web search content retriever
+        return DefaultRetrievalAugmentor.builder()
+            .queryRouter(new KestraQueryRouter(contentRetriever, webSearchContentRetriever).getQueryRouter())
+            .build();
+    }
+
     interface Assistant {
         String chat(String userMessage);
+    }
+
+    private static class KestraQueryRouter {
+        private QueryRouter queryRouter;
+
+        public KestraQueryRouter(ContentRetriever... initialRetrievers) {
+            // Initialize the query router with the provided content retrievers
+            //remove null retrievers
+            initialRetrievers = java.util.Arrays.stream(initialRetrievers)
+                .filter(java.util.Objects::nonNull)
+                .toArray(ContentRetriever[]::new);
+            this.queryRouter = new DefaultQueryRouter(initialRetrievers);
+        }
+
+        public QueryRouter getQueryRouter() {
+            return this.queryRouter;
+        }
     }
 
     @Builder
