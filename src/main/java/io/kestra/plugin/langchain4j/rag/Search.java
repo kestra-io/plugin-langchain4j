@@ -77,8 +77,8 @@ import static io.kestra.core.models.tasks.common.FetchType.NONE;
     beta = true
 )
 @Schema(
-    title = "Search from an embedding store",
-    description = "Performs a semantic search using a query string"
+    title = "Search from an embedding store.",
+    description = "Performs a semantic search using a query string."
 )
 public class Search extends Task implements RunnableTask<Search.Output> {
 
@@ -202,13 +202,13 @@ public class Search extends Task implements RunnableTask<Search.Output> {
         private final List<String> results;
 
         @Schema(
-            title = "The output files URI in Kestra's internal storage.",
-            description = "Only available when `fetchType` is set to `STORE`."
+            title = "The output files URI in Kestra's internal storage",
+            description = "Only available when `fetchType` is set to `STORE`"
         )
         private final URI uri;
 
         @Schema(
-            title = "The count of the fetched or stored resources."
+            title = "The count of the fetched or stored resources"
         )
         private Integer size;
     }
