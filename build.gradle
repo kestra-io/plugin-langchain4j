@@ -66,7 +66,9 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
 
     // Langchain4j embeddings stores
+    implementation "dev.langchain4j:langchain4j-chroma"
     implementation "dev.langchain4j:langchain4j-elasticsearch"
+    implementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2" // for Chroma
     implementation "dev.langchain4j:langchain4j-pgvector"
     implementation "dev.langchain4j:langchain4j-qdrant"
 
@@ -127,6 +129,9 @@ dependencies {
 
     testImplementation 'org.testcontainers:ollama:1.21.1'
     testImplementation 'org.testcontainers:elasticsearch:1.21.1'
+
+    // Chroma
+    testImplementation 'org.testcontainers:chromadb:1.19.6'
 }
 
 /**********************************************************************************************************************\
