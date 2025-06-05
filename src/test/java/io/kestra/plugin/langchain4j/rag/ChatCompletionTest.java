@@ -7,8 +7,8 @@ import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.ContainerTest;
 import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.embeddings.KestraKVStore;
-import io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearchTool;
-import io.kestra.plugin.langchain4j.tool.TavilyWebSearchTool;
+import io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch;
+import io.kestra.plugin.langchain4j.retriever.TavilyWebSearch;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -103,7 +103,7 @@ class ChatCompletionTest extends ContainerTest {
             )
             .embeddings(KestraKVStore.builder().build())
             .prompt(Property.ofValue("How's the weather today?"))
-            .tools(Property.ofValue(List.of(GoogleCustomWebSearchTool.builder()
+            .contentRetrievers(Property.ofValue(List.of(GoogleCustomWebSearch.builder()
                 .csi(Property.ofExpression("{{ csi }}"))
                 .apiKey(Property.ofExpression("{{ apikey }}"))
                 .build())))
@@ -148,7 +148,7 @@ class ChatCompletionTest extends ContainerTest {
             )
             .embeddings(KestraKVStore.builder().build())
             .prompt(Property.ofValue("How's the weather today?"))
-            .tools(Property.ofValue(List.of(TavilyWebSearchTool.builder()
+            .contentRetrievers(Property.ofValue(List.of(TavilyWebSearch.builder()
                 .apiKey(Property.ofExpression("{{ apikey }}"))
                 .build())))
             .build();

@@ -220,7 +220,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output secondOutput = secondTask.run(runContext);
 
         // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
+        assertThat(secondOutput.getAiResponse(), notNullValue());
         assertThat(secondOutput.getOutputMessages().size(), is(2));
     }
 

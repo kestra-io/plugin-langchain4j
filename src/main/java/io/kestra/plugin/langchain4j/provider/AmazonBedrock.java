@@ -17,6 +17,7 @@ import io.kestra.plugin.langchain4j.domain.ModelProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -44,6 +45,8 @@ public class AmazonBedrock extends ModelProvider {
     private Property<String> secretAccessKey;
 
     @Schema(title = "Amazon Bedrock Embedding Model Type")
+    @NotNull
+    @Builder.Default
     private Property<AmazonBedrockEmbeddingModelType> modelType = Property.ofValue(AmazonBedrockEmbeddingModelType.COHERE);
 
     @Override
@@ -107,9 +110,9 @@ public class AmazonBedrock extends ModelProvider {
             throw new UnsupportedOperationException("Amazon Bedrock didn't support embedding model");
         }
     }
-}
 
-enum AmazonBedrockEmbeddingModelType {
-    COHERE,
-    TITAN,
+    enum AmazonBedrockEmbeddingModelType {
+        COHERE,
+        TITAN,
+    }
 }
