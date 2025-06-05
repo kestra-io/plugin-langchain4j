@@ -1,17 +1,11 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.agent.tool.ToolSpecifications;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.tool.DefaultToolExecutor;
-import dev.langchain4j.service.tool.ToolExecution;
-import dev.langchain4j.service.tool.ToolExecutor;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -307,28 +301,33 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         // Get the appropriate model from the factory
         ChatModel model = this.provider.chatModel(runContext, configuration);
 
-        // Generate AI response
-        Assistant assistant = AiServices.builder(Assistant.class)
-            .chatModel(model)
-            .tools(buildTools(runContext))
-            .build();
-        AiMessage aiResponse = assistant.chat(chatMessages);
-        logger.debug("AI Response: {}", aiResponse.text());
+        List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
+        try {
+            // Generate AI response
+            Assistant assistant = AiServices.builder(Assistant.class)
+                .chatModel(model)
+                .tools(buildTools(runContext, toolProviders))
+                .build();
+            AiMessage aiResponse = assistant.chat(chatMessages);
+            logger.debug("AI Response: {}", aiResponse.text());
 
-        // Return updated messages
-        return Output.builder()
-            .aiResponse(aiResponse.text())
-            .outputMessages(renderedChatMessagesInput)
-            .build();
+            // Return updated messages
+            return Output.builder()
+                .aiResponse(aiResponse.text())
+                .outputMessages(renderedChatMessagesInput)
+                .build();
+        } finally {
+            toolProviders.forEach(tool -> tool.close(runContext));
+        }
     }
 
     interface Assistant {
         AiMessage chat(List<dev.langchain4j.data.message.ChatMessage> chatMessages);
     }
 
-    private List<Object> buildTools(RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(tools).asList(ToolProvider.class).stream()
-            .map(throwFunction(provider -> provider.tool(runContext)))
+    private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
+        return toolProviders.stream()
+            .flatMap(throwFunction(provider -> provider.tool(runContext).stream()))
             .toList();
     }
 

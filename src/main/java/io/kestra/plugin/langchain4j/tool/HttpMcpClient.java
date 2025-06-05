@@ -1,11 +1,12 @@
 package io.kestra.plugin.langchain4j.tool;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.agent.tool.ToolSpecifications;
-import dev.langchain4j.web.search.WebSearchEngine;
-import dev.langchain4j.web.search.WebSearchTool;
-import dev.langchain4j.web.search.tavily.TavilyWebSearchEngine;
+import dev.langchain4j.mcp.client.DefaultMcpClient;
+import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.mcp.client.transport.McpTransport;
+import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -19,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Duration;
 import java.util.List;
 
 @Getter
@@ -49,27 +51,49 @@ import java.util.List;
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                       modelName: gemini-2.5-flash-preview-05-20
                     tools:
-                      - type: io.kestra.plugin.langchain4j.tool.TavilyWebSearchTool
-                        apiKey: "{{ secret('TAVILY_API_KEY') }}"
+                      - type: io.kestra.plugin.langchain4j.tool.HttpMcpClient
+                        sseUrl: http://localhost:8080
                 """
         )
     }
 )
 @JsonDeserialize
 @Schema(
-    title = "WebSearch tool for Tavily Search"
+    title = "Model Context Protocol (MCP) HTTP client tool"
 )
-public class TavilyWebSearch extends ToolProvider {
-    @Schema(title = "API Key")
+public class HttpMcpClient extends ToolProvider {
+    @Schema(title = "SSE URL to the MCP server")
     @NotNull
-    private Property<String> apiKey;
+    private Property<String> sseUrl;
+
+    @Schema(title = "Connection timeout")
+    private Property<Duration> timeout;
+
+    @JsonIgnore
+    private transient McpClient mcpClient;
 
     @Override
     public List<ToolSpecification> tool(RunContext runContext) throws IllegalVariableEvaluationException {
-        final WebSearchEngine searchEngine = TavilyWebSearchEngine.builder()
-            .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
+        McpTransport transport = new HttpMcpTransport.Builder()
+            .sseUrl(runContext.render(sseUrl).as(String.class).orElseThrow())
+            .timeout(runContext.render(timeout).as(Duration.class).orElse(null))
             .build();
 
-        return ToolSpecifications.toolSpecificationsFrom(new WebSearchTool(searchEngine));
+        this.mcpClient = new DefaultMcpClient.Builder()
+            .transport(transport)
+            .build();
+
+        return mcpClient.listTools();
+    }
+
+    @Override
+    public void close(RunContext runContext) {
+        if (mcpClient != null) {
+            try {
+                mcpClient.close();
+            } catch (Exception e) {
+                runContext.logger().warn("Unable to close the MCP client", e);
+            }
+        }
     }
 }
