@@ -103,10 +103,10 @@ class ChatCompletionTest extends ContainerTest {
             )
             .embeddings(KestraKVStore.builder().build())
             .prompt(Property.ofValue("How's the weather today?"))
-            .webSearchTool(GoogleCustomWebSearchTool.builder()
+            .tools(Property.ofValue(List.of(GoogleCustomWebSearchTool.builder()
                 .csi(Property.ofExpression("{{ csi }}"))
                 .apiKey(Property.ofExpression("{{ apikey }}"))
-                .build())
+                .build())))
             .build();
 
         var ragOutput = rag.run(runContext);
@@ -148,9 +148,9 @@ class ChatCompletionTest extends ContainerTest {
             )
             .embeddings(KestraKVStore.builder().build())
             .prompt(Property.ofValue("How's the weather today?"))
-            .webSearchTool(TavilyWebSearchTool.builder()
+            .tools(Property.ofValue(List.of(TavilyWebSearchTool.builder()
                 .apiKey(Property.ofExpression("{{ apikey }}"))
-                .build())
+                .build())))
             .build();
 
         var ragOutput = rag.run(runContext);
