@@ -1,6 +1,7 @@
 package io.kestra.plugin.langchain4j.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.langchain4j.agent.tool.ToolSpecification;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.plugins.AdditionalPlugin;
@@ -10,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Plugin
 @SuperBuilder(toBuilder = true)
 @Getter
@@ -18,5 +21,9 @@ import lombok.experimental.SuperBuilder;
 // AND concrete subclasses must be annotated by @JsonDeserialize() to avoid StackOverflow.
 @JsonDeserialize(using = PluginDeserializer.class)
 public abstract class ToolProvider extends AdditionalPlugin {
-    public abstract Object tool(RunContext runContext) throws IllegalVariableEvaluationException;
+    public abstract List<ToolSpecification> tool(RunContext runContext) throws IllegalVariableEvaluationException;
+
+    public void close(RunContext runContext) {
+        // by default: no-op
+    }
 }
