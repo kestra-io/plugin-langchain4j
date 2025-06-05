@@ -4,7 +4,6 @@ import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.rag.content.retriever.WebSearchContentRetriever;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
@@ -19,7 +18,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.EmbeddingStoreProvider;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
-import io.kestra.plugin.langchain4j.tool.WebSearchTool;
+import io.kestra.plugin.langchain4j.domain.ToolProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -30,8 +29,11 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
 @ToString
@@ -73,10 +75,6 @@ import java.util.Optional;
                     messages:
                     - type: user
                       content: Which features were released in Kestra 0.22?
-                    webSearchTool:
-                      type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearchTool
-                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
 
                   - id: chat_with_rag
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
@@ -91,9 +89,48 @@ import java.util.Optional;
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     prompt: Which features were released in Kestra 0.22?
-                    webSearchTool:
-                      type: io.kestra.plugin.langchain4j.tool.TavilyWebSearchTool
-                      apiKey: "{{ secret('TAVILY_API_KEY') }}"
+                """
+        ),
+        @Example(
+            full = true,
+            title = """
+                Chat with your data using Retrieval Augmented Generation (RAG) and a WebSearch tool. This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating. It will also include results from a web search engine.
+                WARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in Kestra's KV store an loads them all into memory.
+                """,
+            code = """
+                id: rag
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    drop: true
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+
+                  - id: chat_with_rag_and_websearch
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-1.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddingProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    tools:
+                    - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearchTool
+                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                    prompt: Which features were released in Kestra 0.22?
                 """
         )
     },
@@ -127,15 +164,15 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Builder.Default
     private ChatConfiguration chatConfiguration = ChatConfiguration.empty();
 
+    @Schema(title = "Content Retriever Configuration")
     @NotNull
     @PluginProperty
     @Builder.Default
     private ContentRetrieverConfiguration contentRetrieverConfiguration = ContentRetrieverConfiguration.builder().build();
 
-    @Schema(title = "Web Search Tool (used for retrieval augmentation)",
-        description = "Optional, if set, the search engine will be used to retrieve additional information from the web. If not set, only the embedding store will be used.")
+    @Schema(title = "Tools (used for retrieval augmentation)")
     @Nullable
-    private WebSearchTool webSearchTool;
+    private Property<List<ToolProvider>> tools;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
@@ -162,40 +199,25 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext,  ContentRetriever contentRetriever) throws IllegalVariableEvaluationException {
+        List<ContentRetriever> toolContentRetrievers = runContext.render(tools).asList(ToolProvider.class).stream()
+            .map(throwFunction(provider -> provider.contentRetriever(runContext)))
+            .collect(Collectors.toList());
 
-        // If no search engine is provided, we only use the content retriever
-        WebSearchContentRetriever webSearchContentRetriever = null;
-        if (Objects.nonNull(webSearchTool)) {
-            webSearchContentRetriever = webSearchTool.from(runContext);
-            if (webSearchContentRetriever == null) {
-                runContext.logger().warn("Web search content retriever is null, it will not be used in the query router.");
-            }
+        if (toolContentRetrievers.isEmpty()) {
+            return DefaultRetrievalAugmentor.builder().contentRetriever(contentRetriever).build();
+        } else {
+            toolContentRetrievers.add(contentRetriever);
+            QueryRouter queryRouter = new DefaultQueryRouter(toolContentRetrievers.toArray(new ContentRetriever[0]));
+
+            // Create a query router that will route each query to the embedding store content retriever and the tools content retrievers
+            return DefaultRetrievalAugmentor.builder()
+                .queryRouter(queryRouter)
+                .build();
         }
-        // Create a query router that will route each query to the content retriever and the web search content retriever
-        return DefaultRetrievalAugmentor.builder()
-            .queryRouter(new KestraQueryRouter(contentRetriever, webSearchContentRetriever).getQueryRouter())
-            .build();
     }
 
     interface Assistant {
         String chat(String userMessage);
-    }
-
-    private static class KestraQueryRouter {
-        private QueryRouter queryRouter;
-
-        public KestraQueryRouter(ContentRetriever... initialRetrievers) {
-            // Initialize the query router with the provided content retrievers
-            //remove null retrievers
-            initialRetrievers = java.util.Arrays.stream(initialRetrievers)
-                .filter(java.util.Objects::nonNull)
-                .toArray(ContentRetriever[]::new);
-            this.queryRouter = new DefaultQueryRouter(initialRetrievers);
-        }
-
-        public QueryRouter getQueryRouter() {
-            return this.queryRouter;
-        }
     }
 
     @Builder
