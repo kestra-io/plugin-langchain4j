@@ -15,12 +15,8 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
-import io.kestra.plugin.langchain4j.domain.EmbeddingStoreProvider;
-import io.kestra.plugin.langchain4j.domain.ModelProvider;
-import io.kestra.plugin.langchain4j.domain.ToolProvider;
+import io.kestra.plugin.langchain4j.domain.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -29,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,8 +90,29 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
         ),
         @Example(
             full = true,
+            title = "Chat with your data using Retrieval Augmented Generation (RAG) and a WebSearch content retriever. The Chat with RAG retrieves contents from a WebSearch client and provides a response grounded in data rather than hallucinating.",
+            code = """
+                id: rag
+                namespace: company.team
+
+                tasks:
+                  - id: chat_with_rag_and_websearch_content_retriever
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-1.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    contentRetrievers:
+                    - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
+                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                    prompt: What is the latest release of Kestra?
+                """
+        ),
+        @Example(
+            full = true,
             title = """
-                Chat with your data using Retrieval Augmented Generation (RAG) and a WebSearch tool. This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating. It will also include results from a web search engine.
+                Chat with your data using Retrieval Augmented Generation (RAG) and an additional WebSearch tool. This flow will index documents and use the RAG Chat task to interact with your data using natural language prompts. The flow contrasts prompts to LLM with and without RAG. The Chat with RAG retrieves embeddings stored in the KV Store and provides a response grounded in data rather than hallucinating. It may also include results from a web search engine if using the provided tool.
                 WARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in Kestra's KV store an loads them all into memory.
                 """,
             code = """
@@ -114,7 +132,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     fromExternalURLs:
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
 
-                  - id: chat_with_rag_and_websearch
+                  - id: chat_with_rag_and_tool
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
@@ -127,10 +145,10 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     tools:
-                    - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearchTool
+                    - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
                       apiKey: "{{ secret('GOOGLE_API_KEY') }}"
                       csi: "{{ secret('GOOGLE_CSI_KEY') }}"
-                    prompt: Which features were released in Kestra 0.22?
+                    prompt: What is the latest release of Kestra?
                 """
         )
     },
@@ -141,8 +159,10 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @NotNull
     protected Property<String> prompt;
 
-    @Schema(title = "Embedding Store Provider")
-    @NotNull
+    @Schema(
+        title = "Embedding Store Provider",
+        description = "Optional if at least one `contentRetrievers` is provided"
+    )
     @PluginProperty
     private EmbeddingStoreProvider embeddings;
 
@@ -170,23 +190,21 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Builder.Default
     private ContentRetrieverConfiguration contentRetrieverConfiguration = ContentRetrieverConfiguration.builder().build();
 
-    @Schema(title = "Tools (used for retrieval augmentation)")
-    @Nullable
+    @Schema(
+        title = "Additional content retrievers",
+        description = "Some content retrievers like WebSearch can be used also as tools, but using them as content retrievers will make them always used whereas tools are only used when the LLM decided to."
+    )
+    private Property<List<ContentRetrieverProvider>> contentRetrievers;
+
+    @Schema(title = "Tools that the LLM may use to augment its response")
     private Property<List<ToolProvider>> tools;
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        var embeddingModel = Optional.ofNullable(embeddingProvider).orElse(chatProvider).embeddingModel(runContext);
-        ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-            .embeddingModel(embeddingModel)
-            .embeddingStore(embeddings.embeddingStore(runContext, embeddingModel.dimension(), false))
-            .maxResults(contentRetrieverConfiguration.getMaxResults())
-            .minScore(contentRetrieverConfiguration.getMinScore())
-            .build();
-
         Assistant assistant = AiServices.builder(Assistant.class)
             .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
-            .retrievalAugmentor(buildRetrievalAugmentor(runContext, contentRetriever))
+            .retrievalAugmentor(buildRetrievalAugmentor(runContext))
+            .tools(buildTools(runContext))
             .build();
 
         String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
@@ -198,15 +216,37 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .build();
     }
 
-    private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext,  ContentRetriever contentRetriever) throws IllegalVariableEvaluationException {
-        List<ContentRetriever> toolContentRetrievers = runContext.render(tools).asList(ToolProvider.class).stream()
+    private List<Object> buildTools(RunContext runContext) throws IllegalVariableEvaluationException {
+        return runContext.render(tools).asList(ToolProvider.class).stream()
+            .map(throwFunction(provider -> provider.tool(runContext)))
+            .toList();
+    }
+
+    private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext) throws Exception {
+        List<ContentRetriever> toolContentRetrievers = runContext.render(contentRetrievers).asList(ContentRetrieverProvider.class).stream()
             .map(throwFunction(provider -> provider.contentRetriever(runContext)))
             .collect(Collectors.toList());
 
+        Optional<ContentRetriever> contentRetriever = Optional.ofNullable(embeddings).map(throwFunction(
+            embeddings -> {
+                var embeddingModel = Optional.ofNullable(embeddingProvider).orElse(chatProvider).embeddingModel(runContext);
+                return EmbeddingStoreContentRetriever.builder()
+                    .embeddingModel(embeddingModel)
+                    .embeddingStore(embeddings.embeddingStore(runContext, embeddingModel.dimension(), false))
+                    .maxResults(contentRetrieverConfiguration.getMaxResults())
+                    .minScore(contentRetrieverConfiguration.getMinScore())
+                    .build();
+            }));
+
+        if (toolContentRetrievers.isEmpty() && contentRetriever.isEmpty()) {
+            throw new IllegalArgumentException("Either `embeddings` or `contentRetrievers` must be provided.");
+        }
+
         if (toolContentRetrievers.isEmpty()) {
-            return DefaultRetrievalAugmentor.builder().contentRetriever(contentRetriever).build();
+            return DefaultRetrievalAugmentor.builder().contentRetriever(contentRetriever.get()).build();
         } else {
-            toolContentRetrievers.add(contentRetriever);
+            // always add it first so it has precedence over the additional content retreivers
+            contentRetriever.ifPresent(ct -> toolContentRetrievers.addFirst(ct));
             QueryRouter queryRouter = new DefaultQueryRouter(toolContentRetrievers.toArray(new ContentRetriever[0]));
 
             // Create a query router that will route each query to the embedding store content retriever and the tools content retrievers

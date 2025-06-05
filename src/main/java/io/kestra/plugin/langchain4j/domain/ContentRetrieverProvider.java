@@ -1,6 +1,7 @@
 package io.kestra.plugin.langchain4j.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.plugins.AdditionalPlugin;
@@ -17,6 +18,6 @@ import lombok.experimental.SuperBuilder;
 // IMPORTANT: The abstract plugin base class must define using the PluginDeserializer,
 // AND concrete subclasses must be annotated by @JsonDeserialize() to avoid StackOverflow.
 @JsonDeserialize(using = PluginDeserializer.class)
-public abstract class ToolProvider extends AdditionalPlugin {
-    public abstract Object tool(RunContext runContext) throws IllegalVariableEvaluationException;
+public abstract class ContentRetrieverProvider extends AdditionalPlugin {
+    public abstract ContentRetriever contentRetriever(RunContext runContext) throws IllegalVariableEvaluationException;
 }

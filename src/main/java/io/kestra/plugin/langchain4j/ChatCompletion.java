@@ -1,9 +1,18 @@
 package io.kestra.plugin.langchain4j;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agent.tool.ToolSpecifications;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.DefaultToolExecutor;
+import dev.langchain4j.service.tool.ToolExecution;
+import dev.langchain4j.service.tool.ToolExecutor;
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -13,13 +22,17 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.domain.ToolProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 
 import java.util.List;
+
+import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
 @ToString
@@ -227,7 +240,38 @@ import java.util.List;
                         content: "{{inputs.prompt}}"
                 """
             }
-        )
+        ),
+        @Example(
+            title = "Chat Completion with Ollama and a websearch tool",
+            full = true,
+            code = {
+                """
+                id: ollama_chat_completion_with_tools
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion_with_tools
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.Ollama
+                        modelName: llama3
+                        endpoint: http://localhost:11434
+                    messages:
+                      - type: SYSTEM
+                        content: You are a french AI
+                      - type: USER
+                        content: "{{inputs.prompt}}
+                    tools:
+                    - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
+                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                """
+            }
+        ),
     },
     beta = true
 )
@@ -248,6 +292,10 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Builder.Default
     private ChatConfiguration configuration = ChatConfiguration.empty();
 
+    @Schema(title = "Tools that the LLM may use to augment its response")
+    @Nullable
+    private Property<List<ToolProvider>> tools;
+
     @Override
     public ChatCompletion.Output run(RunContext runContext) throws Exception {
         Logger logger = runContext.logger();
@@ -260,7 +308,11 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         ChatModel model = this.provider.chatModel(runContext, configuration);
 
         // Generate AI response
-        AiMessage aiResponse = model.chat(chatMessages).aiMessage();
+        Assistant assistant = AiServices.builder(Assistant.class)
+            .chatModel(model)
+            .tools(buildTools(runContext))
+            .build();
+        AiMessage aiResponse = assistant.chat(chatMessages);
         logger.debug("AI Response: {}", aiResponse.text());
 
         // Return updated messages
@@ -270,7 +322,17 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .build();
     }
 
-    public static List<dev.langchain4j.data.message.ChatMessage> convertMessages(List<ChatCompletion.ChatMessage> messages) {
+    interface Assistant {
+        AiMessage chat(List<dev.langchain4j.data.message.ChatMessage> chatMessages);
+    }
+
+    private List<Object> buildTools(RunContext runContext) throws IllegalVariableEvaluationException {
+        return runContext.render(tools).asList(ToolProvider.class).stream()
+            .map(throwFunction(provider -> provider.tool(runContext)))
+            .toList();
+    }
+
+    private List<dev.langchain4j.data.message.ChatMessage> convertMessages(List<ChatCompletion.ChatMessage> messages) {
         return messages.stream()
             .map(dto -> switch (dto.type()) {
                 case SYSTEM -> SystemMessage.systemMessage(dto.content());
