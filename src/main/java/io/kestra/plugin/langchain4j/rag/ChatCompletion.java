@@ -1,5 +1,6 @@
 package io.kestra.plugin.langchain4j.rag;
 
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -25,7 +26,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -201,24 +201,30 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
     @Override
     public Output run(RunContext runContext) throws Exception {
-        Assistant assistant = AiServices.builder(Assistant.class)
-            .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
-            .retrievalAugmentor(buildRetrievalAugmentor(runContext))
-            .tools(buildTools(runContext))
-            .build();
+        List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
 
-        String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-        String completion = assistant.chat(renderedPrompt);
-        runContext.logger().debug("Generated Completion: {}", completion);
+        try {
+            Assistant assistant = AiServices.builder(Assistant.class)
+                .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
+                .retrievalAugmentor(buildRetrievalAugmentor(runContext))
+                .tools(buildTools(runContext, toolProviders))
+                .build();
 
-        return Output.builder()
-            .completion(completion)
-            .build();
+            String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
+            String completion = assistant.chat(renderedPrompt);
+            runContext.logger().debug("Generated Completion: {}", completion);
+
+            return Output.builder()
+                .completion(completion)
+                .build();
+        } finally {
+            toolProviders.forEach(tool -> tool.close(runContext));
+        }
     }
 
-    private List<Object> buildTools(RunContext runContext) throws IllegalVariableEvaluationException {
-        return runContext.render(tools).asList(ToolProvider.class).stream()
-            .map(throwFunction(provider -> provider.tool(runContext)))
+    private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
+        return toolProviders.stream()
+            .flatMap(throwFunction(provider -> provider.tool(runContext).stream()))
             .toList();
     }
 

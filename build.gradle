@@ -66,9 +66,12 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-vertex-ai"
     implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
 
-    implementation "com.azure:azure-identity" // For Azure OpenAI
+    // tools
     implementation "dev.langchain4j:langchain4j-web-search-engine-google-custom"
     implementation "dev.langchain4j:langchain4j-web-search-engine-tavily"
+    implementation "dev.langchain4j:langchain4j-mcp"
+
+    implementation "com.azure:azure-identity" // For Azure OpenAI
 }
 
 
