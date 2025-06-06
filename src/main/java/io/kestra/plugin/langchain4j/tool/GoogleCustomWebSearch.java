@@ -1,10 +1,13 @@
 package io.kestra.plugin.langchain4j.tool;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.agent.tool.ToolSpecifications;
 import dev.langchain4j.web.search.WebSearchEngine;
 import dev.langchain4j.web.search.WebSearchTool;
 import dev.langchain4j.web.search.google.customsearch.GoogleCustomWebSearchEngine;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -16,11 +19,43 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
+@Plugin(
+    beta = true,
+    examples =  {
+        @Example(
+            full = true,
+            code = """
+                id: llm-completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: text_completion
+                    type: io.kestra.plugin.langchain4j.ChatCompletion
+                    messages:
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                      modelName: gemini-2.5-flash-preview-05-20
+                    tools:
+                      - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
+                        apiKey: "{{ secret('GOOGLE_API_KEY') }}"
+                        csi: "{{ secret('GOOGLE_CSI') }}"
+                """
+        )
+    }
+)
 @JsonDeserialize
 @Schema(
     title = "WebSearch tool for Google Custom Search"
@@ -35,12 +70,12 @@ public class GoogleCustomWebSearch extends ToolProvider {
     private Property<String> apiKey;
 
     @Override
-    public Object tool(RunContext runContext) throws IllegalVariableEvaluationException {
+    public List<ToolSpecification> tool(RunContext runContext) throws IllegalVariableEvaluationException {
         final WebSearchEngine searchEngine = GoogleCustomWebSearchEngine.builder()
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .csi((runContext.render(this.csi).as(String.class).orElseThrow()))
             .build();
 
-        return new WebSearchTool(searchEngine);
+        return ToolSpecifications.toolSpecificationsFrom(new WebSearchTool(searchEngine));
     }
 }
