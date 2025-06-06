@@ -69,6 +69,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-chroma"
     implementation "dev.langchain4j:langchain4j-elasticsearch"
     implementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2" // for Chroma
+    implementation "dev.langchain4j:langchain4j-milvus"
     implementation "dev.langchain4j:langchain4j-pinecone"
     implementation "dev.langchain4j:langchain4j-pgvector"
     implementation "dev.langchain4j:langchain4j-qdrant"
@@ -134,6 +135,7 @@ dependencies {
 
     // Chroma
     testImplementation 'org.testcontainers:chromadb:1.19.6'
+    testImplementation 'org.testcontainers:milvus:1.19.6'
 }
 
 /**********************************************************************************************************************\

@@ -184,6 +184,29 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a Milvus embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Milvus
+                      milvus: "{{ secret('MILVUS_TOKEN') }}"
+                      uri: "http://localhost:19200"
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
     },
     beta = true
 )
