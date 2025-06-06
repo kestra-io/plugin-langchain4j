@@ -6,72 +6,55 @@ import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.langchain4j.ContainerTest;
 import io.kestra.plugin.langchain4j.provider.Ollama;
 import io.kestra.plugin.langchain4j.rag.IngestDocument;
-import io.qdrant.client.QdrantClient;
-import io.qdrant.client.QdrantGrpcClient;
-import io.qdrant.client.grpc.Collections;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-public class QdrantTest extends ContainerTest {
+public class PineconeTest extends ContainerTest {
 
-    private static final String QDRANT_API_KEY = UUID.randomUUID().toString();
-    private static final String QDRANT_HOST = "localhost";
-    private static final int QDRANT_GRPC_PORT = 6334;
-    private static final String QDRANT_COLLECTION_NAME = "embeddings";
+    private static final String PINECONE_INDEX = "embeddings";
+    private static final String PINECONE_MODEL = "chroma/all-minilm-l6-v2-f32"; // works with Pinecone
+    private static final String PINECONE_API_KEY = System.getenv("PINECONE_API_KEY");
+    private static final String PINECONE_CLOUD = "AWS";
+    private static final String PINECONE_REGION = "us-east-1";
 
     @Inject
     private RunContextFactory runContextFactory;
 
-    private static GenericContainer<?> qdrant;
+    private static GenericContainer<?> pinecone;
 
     @BeforeAll
-    static void startQdrant() throws ExecutionException, InterruptedException {
-        qdrant = new GenericContainer<>("qdrant/qdrant:v1.14.1")
-            .withExposedPorts(QDRANT_GRPC_PORT)
-            .withEnv(Map.of("QDRANT__SERVICE__API_KEY", QDRANT_API_KEY))
+    @EnabledIfEnvironmentVariable(named = "PINECONE_API_KEY", matches = ".*")
+    static void startPinecone() {
+        pinecone = new GenericContainer<>("ghcr.io/pinecone-io/pinecone-index:latest")
+            .withEnv(PINECONE_API_KEY != null ? Map.of("PINECONE_API_KEY", PINECONE_API_KEY) : Map.of())
             .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(10))); // to prevent flakiness
 
-        qdrant.start();
-
-        var client = new QdrantClient(
-            QdrantGrpcClient.newBuilder(qdrant.getHost(), qdrant.getMappedPort(QDRANT_GRPC_PORT), false)
-                .withApiKey(QDRANT_API_KEY)
-                .build()
-        );
-
-        client.createCollectionAsync(
-            QDRANT_COLLECTION_NAME,
-            Collections.VectorParams.newBuilder()
-                .setDistance(Collections.Distance.Cosine)
-                .setSize(2048) // tinydolphin model below produces 2048-dimension embeddings
-                .build()
-        ).get();
-
-        client.close();
+        pinecone.start();
     }
 
     @AfterAll
-    static void stopQdrant() {
-        qdrant.stop();
+    @EnabledIfEnvironmentVariable(named = "PINECONE_API_KEY", matches = ".*")
+    static void stopPinecone() {
+        pinecone.stop();
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "PINECONE_API_KEY", matches = ".*")
     void inlineDocuments() throws Exception {
         var runContext = runContextFactory.of(Map.of(
-            "modelName", "tinydolphin",
+            "modelName", PINECONE_MODEL,
             "endpoint", ollamaEndpoint,
             "flow", Map.of("id", "flow", "namespace", "namespace")
         ));
@@ -85,15 +68,14 @@ public class QdrantTest extends ContainerTest {
                     .build()
             )
             .embeddings(
-                Qdrant.builder()
-                    .apiKey(Property.ofValue(QDRANT_API_KEY))
-                    .host(Property.ofValue(QDRANT_HOST))
-                    .port(Property.ofValue(qdrant.getMappedPort(QDRANT_GRPC_PORT)))
-                    .collectionName(Property.ofValue(QDRANT_COLLECTION_NAME))
+                Pinecone.builder()
+                    .apiKey(Property.ofValue(PINECONE_API_KEY))
+                    .cloud(Property.ofValue(PINECONE_CLOUD))
+                    .region(Property.ofValue(PINECONE_REGION))
+                    .index(Property.ofValue(PINECONE_INDEX))
                     .build()
             )
             .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("Everything-as-Code, and from the UI")).build()))
-            .drop(Property.ofValue(true))
             .build();
 
         var output = task.run(runContext);
