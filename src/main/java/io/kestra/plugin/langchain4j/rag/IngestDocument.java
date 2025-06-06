@@ -207,6 +207,32 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a MongoDB Atlas embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.MongoDBAtlas
+                      username: "{{ secret('MONGODB_ATLAS_USERNAME') }}"
+                      password: "{{ secret('MONGODB_ATLAS_PASSWORD') }}"
+                      host: "{{ secret('MONGODB_ATLAS_HOST') }}"
+                      database: "{{ secret('MONGODB_ATLAS_DATABASE') }}"
+                      collectionName: embeddings
+                      indexName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
     },
     beta = true
 )

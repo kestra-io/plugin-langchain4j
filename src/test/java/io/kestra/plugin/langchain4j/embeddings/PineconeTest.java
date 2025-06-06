@@ -21,7 +21,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-public class PineconeTest extends ContainerTest {
+class PineconeTest extends ContainerTest {
 
     private static final String PINECONE_INDEX = "embeddings";
     private static final String PINECONE_MODEL = "chroma/all-minilm-l6-v2-f32"; // works with Pinecone

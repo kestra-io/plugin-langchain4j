@@ -28,7 +28,7 @@ public class ContainerTest {
 
         // Pull a lightweight model for testing
         ollamaContainer.execInContainer("ollama", "pull", "tinydolphin");
-        ollamaContainer.execInContainer("ollama", "pull", "chroma/all-minilm-l6-v2-f32"); // for Chroma
+        ollamaContainer.execInContainer("ollama", "pull", "chroma/all-minilm-l6-v2-f32");
     }
 
     @AfterAll
