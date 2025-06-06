@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-public class QdrantTest extends ContainerTest {
+class QdrantTest extends ContainerTest {
 
     private static final String QDRANT_API_KEY = UUID.randomUUID().toString();
     private static final String QDRANT_HOST = "localhost";

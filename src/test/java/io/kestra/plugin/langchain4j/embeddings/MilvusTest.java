@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-public class MilvusTest extends ContainerTest {
+class MilvusTest extends ContainerTest {
 
     private static final String MILVUS_COLLECTION_NAME = "embeddings";
     private static final String MILVUS_MODEL = "chroma/all-minilm-l6-v2-f32"; // works with Milvus

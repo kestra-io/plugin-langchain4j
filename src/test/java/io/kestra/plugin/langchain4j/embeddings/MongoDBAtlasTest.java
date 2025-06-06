@@ -9,10 +9,11 @@ import io.kestra.plugin.langchain4j.rag.IngestDocument;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
 
 import java.time.Duration;
 import java.util.List;
@@ -21,38 +22,38 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class WeaviateTest extends ContainerTest {
+class MongoDBAtlasLocalContainerTest extends ContainerTest {
 
-    private static final String WEAVIATE_OBJECT_CLASS = "embeddings";
-    private static final String WEAVIATE_MODEL = "chroma/all-minilm-l6-v2-f32"; // works with Weaviate
-    private static final String WEAVIATE_API_KEY = System.getenv("WEAVIATE_API_KEY");
+    private static final String DATABASE_NAME = "test_db";
+    private static final String COLLECTION_NAME = "embeddings";
+    private static final String INDEX_NAME = "embedding_index";
+    private static final Integer MONGODB_PORT = 27017;
+    private static GenericContainer<?> mongoDBAtlas;
 
     @Inject
     private RunContextFactory runContextFactory;
 
-    private static GenericContainer<?> weaviate;
-
     @BeforeAll
-    @EnabledIfEnvironmentVariable(named = "WEAVIATE_API_KEY", matches = ".*")
-    static void startWeaviate() {
-        weaviate = new GenericContainer<>("cr.weaviate.io/semitechnologies/weaviate:1.31.0")
-            .withEnv(WEAVIATE_API_KEY != null ? Map.of("WEAVIATE_API_KEY", WEAVIATE_API_KEY) : Map.of())
+    static void startMongoDBAtlasLocal() {
+        mongoDBAtlas = new MongoDBAtlasLocalContainer("mongodb/mongodb-atlas-local:7.0.9")
+            .withExposedPorts(MONGODB_PORT)
             .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(10))); // to prevent flakiness
 
-        weaviate.start();
+        mongoDBAtlas.start();
     }
 
     @AfterAll
-    @EnabledIfEnvironmentVariable(named = "WEAVIATE_API_KEY", matches = ".*")
-    static void stopWeaviate() {
-        weaviate.stop();
+    static void stopMongoDBAtlasLocal() {
+        if (mongoDBAtlas != null) {
+            mongoDBAtlas.stop();
+        }
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "WEAVIATE_API_KEY", matches = ".*")
+    @Disabled("needs to be run against a free tier MongoDB Atlas instance to be tested (with host, username and password)")
     void inlineDocuments() throws Exception {
         var runContext = runContextFactory.of(Map.of(
-            "modelName", WEAVIATE_MODEL,
+            "modelName", "chroma/all-minilm-l6-v2-f32",
             "endpoint", ollamaEndpoint,
             "flow", Map.of("id", "flow", "namespace", "namespace")
         ));
@@ -66,13 +67,20 @@ class WeaviateTest extends ContainerTest {
                     .build()
             )
             .embeddings(
-                Weaviate.builder()
-                    .apiKey(Property.ofValue(WEAVIATE_API_KEY))
-                    .host(Property.ofValue(weaviate.getHost()))
-                    .objectClass(Property.ofValue(WEAVIATE_OBJECT_CLASS))
+                MongoDBAtlas.builder()
+                    .host(Property.ofValue("your_cluster.mongodb.net")) // ends with ".mongodb.net"
+                    .username(Property.ofValue("your_username"))
+                    .password(Property.ofValue("your_password"))
+                    .database(Property.ofValue(DATABASE_NAME))
+                    .collectionName(Property.ofValue(COLLECTION_NAME))
+                    .indexName(Property.ofValue(INDEX_NAME))
                     .build()
             )
-            .fromDocuments(List.of(IngestDocument.InlineDocument.builder().content(Property.ofValue("Everything-as-Code, and from the UI")).build()))
+            .fromDocuments(List.of(
+                IngestDocument.InlineDocument.builder()
+                    .content(Property.ofValue("Test content for embedding."))
+                    .build()
+            ))
             .build();
 
         var output = task.run(runContext);
