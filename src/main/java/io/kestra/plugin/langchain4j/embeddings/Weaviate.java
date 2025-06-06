@@ -36,6 +36,12 @@ public class Weaviate extends EmbeddingStoreProvider {
     private Property<String> apiKey;
 
     @Schema(
+        title = "Weaviate scheme",
+        description = "The scheme, e.g. \"https\" of cluster URL. Find in under Details of your Weaviate cluster."
+    )
+    private Property<String> scheme;
+
+    @Schema(
         title = "Weaviate host",
         description = "The host, e.g. \"langchain4j-4jw7ufd9.weaviate.network\" of cluster URL. Find in under Details of your Weaviate cluster."
     )
@@ -98,7 +104,7 @@ public class Weaviate extends EmbeddingStoreProvider {
 
         var store = WeaviateEmbeddingStore.builder()
             .apiKey(runContext.render(apiKey).as(String.class).orElseThrow())
-            .scheme("FIXME")
+            .scheme(runContext.render(scheme).as(String.class).orElse("https"))
             .host(runContext.render(host).as(String.class).orElseThrow())
             .port(runContext.render(port).as(Integer.class).orElseThrow())
             .objectClass(runContext.render(objectClass).as(String.class).orElseThrow())
