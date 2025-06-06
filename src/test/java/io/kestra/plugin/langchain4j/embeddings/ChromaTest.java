@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @KestraTest
 public class ChromaTest extends ContainerTest {
 
-    public static final String CHROMA_COLLECTION_NAME = "embeddings";
-    public static final String CHROMA_MODEL = "chroma/all-minilm-l6-v2-f32";
+    private static final String CHROMA_COLLECTION_NAME = "embeddings";
+    private static final String CHROMA_MODEL = "chroma/all-minilm-l6-v2-f32";
 
     @Inject
     private RunContextFactory runContextFactory;
