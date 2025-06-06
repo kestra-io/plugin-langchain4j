@@ -1,6 +1,5 @@
 package io.kestra.plugin.langchain4j.embeddings;
 
-import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.instrumentation.NoopInstrumentation;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -80,7 +79,7 @@ public class Elasticsearch extends EmbeddingStoreProvider {
     }
 
     @Override
-    public Map<String, Object> outputs(RunContext runContext) throws IOException, IllegalVariableEvaluationException {
+    public Map<String, Object> outputs(RunContext runContext) throws IOException {
         if (restClient != null) {
             restClient.close();
         }
