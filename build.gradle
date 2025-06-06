@@ -72,6 +72,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-pinecone"
     implementation "dev.langchain4j:langchain4j-pgvector"
     implementation "dev.langchain4j:langchain4j-qdrant"
+    implementation "dev.langchain4j:langchain4j-weaviate"
 
     // tools
     implementation "dev.langchain4j:langchain4j-web-search-engine-google-custom"
