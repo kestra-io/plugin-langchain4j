@@ -83,6 +83,28 @@ import java.util.List;
             }
         ),
         @io.kestra.core.models.annotations.Example(
+            title = "JSON Structured Extraction using Gemini",
+            full = true,
+            code = {
+                """
+                id: json_structured_extraction_gemini
+                namespace: company.team
+                task:
+                    id: json_structured_extraction
+                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
+                    jsonFields:
+                      - name
+                      - City
+                    schemaName: Person
+                    prompt: Hello, my name is John, I live in Paris
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                        apiKey: your_gemini_api_key
+                        modelName: gemini-1.5-flash
+                """
+            }
+        ),
+        @io.kestra.core.models.annotations.Example(
             title = "JSON Structured Extraction using Anthropic",
             full = true,
             code = {
