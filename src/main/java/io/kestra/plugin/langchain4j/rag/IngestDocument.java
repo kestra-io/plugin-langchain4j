@@ -106,14 +106,133 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                       type: io.kestra.plugin.langchain4j.embeddings.PGVector
                       host: localhost
                       port: 5432
-                      user:  "{{ secret('POSTGRES_USER') }}"
-                      password:  "{{ secret('POSTGRES_PASSWORD') }}"
+                      user: "{{ secret('POSTGRES_USER') }}"
+                      password: "{{ secret('POSTGRES_PASSWORD') }}"
                       database: postgres
                       table: embeddings
                     fromExternalURLs:
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
-        )
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a Qdrant embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Qdrant
+                      apiKey: "{{ secret('QDRANT_API_KEY') }}"
+                      host: localhost
+                      port: 6334
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a Chroma embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Chroma
+                      baseUrl: http://localhost:8000
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a Pinecone embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Pinecone
+                      apiKey: "{{ secret('PINECONE_API_KEY') }}"
+                      cloud: AWS
+                      region: us-east-1
+                      index: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a Milvus embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Milvus
+                      token: "{{ secret('MILVUS_TOKEN') }}"
+                      uri: "http://localhost:19200"
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
+        @Example(
+            full = true,
+            title = "Ingest documents into a MongoDB Atlas embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.MongoDBAtlas
+                      username: "{{ secret('MONGODB_ATLAS_USERNAME') }}"
+                      password: "{{ secret('MONGODB_ATLAS_PASSWORD') }}"
+                      host: "{{ secret('MONGODB_ATLAS_HOST') }}"
+                      database: "{{ secret('MONGODB_ATLAS_DATABASE') }}"
+                      collectionName: embeddings
+                      indexName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        ),
     },
     beta = true
 )

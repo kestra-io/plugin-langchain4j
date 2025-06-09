@@ -53,18 +53,27 @@ dependencies {
     annotationProcessor group: "io.kestra", name: "processor", version: kestraVersion
     compileOnly group: "io.kestra", name: "core", version: kestraVersion
 
+    // Langchain4j model providers
     implementation "dev.langchain4j:langchain4j"
     implementation "dev.langchain4j:langchain4j-anthropic"
     implementation "dev.langchain4j:langchain4j-azure-open-ai"
     implementation "dev.langchain4j:langchain4j-bedrock"
-    implementation "dev.langchain4j:langchain4j-elasticsearch"
     implementation "dev.langchain4j:langchain4j-google-ai-gemini"
     implementation "dev.langchain4j:langchain4j-mistral-ai"
     implementation "dev.langchain4j:langchain4j-ollama"
     implementation "dev.langchain4j:langchain4j-open-ai"
-    implementation "dev.langchain4j:langchain4j-pgvector"
     implementation "dev.langchain4j:langchain4j-vertex-ai"
     implementation "dev.langchain4j:langchain4j-vertex-ai-gemini"
+
+    // Langchain4j embeddings stores
+    implementation "dev.langchain4j:langchain4j-chroma"
+    implementation "dev.langchain4j:langchain4j-elasticsearch"
+    implementation "dev.langchain4j:langchain4j-mongodb-atlas"
+    implementation "dev.langchain4j:langchain4j-milvus"
+    implementation "dev.langchain4j:langchain4j-pinecone"
+    implementation "dev.langchain4j:langchain4j-pgvector"
+    implementation "dev.langchain4j:langchain4j-qdrant"
+    implementation "dev.langchain4j:langchain4j-weaviate"
 
     // tools
     implementation "dev.langchain4j:langchain4j-web-search-engine-google-custom"
@@ -72,6 +81,8 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-mcp"
 
     implementation "com.azure:azure-identity" // For Azure OpenAI
+
+    implementation 'org.awaitility:awaitility:4.2.0'
 }
 
 
@@ -121,9 +132,14 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library"
     testImplementation "org.wiremock:wiremock-jetty12"
 
-
     testImplementation 'org.testcontainers:ollama:1.21.1'
     testImplementation 'org.testcontainers:elasticsearch:1.21.1'
+
+    // Embeddings stores
+    testImplementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
+    testImplementation 'org.testcontainers:chromadb:1.19.6'
+    testImplementation 'org.testcontainers:milvus:1.19.6'
+    testImplementation 'org.testcontainers:mongodb:1.20.4'
 }
 
 /**********************************************************************************************************************\
@@ -146,7 +162,7 @@ dependencies {
 }
 
 test {
-    jvmArgs = [ "-javaagent:${configurations.agent.singleFile}" ]
+    jvmArgs = ["-javaagent:${configurations.agent.singleFile}"]
 }
 
 /**********************************************************************************************************************\
@@ -182,11 +198,11 @@ tasks.withType(GenerateModuleMetadata).configureEach {
 jar {
     manifest {
         attributes(
-                "X-Kestra-Name": project.name,
-                "X-Kestra-Title": "langchain4j",
-                "X-Kestra-Group": project.group + ".langchain4j",
-                "X-Kestra-Description": project.description,
-                "X-Kestra-Version": project.version
+            "X-Kestra-Name": project.name,
+            "X-Kestra-Title": "langchain4j",
+            "X-Kestra-Group": project.group + ".langchain4j",
+            "X-Kestra-Description": project.description,
+            "X-Kestra-Version": project.version
         )
     }
 }
