@@ -96,6 +96,33 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
             }
         ),
         @Example(
+            title = "Chat Completion with Gemini",
+            full = true,
+            code = {
+                """
+                id: anthropic_chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                        apiKey: your_gemini_api_key
+                        modelName: gemini-1.5-flash
+                    messages:
+                      - type: SYSTEM
+                        content: You are a french AI
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        ),
+        @Example(
             title = "Chat Completion with Anthropic",
             full = true,
             code = {
