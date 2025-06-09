@@ -82,7 +82,7 @@ dependencies {
 
     implementation "com.azure:azure-identity" // For Azure OpenAI
 
-    implementation 'org.awaitility:awaitility:4.2.0'
+    implementation 'org.awaitility:awaitility:4.3.0'
 }
 
 
