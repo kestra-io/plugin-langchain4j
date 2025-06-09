@@ -9,6 +9,8 @@ import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
@@ -210,6 +212,8 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
         return Output.builder()
             .schemaName(renderedSchemaName)
             .extractedJson(answer.aiMessage().text())
+            .tokenUsage(answer.tokenUsage())
+            .finishReason(answer.finishReason())
             .build();
     }
 
@@ -217,10 +221,16 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Schema Name", description = "The schema name used for the structured JSON extraction.")
-        private final String schemaName;
+        private String schemaName;
 
         @Schema(title = "Extracted JSON", description = "The structured JSON output.")
-        private final String extractedJson;
+        private String extractedJson;
+
+        @Schema(title = "Token usage")
+        private TokenUsage tokenUsage;
+
+        @Schema(title = "Finish reason")
+        private FinishReason finishReason;
     }
 
     public static JsonObjectSchema buildDynamicSchema(List<String> fields) {
