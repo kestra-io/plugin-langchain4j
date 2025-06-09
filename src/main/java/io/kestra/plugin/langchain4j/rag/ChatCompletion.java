@@ -1,6 +1,10 @@
 package io.kestra.plugin.langchain4j.rag;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -211,11 +215,13 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
                 .build();
 
             String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-            String completion = assistant.chat(renderedPrompt);
-            runContext.logger().debug("Generated Completion: {}", completion);
+            Response<AiMessage> completion = assistant.chat(renderedPrompt);
+            runContext.logger().debug("Generated Completion: {}", completion.content());
 
             return Output.builder()
-                .completion(completion)
+                .completion(completion.content().text())
+                .tokenUsage(completion.tokenUsage())
+                .finishReason(completion.finishReason())
                 .build();
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
@@ -251,7 +257,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         if (toolContentRetrievers.isEmpty()) {
             return DefaultRetrievalAugmentor.builder().contentRetriever(contentRetriever.get()).build();
         } else {
-            // always add it first so it has precedence over the additional content retreivers
+            // always add it first so it has precedence over the additional content retrievers
             contentRetriever.ifPresent(ct -> toolContentRetrievers.addFirst(ct));
             QueryRouter queryRouter = new DefaultQueryRouter(toolContentRetrievers.toArray(new ContentRetriever[0]));
 
@@ -263,14 +269,20 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     interface Assistant {
-        String chat(String userMessage);
+        Response<AiMessage> chat(String userMessage);
     }
 
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Generated text completion", description = "The result of the text completion")
-        private final String completion;
+        private String completion;
+
+        @Schema(title = "Token usage")
+        private TokenUsage tokenUsage;
+
+        @Schema(title = "Finish reason")
+        private FinishReason finishReason;
     }
 
     @Builder

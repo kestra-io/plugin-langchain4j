@@ -2,7 +2,9 @@ package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
+import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -119,6 +121,8 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
 
         return Output.builder()
             .imageUrl(String.valueOf(imageUrl.content().url()))
+            .tokenUsage(imageUrl.tokenUsage())
+            .finishReason(imageUrl.finishReason())
             .build();
     }
 
@@ -126,6 +130,12 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Generated image URL", description = "The URL of the generated image")
-        private final String imageUrl;
+        private String imageUrl;
+
+        @Schema(title = "Token usage")
+        private TokenUsage tokenUsage;
+
+        @Schema(title = "Finish reason")
+        private FinishReason finishReason;
     }
 }
