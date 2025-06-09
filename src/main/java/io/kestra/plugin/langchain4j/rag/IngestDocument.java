@@ -200,7 +200,7 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                       apiKey: my_api_key
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.Milvus
-                      milvus: "{{ secret('MILVUS_TOKEN') }}"
+                      token: "{{ secret('MILVUS_TOKEN') }}"
                       uri: "http://localhost:19200"
                       collectionName: embeddings
                     fromExternalURLs:

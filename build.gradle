@@ -68,7 +68,6 @@ dependencies {
     // Langchain4j embeddings stores
     implementation "dev.langchain4j:langchain4j-chroma"
     implementation "dev.langchain4j:langchain4j-elasticsearch"
-    implementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
     implementation "dev.langchain4j:langchain4j-mongodb-atlas"
     implementation "dev.langchain4j:langchain4j-milvus"
     implementation "dev.langchain4j:langchain4j-pinecone"
@@ -82,6 +81,8 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-mcp"
 
     implementation "com.azure:azure-identity" // For Azure OpenAI
+
+    implementation 'org.awaitility:awaitility:4.2.0'
 }
 
 
@@ -135,6 +136,7 @@ dependencies {
     testImplementation 'org.testcontainers:elasticsearch:1.21.1'
 
     // Embeddings stores
+    testImplementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
     testImplementation 'org.testcontainers:chromadb:1.19.6'
     testImplementation 'org.testcontainers:milvus:1.19.6'
     testImplementation 'org.testcontainers:mongodb:1.20.4'

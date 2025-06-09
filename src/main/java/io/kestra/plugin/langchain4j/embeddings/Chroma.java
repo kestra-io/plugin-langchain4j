@@ -34,12 +34,6 @@ public class Chroma extends EmbeddingStoreProvider {
     @Schema(title = "The collection name")
     private Property<String> collectionName;
 
-    @Schema(title = "Whether the requests are logged or not.")
-    private Property<Boolean> logRequests;
-
-    @Schema(title = "Whether the responses are logged or not.")
-    private Property<Boolean> logResponses;
-
     @Override
     public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IllegalVariableEvaluationException {
 
@@ -49,8 +43,6 @@ public class Chroma extends EmbeddingStoreProvider {
         var store = ChromaEmbeddingStore.builder()
             .baseUrl(runContext.render(baseUrl).as(String.class).orElseThrow())
             .collectionName(renderedCollectionName)
-            .logRequests(runContext.render(logRequests).as(Boolean.class).orElse(true))
-            .logResponses(runContext.render(logResponses).as(Boolean.class).orElse(true))
             .build();
 
         if (drop) {

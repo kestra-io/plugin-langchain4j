@@ -68,6 +68,7 @@ class MongoDBAtlasLocalContainerTest extends ContainerTest {
             )
             .embeddings(
                 MongoDBAtlas.builder()
+                    .scheme(Property.ofValue("mongodb+srv"))
                     .host(Property.ofValue("your_cluster.mongodb.net")) // ends with ".mongodb.net"
                     .username(Property.ofValue("your_username"))
                     .password(Property.ofValue("your_password"))

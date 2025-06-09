@@ -2,7 +2,9 @@ package io.kestra.plugin.langchain4j.embeddings;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mongodb.client.MongoClients;
+import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.mongodb.IndexMapping;
 import dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;
@@ -16,8 +18,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.awaitility.Awaitility;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,10 @@ public class MongoDBAtlas extends EmbeddingStoreProvider {
 
     @Schema(title = "The password")
     private Property<String> password;
+
+    @NotNull
+    @Schema(title = "The scheme (e.g. mongodb+srv)")
+    private Property<String> scheme;
 
     @NotNull
     @Schema(title = "The host")
@@ -86,11 +95,23 @@ public class MongoDBAtlas extends EmbeddingStoreProvider {
 
         if (renderedCreateIndex) {
             // Creating a vector search index can take up to a minute, so this delay allows the index to become queryable
-            try {
-                Thread.sleep(15000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            Awaitility.await()
+                .atMost(Duration.ofMinutes(1))
+                .pollInterval(Duration.ofSeconds(1))
+                .ignoreExceptions()
+                .until(() -> {
+                    try {
+                        // Try a harmless dummy query to check index readiness
+                        store.search(EmbeddingSearchRequest.builder()
+                            .queryEmbedding(Embedding.from(Collections.nCopies(dimension, 0.0f)))
+                            .maxResults(1)
+                            .build()
+                        );
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                });
         }
 
         if (drop) {
@@ -104,14 +125,12 @@ public class MongoDBAtlas extends EmbeddingStoreProvider {
 
         // Format: mongodb+srv://[username:password@]host[/[database][?options]]
 
+        var scheme = runContext.render(this.scheme).as(String.class).orElseThrow();
         var username = runContext.render(this.username).as(String.class).orElse(null);
         var password = runContext.render(this.password).as(String.class).orElse(null);
         var host = runContext.render(this.host).as(String.class).orElseThrow();
         var database = runContext.render(this.database).as(String.class).orElseThrow();
         var options = runContext.render(this.options).asMap(String.class, Object.class);
-
-        boolean isAtlas = host.endsWith(".mongodb.net");
-        var scheme = isAtlas ? "mongodb+srv" : "mongodb"; // mongodb here is just for test purposes
 
         return scheme + "://" +
             (username != null && password != null ? username + ":" + password + "@" : "") +
