@@ -1,6 +1,10 @@
 package io.kestra.plugin.langchain4j;
 
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -221,11 +225,13 @@ public class Classification extends Task implements RunnableTask<Classification.
             "\nRespond by only one of the following classes by typing just the exact class name: " + renderedClasses;
 
         // Perform text classification
-        String classificationResponse = model.chat(classificationPrompt);
-        logger.debug("Generated Classification: {}", classificationResponse);
+        ChatResponse classificationResponse = model.chat(UserMessage.userMessage(classificationPrompt));
+        logger.debug("Generated Classification: {}", classificationResponse.aiMessage().text());
 
         return Output.builder()
-            .classification(classificationResponse)
+            .classification(classificationResponse.aiMessage().text())
+            .tokenUsage(classificationResponse.tokenUsage())
+            .finishReason(classificationResponse.finishReason())
             .build();
     }
 
@@ -234,5 +240,11 @@ public class Classification extends Task implements RunnableTask<Classification.
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Classification Result", description = "The classified category of the input text.")
         private final String classification;
+
+        @Schema(title = "Token usage")
+        private TokenUsage tokenUsage;
+
+        @Schema(title = "Finish reason")
+        private FinishReason finishReason;
     }
 }

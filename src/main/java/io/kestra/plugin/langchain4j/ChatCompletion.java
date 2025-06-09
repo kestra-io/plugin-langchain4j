@@ -5,6 +5,9 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.output.FinishReason;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.AiServices;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
@@ -308,13 +311,14 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
                 .chatModel(model)
                 .tools(buildTools(runContext, toolProviders))
                 .build();
-            AiMessage aiResponse = assistant.chat(chatMessages);
-            logger.debug("AI Response: {}", aiResponse.text());
+            Response<AiMessage> aiResponse = assistant.chat(chatMessages);
+            logger.debug("AI Response: {}", aiResponse.content());
 
             // Return updated messages
             return Output.builder()
-                .aiResponse(aiResponse.text())
-                .outputMessages(renderedChatMessagesInput)
+                .aiResponse(aiResponse.content().text())
+                .tokenUsage(aiResponse.tokenUsage())
+                .finishReason(aiResponse.finishReason())
                 .build();
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
@@ -322,7 +326,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     interface Assistant {
-        AiMessage chat(List<dev.langchain4j.data.message.ChatMessage> chatMessages);
+        Response<AiMessage> chat(List<dev.langchain4j.data.message.ChatMessage> chatMessages);
     }
 
     private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
@@ -347,8 +351,11 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         @Schema(title = "AI Response", description = "The generated response from the AI")
         private final String aiResponse;
 
-        @Schema(title = "Updated Messages", description = "The updated list of messages after the current interaction")
-        private final List<ChatMessage> outputMessages;
+        @Schema(title = "Token usage")
+        private TokenUsage tokenUsage;
+
+        @Schema(title = "Finish reason")
+        private FinishReason finishReason;
     }
 
     @Builder

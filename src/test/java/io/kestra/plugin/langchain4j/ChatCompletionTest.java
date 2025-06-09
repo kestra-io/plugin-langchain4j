@@ -63,40 +63,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "apiKey", "demo",
-            "modelName", "gpt-4o-mini",
-            "baseUrl", "http://langchain4j.dev/demo/openai/v1",
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(OpenAI.builder()
-                .type(OpenAI.class.getName())
-                .apiKey(Property.ofExpression("{{ apiKey }}"))
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     /**
@@ -128,38 +95,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "apiKey", GEMINI_APIKEY,
-            "modelName", "gemini-1.5-flash",
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(GoogleGemini.builder()
-                .type(GoogleGemini.class.getName())
-                .apiKey(Property.ofExpression("{{ apiKey }}"))
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     /**
@@ -190,38 +126,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "modelName", "tinydolphin",
-            "ollamaEndpoint", ollamaEndpoint,
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(Ollama.builder()
-                .type(Ollama.class.getName())
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), notNullValue());
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
 
@@ -251,37 +156,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "modelName", AnthropicChatModelName.CLAUDE_3_HAIKU_20240307,
-            "apiKey", ANTHROPIC_APIKEY,
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(Ollama.builder()
-                .type(Anthropic.class.getName())
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     @Test
@@ -321,7 +196,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionMistralAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", "MISTRAL_APIKEY",
+            "apiKey", MISTRAL_APIKEY,
             "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -344,40 +219,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "modelName", "mistral:7b",
-            "apiKey", MISTRAL_APIKEY,
-            "baseUrl", ollamaEndpoint,
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(MistralAI.builder()
-                .type(MistralAI.class.getName())
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .apiKey(Property.ofExpression("{{ apiKey }}"))
-                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     @Test
@@ -474,40 +316,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "apiKey", DEEPSEEK_APIKEY,
-            "modelName", "deepseek-chat",
-            "baseUrl", "https://api.deepseek.com/v1",
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(DeepSeek.builder()
-                .type(DeepSeek.class.getName())
-                .apiKey(Property.ofExpression("{{ apiKey }}"))
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     @Test
@@ -574,40 +383,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "modelName", modelName,
-            "accessKeyId", AMAZON_ACCESS_KEY_ID,
-            "secretAccessKey", AMAZON_SECRET_ACCESS_KEY,
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(AmazonBedrock.builder()
-                .type(AmazonBedrock.class.getName())
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .accessKeyId(Property.ofExpression("{{ accessKeyId }}"))
-                .secretAccessKey(Property.ofExpression("{{ secretAccessKey }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     @Test
@@ -674,40 +450,7 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        List<ChatCompletion.ChatMessage> updatedMessages = output.getOutputMessages();
-
-        // GIVEN: Second prompt using the updated messages
-        updatedMessages.add(ChatCompletion.ChatMessage.builder()
-            .type(ChatCompletion.ChatMessageType.USER)
-            .content("What's my name?")
-            .build());
-
-        runContext = runContextFactory.of(Map.of(
-            "modelName", modelName,
-            "apiKey", AZURE_OPENAI_API_KEY,
-            "endpoint", azureEndpoint,
-            "messages", updatedMessages
-        ));
-
-        ChatCompletion secondTask = ChatCompletion.builder()
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .provider(AzureOpenAI.builder()
-                .type(AzureOpenAI.class.getName())
-                .modelName(Property.ofExpression("{{ modelName }}"))
-                .apiKey(Property.ofExpression("{{ apiKey }}"))
-                .endpoint(Property.ofExpression("{{ endpoint }}"))
-                .build()
-            )
-            .messages(Property.ofExpression("{{ messages }}"))
-            .build();
-
-        // WHEN: Run the second task
-        ChatCompletion.Output secondOutput = secondTask.run(runContext);
-
-        // THEN: Validate the second response
-        assertThat(secondOutput.getAiResponse(), containsString("John"));
-        assertThat(secondOutput.getOutputMessages().size(), is(2));
+        assertThat(output.getAiResponse(), containsString("John"));
     }
 
     @Test
