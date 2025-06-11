@@ -39,55 +39,11 @@ import java.util.List;
 @Plugin(
     examples = {
         @io.kestra.core.models.annotations.Example(
-            title = "JSON Structured Extraction using Ollama",
-            full = true,
-            code = {
-                """
-                id: json_structured_extraction_ollama
-                namespace: company.team
-                task:
-                    id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
-                    jsonFields:
-                      - name
-                      - City
-                    schemaName: Person
-                    prompt: Hello, my name is John, I live in Paris
-                    provider:
-                      type: io.kestra.plugin.langchain4j.provider.Ollama
-                      modelName: llama3
-                      endpoint: http://localhost:11434
-                """
-            }
-        ),
-        @io.kestra.core.models.annotations.Example(
-            title = "JSON Structured Extraction using OpenAI",
-            full = true,
-            code = {
-                """
-                id: json_structured_extraction_openai
-                namespace: company.team
-                task:
-                    id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
-                    jsonFields:
-                      - name
-                      - City
-                    schemaName: Person
-                    prompt: Hello, my name is John, I live in Paris
-                    provider:
-                      type: io.kestra.plugin.langchain4j.provider.OpenAI
-                      apiKey: your_openai_api_key
-                      modelName: GPT-4
-                """
-            }
-        ),
-        @io.kestra.core.models.annotations.Example(
             title = "JSON Structured Extraction using Gemini",
             full = true,
             code = {
                 """
-                id: json_structured_extraction_gemini
+                id: json_structured_extraction
                 namespace: company.team
                 task:
                     id: json_structured_extraction
@@ -99,77 +55,11 @@ import java.util.List;
                     prompt: Hello, my name is John, I live in Paris
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: your_gemini_api_key
-                        modelName: gemini-1.5-flash
+                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                        modelName: gemini-2.0-flash
                 """
             }
         ),
-        @io.kestra.core.models.annotations.Example(
-            title = "JSON Structured Extraction using Anthropic",
-            full = true,
-            code = {
-                """
-                id: json_structured_extraction_anthropic
-                namespace: company.team
-                task:
-                    id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
-                    jsonFields:
-                      - name
-                      - City
-                    schemaName: Person
-                    prompt: Hello, my name is John, I live in Paris
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.Anthropic
-                        apiKey: your_anthropic_api_key
-                        modelName: claude-3-haiku-20240307
-                """
-            }
-        ),
-        @io.kestra.core.models.annotations.Example(
-            title = "JSON Structured Extraction using DeepSeek",
-            full = true,
-            code = {
-                """
-                id: json_structured_extraction_deepseek
-                namespace: company.team
-                task:
-                    id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
-                    jsonFields:
-                      - name
-                      - City
-                    schemaName: Person
-                    prompt: Hello, my name is John, I live in Paris
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
-                        apiKey: your_deepseek_api_key
-                        modelName: deepseek-chat
-                """
-            }
-        ),
-        @io.kestra.core.models.annotations.Example(
-            title = "JSON Structured Extraction using Mistal AI",
-            full = true,
-            code = {
-                """
-                id: json_structured_extraction_openai
-                namespace: company.team
-                task:
-                    id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.JSONStructuredExtraction
-                    jsonFields:
-                      - name
-                      - City
-                    schemaName: Person
-                    prompt: Hello, my name is John, I live in Paris
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.MistralAI
-                        apiKey: your_mistral_api_key
-                        modelName: mistral:7b
-                """
-            }
-        )
     },
     beta = true
 )

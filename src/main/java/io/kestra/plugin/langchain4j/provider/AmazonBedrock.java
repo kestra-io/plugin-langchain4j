@@ -9,6 +9,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -29,10 +30,42 @@ import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Amazon Bedrock Model Provider"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            title = "Chat completion with OpenAI",
+            full = true,
+            code = {
+                """
+                id: chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
+                      accessKeyId: "{{secret('AWS_ACCESS_KEY')}}"
+                      secretAccessKey: "{{secret('AWS_SECRET_KEY')}}"
+                      modelName: anthropic.claude-3-sonnet-20240229-v1:0
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        )
+    }
 )
 public class AmazonBedrock extends ModelProvider {
 

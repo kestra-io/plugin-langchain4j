@@ -71,7 +71,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-1.5-flash
+                      modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     messages:
                     - type: user
@@ -81,7 +81,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-1.5-flash
+                      modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddingProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
@@ -104,12 +104,12 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-1.5-flash
+                      modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
                     - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
-                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                     prompt: What is the latest release of Kestra?
                 """
         ),
@@ -140,7 +140,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-1.5-flash
+                      modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddingProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
@@ -150,8 +150,8 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
                     tools:
                     - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
-                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                     prompt: What is the latest release of Kestra?
                 """
         )

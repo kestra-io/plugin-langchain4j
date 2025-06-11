@@ -5,6 +5,7 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -23,10 +24,37 @@ import java.io.IOException;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Milvus Embedding Store"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            full = true,
+            title = "Ingest documents into a Milvus embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Milvus
+                      token: "{{ secret('MILVUS_TOKEN') }}"
+                      uri: "http://localhost:19200"
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        )
+    }
 )
 public class Milvus extends EmbeddingStoreProvider {
 
