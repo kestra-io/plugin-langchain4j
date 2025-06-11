@@ -136,10 +136,10 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
         long nbSystemMessages = chatMessages.stream().filter(msg -> msg.type() == dev.langchain4j.data.message.ChatMessageType.SYSTEM).count();
         if (nbSystemMessages > 1) {
-            throw new IllegalStateException("Only one system message is allowed");
+            throw new IllegalArgumentException("Only one system message is allowed");
         }
         if (chatMessages.getLast().type() != dev.langchain4j.data.message.ChatMessageType.USER) {
-            throw new IllegalStateException("The last message must be a user message");
+            throw new IllegalArgumentException("The last message must be a user message");
         }
 
 

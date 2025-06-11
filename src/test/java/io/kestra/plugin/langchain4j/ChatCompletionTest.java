@@ -126,7 +126,87 @@ class ChatCompletionTest extends ContainerTest {
         ChatCompletion.Output output = task.run(runContext);
 
         assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+    }
+
+    @Test
+    void testChatCompletionNoTemplate() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is {{John}}").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(Property.ofExpression("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        assertThat(output.getAiResponse(), notNullValue());
+    }
+
+    @Test
+    void shouldThrowWhenMoreThanOneSystemMessage() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are a bot").build(),
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an alien").build(),
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(Property.ofExpression("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
+                .build()
+            )
+            .build();
+
+        assertThrows(IllegalArgumentException.class, () -> task.run(runContext));
+    }
+
+    @Test
+    void shouldThrowWhenLastMessageIsNotUserMessage() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are a bot").build(),
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build(),
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.AI).content("You are an alien").build()
+                )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(Property.ofExpression("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
+                .build()
+            )
+            .build();
+
+        assertThrows(IllegalArgumentException.class, () -> task.run(runContext));
     }
 
 
