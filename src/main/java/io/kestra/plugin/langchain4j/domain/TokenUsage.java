@@ -11,6 +11,10 @@ public class TokenUsage {
     private Integer totalTokenCount;
 
     public static TokenUsage from(dev.langchain4j.model.output.TokenUsage tokenUsage) {
+        if (tokenUsage == null) {
+            return null;
+        }
+
         return TokenUsage.builder()
             .inputTokenCount(tokenUsage.inputTokenCount())
             .outputTokenCount(tokenUsage.outputTokenCount())
