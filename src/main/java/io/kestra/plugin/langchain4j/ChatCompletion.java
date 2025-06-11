@@ -1,9 +1,9 @@
 package io.kestra.plugin.langchain4j;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.message.*;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
@@ -37,7 +37,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Complete chats with AI models.",
+    title = "Chat completion with AI models.",
     description = "Handles chat interactions using AI models (OpenAI, Ollama, Gemini, Anthropic, MistralAI, Deepseek).")
 @Plugin(
     examples = {
@@ -104,7 +104,10 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 )
 public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
 
-    @Schema(title = "Chat Messages", description = "The list of chat messages for the current conversation")
+    @Schema(
+        title = "Chat Messages",
+        description = "The list of chat messages for the current conversation. There can be only one system message and the last message must be a user message"
+    )
     @NotNull
     protected Property<List<ChatMessage>> messages;
 
@@ -131,17 +134,44 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         List<ChatMessage> renderedChatMessagesInput = runContext.render(messages).asList(ChatMessage.class);
         List<dev.langchain4j.data.message.ChatMessage> chatMessages = convertMessages(renderedChatMessagesInput);
 
+        long nbSystemMessages = chatMessages.stream().filter(msg -> msg.type() == dev.langchain4j.data.message.ChatMessageType.SYSTEM).count();
+        if (nbSystemMessages > 1) {
+            throw new IllegalStateException("Only one system message is allowed");
+        }
+        if (chatMessages.getLast().type() != dev.langchain4j.data.message.ChatMessageType.USER) {
+            throw new IllegalStateException("The last message must be a user message");
+        }
+
+
         // Get the appropriate model from the factory
         ChatModel model = this.provider.chatModel(runContext, configuration);
 
         List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
         try {
+            ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(100); // this should be enough for most use cases
+            // add all messages to memory except the system message and the last message that will be used for completion
+            List<dev.langchain4j.data.message.ChatMessage> allExceptSystem = chatMessages.stream()
+                .filter(msg -> msg.type() != dev.langchain4j.data.message.ChatMessageType.SYSTEM)
+                .toList();
+            if (allExceptSystem.size() > 1) {
+                List<dev.langchain4j.data.message.ChatMessage> history = allExceptSystem.subList(0, allExceptSystem.size() - 1);
+                history.forEach(msg -> chatMemory.add(msg));
+            }
+
             // Generate AI response
             Assistant assistant = AiServices.builder(Assistant.class)
                 .chatModel(model)
+                .systemMessageProvider(chatMemoryId ->
+                    chatMessages.stream()
+                        .filter(msg -> msg.type() == dev.langchain4j.data.message.ChatMessageType.SYSTEM)
+                        .map(msg -> ((SystemMessage)msg).text())
+                        .findAny()
+                        .orElse(null)
+                )
+                .chatMemory(chatMemory)
                 .tools(buildTools(runContext, toolProviders))
                 .build();
-            Response<AiMessage> aiResponse = assistant.chat(chatMessages);
+            Response<AiMessage> aiResponse = assistant.chat(((UserMessage)chatMessages.getLast()).singleText());
             logger.debug("AI Response: {}", aiResponse.content());
 
             // Return updated messages
@@ -156,7 +186,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     interface Assistant {
-        Response<AiMessage> chat(List<dev.langchain4j.data.message.ChatMessage> chatMessages);
+        Response<AiMessage> chat(@dev.langchain4j.service.UserMessage String chatMessage);
     }
 
     private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
