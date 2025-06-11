@@ -4,7 +4,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
-import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -14,6 +13,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.domain.TokenUsage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -99,7 +99,7 @@ public class Classification extends Task implements RunnableTask<Classification.
 
         return Output.builder()
             .classification(classificationResponse.aiMessage().text())
-            .tokenUsage(classificationResponse.tokenUsage())
+            .tokenUsage(TokenUsage.from(classificationResponse.tokenUsage()))
             .finishReason(classificationResponse.finishReason())
             .build();
     }
