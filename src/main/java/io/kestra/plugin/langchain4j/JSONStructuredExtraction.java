@@ -10,7 +10,6 @@ import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
-import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.property.Property;
@@ -19,6 +18,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.domain.TokenUsage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -124,7 +124,7 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
         return Output.builder()
             .schemaName(renderedSchemaName)
             .extractedJson(answer.aiMessage().text())
-            .tokenUsage(answer.tokenUsage())
+            .tokenUsage(TokenUsage.from(answer.tokenUsage()))
             .finishReason(answer.finishReason())
             .build();
     }
