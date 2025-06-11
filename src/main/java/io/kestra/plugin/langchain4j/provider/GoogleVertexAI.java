@@ -8,6 +8,7 @@ import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
 import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
 import dev.langchain4j.model.vertexai.VertexAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -24,10 +25,42 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Google VertexAI Model Provider"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            title = "Chat completion with Google Vertex AI",
+            full = true,
+            code = {
+                """
+                id: chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
+                        endpoint: your-vertex-ai-endpoint
+                        location: your-google-cloud-region
+                        project: your-google-cloud-project-id
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        )
+    }
 )
 public class GoogleVertexAI extends ModelProvider {
     @Schema(title = "Endpoint URL")

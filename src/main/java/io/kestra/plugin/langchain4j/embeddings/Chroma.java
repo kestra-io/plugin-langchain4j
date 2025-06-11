@@ -5,6 +5,7 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -18,11 +19,37 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Chroma Embedding Store",
     description = "Always uses cosine distance as the distance metric"
+)
+@Plugin(
+    examples = {
+        @Example(
+            full = true,
+            title = "Ingest documents into a Chroma embedding store.",
+            code = """
+                id: document-ingestion
+                namespace: company.team
+
+                tasks:
+                  - id: ingest
+                    type: io.kestra.plugin.langchain4j.rag.IngestDocument
+                    provider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: my_api_key
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.Chroma
+                      baseUrl: http://localhost:8000
+                      collectionName: embeddings
+                    fromExternalURLs:
+                      - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
+                """
+        )
+    },
+    beta = true
 )
 public class Chroma extends EmbeddingStoreProvider {
 

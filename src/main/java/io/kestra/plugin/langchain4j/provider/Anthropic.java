@@ -6,6 +6,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -22,10 +23,41 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Anthropic AI Model Provider"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            title = "Chat completion with Anthropic",
+            full = true,
+            code = {
+                """
+                id: chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.Anthropic
+                        apiKey: "{{secret('ANTHROPIC_API_KEY')}}"
+                        modelName: claude-3-haiku-20240307
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        )
+    }
 )
 public class Anthropic extends ModelProvider {
     @Schema(title = "API Key")

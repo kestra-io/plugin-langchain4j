@@ -11,6 +11,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -28,10 +29,42 @@ import org.apache.commons.lang3.StringUtils;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
         title = "Azure OpenAI Model Provider"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            title = "Chat completion with Azure OpenAI",
+            full = true,
+            code = {
+                """
+                id: chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
+                        apiKey: "{{secret('AZURE_API_KEY')}}"
+                        endpoint: https://your-resource.openai.azure.com/
+                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        )
+    }
 )
 public class AzureOpenAI extends ModelProvider {
 

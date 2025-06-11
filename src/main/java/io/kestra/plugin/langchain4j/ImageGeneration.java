@@ -35,7 +35,7 @@ import org.slf4j.Logger;
             full = true,
             code = {
                 """
-                id: openai_image_generation
+                id: image_generation
                 namespace: company.team
                 task:
                     id: image_generation
@@ -43,54 +43,13 @@ import org.slf4j.Logger;
                     prompt: "A futuristic cityscape at sunset"
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.OpenAI
-                        apiKey: your_openai_api_key
+                        apiKey: "{{secret('OPENAI_API_KEY')}}"
                         modelName: dall-e-3
                         size: LARGE
                         download: false
                 """
             }
         ),
-        @Example(
-            title = "Generate an image using Google Vertex AI.",
-            full = true,
-            code = {
-                """
-                id: google_vertex_image_generation
-                namespace: company.team
-                task:
-                    id: image_generation
-                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
-                    prompt: A realistic portrait of a medieval knight
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
-                        apiKey: your_google_api_key
-                        modelName: imagegeneration@005
-                        projectId: my-gcp-project
-                        location: us-central1
-                        endpoint: us-central1-aiplatform.googleapis.com
-                        publisher: google
-                """
-            }
-        ),
-        @Example(
-            title = "Generate an image using Azure OpenAI.",
-            full = true,
-            code = {
-                """
-                id: azure_openai_image_generation
-                namespace: company.team
-                task:
-                    id: image_generation
-                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
-                    prompt: A great photo of a dog
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
-                        apiKey: your_azure_api_key
-                        endpoint: https://your-resource.openai.azure.com/
-                        modelName: dall-e-3
-                """
-            }
-        )
     },
     beta = true
 )

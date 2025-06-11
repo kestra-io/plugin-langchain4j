@@ -8,6 +8,7 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -25,10 +26,41 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "Deepseek Model Provider"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            title = "Chat completion with DeepSeek",
+            full = true,
+            code = {
+                """
+                id: chat_completion
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+
+                tasks:
+                  - id: chat_completion
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    provider:
+                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
+                        apiKey: "{{secret('DEEPSEEK_API_KEY')}}"
+                        modelName: deepseek-chat
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+            }
+        )
+    }
 )
 public class DeepSeek extends ModelProvider {
     private static final String BASE_URL = "https://api.deepseek.com/v1";
