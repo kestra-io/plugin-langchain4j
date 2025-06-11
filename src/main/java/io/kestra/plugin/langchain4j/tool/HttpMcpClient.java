@@ -31,9 +31,11 @@ import java.util.List;
     beta = true,
     examples = {
         @Example(
+            title = "Chat Completion with Google Gemini and an HTTP MCP Client tool",
             full = true,
-            code = """
-                id: llm-completion
+            code = {
+                """
+                id: chat_completion_with_tools
                 namespace: company.team
 
                 inputs:
@@ -41,20 +43,23 @@ import java.util.List;
                     type: STRING
 
                 tasks:
-                  - id: text_completion
-                    type: io.kestra.plugin.langchain4j.ChatCompletion
-                    messages:
-                      - type: USER
-                        content: "{{inputs.prompt}}"
+                  - id: chat_completion_with_tools
+                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
-                      modelName: gemini-2.5-flash-preview-05-20
+                      apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                      modelName: gemini-2.0-flash
+                    messages:
+                      - type: SYSTEM
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
+                      - type: USER
+                        content: "{{inputs.prompt}}
                     tools:
                       - type: io.kestra.plugin.langchain4j.tool.HttpMcpClient
                         sseUrl: http://localhost:8080
                 """
-        )
+            }
+        ),
     }
 )
 @JsonDeserialize

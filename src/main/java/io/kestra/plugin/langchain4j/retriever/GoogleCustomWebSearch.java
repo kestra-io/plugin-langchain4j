@@ -6,6 +6,7 @@ import dev.langchain4j.rag.content.retriever.WebSearchContentRetriever;
 import dev.langchain4j.web.search.WebSearchEngine;
 import dev.langchain4j.web.search.google.customsearch.GoogleCustomWebSearchEngine;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -22,10 +23,35 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Plugin(beta = true)
 @JsonDeserialize
 @Schema(
     title = "WebSearch content retriever for Google Custom Search"
+)
+@Plugin(
+    beta = true,
+    examples = {
+        @Example(
+            full = true,
+            title = "Chat with your data using Retrieval Augmented Generation (RAG) and a WebSearch content retriever. The Chat with RAG retrieves contents from a WebSearch client and provides a response grounded in data rather than hallucinating.",
+            code = """
+                id: rag
+                namespace: company.team
+
+                tasks:
+                  - id: chat_with_rag_and_websearch_content_retriever
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-2.0-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    contentRetrievers:
+                    - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
+                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
+                    prompt: What is the latest release of Kestra?
+                """
+        )
+    }
 )
 public class GoogleCustomWebSearch extends ContentRetrieverProvider {
     @Schema(title = "API Key")

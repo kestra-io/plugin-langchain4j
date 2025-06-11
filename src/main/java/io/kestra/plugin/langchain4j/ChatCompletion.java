@@ -42,65 +42,11 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Plugin(
     examples = {
         @Example(
-            title = "Chat with OpenAI",
+            title = "Chat completion with Google Gemini",
             full = true,
             code = {
                 """
-                id: openai_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.OpenAI
-                        apiKey: your_openai_api_key
-                        modelName: gpt-4o-mini
-                    messages:
-                      - type: SYSTEM
-                        content: You are a french AI
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with Ollama",
-            full = true,
-            code = {
-                """
-                id: ollama_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.Ollama
-                        modelName: llama3
-                        endpoint: http://localhost:11434
-                    messages:
-                      - type: SYSTEM
-                        content: You are a french AI
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with Gemini",
-            full = true,
-            code = {
-                """
-                id: anthropic_chat_completion
+                id: chat_completion
                 namespace: company.team
 
                 inputs:
@@ -112,165 +58,22 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: your_gemini_api_key
-                        modelName: gemini-1.5-flash
+                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                        modelName: gemini-2.0-flash
                     messages:
                       - type: SYSTEM
-                        content: You are a french AI
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
                       - type: USER
                         content: "{{inputs.prompt}}"
                 """
             }
         ),
         @Example(
-            title = "Chat Completion with Anthropic",
+            title = "Chat Completion with Google Gemini and a WebSearch tool",
             full = true,
             code = {
                 """
-                id: anthropic_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.Anthropic
-                        apiKey: your_anthropic_api_key
-                        modelName: claude-3-haiku-20240307
-                    messages:
-                      - type: SYSTEM
-                        content: You are a french AI
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with DeepSeek",
-            full = true,
-            code = {
-                """
-                id: deepseek_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
-                        apiKey: your_deepseek_api_key
-                        modelName: deepseek-chat
-                    messages:
-                      - type: SYSTEM
-                        content: You are a french AI
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with MistralAI",
-            full = true,
-            code = {
-                """
-                id: mistral_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.MistralAI
-                        apiKey: your_mistral_api_key
-                        modelName: mistral:7b
-                    messages:
-                      - type: SYSTEM
-                        content: You are a french AI
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with Amazon Bedrock",
-            full = true,
-            code = {
-                """
-                id: bedrock_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
-                        accessKeyId: your_access_key_id
-                        secretAccessKey: your_secret_access_key
-                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
-                    configuration:
-                        temperature: 0.5
-                    messages:
-                      - type: SYSTEM
-                        content: Are you a french AI (answer with yes or no)?
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with Azure OpenAI",
-            full = true,
-            code = {
-                """
-                id: azure_openai_chat_completion
-                namespace: company.team
-
-                inputs:
-                  - id: prompt
-                    type: STRING
-
-                tasks:
-                  - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
-                        apiKey: your_openai_api_key
-                        endpoint: https://your-resource.openai.azure.com/
-                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
-                    configuration:
-                        temperature: 0.5
-                        topP: 0.5
-                        seed: 42
-                    messages:
-                      - type: SYSTEM
-                        content: Are you a french AI (answer with yes or no)?
-                      - type: USER
-                        content: "{{inputs.prompt}}"
-                """
-            }
-        ),
-        @Example(
-            title = "Chat Completion with Ollama and a websearch tool",
-            full = true,
-            code = {
-                """
-                id: ollama_chat_completion_with_tools
+                id: chat_completion_with_tools
                 namespace: company.team
 
                 inputs:
@@ -281,18 +84,18 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                   - id: chat_completion_with_tools
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.Ollama
-                        modelName: llama3
-                        endpoint: http://localhost:11434
+                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                        modelName: gemini-2.0-flash
                     messages:
                       - type: SYSTEM
-                        content: You are a french AI
+                        content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
                       - type: USER
                         content: "{{inputs.prompt}}
                     tools:
                     - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
-                      apiKey: "{{ secret('GOOGLE_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_CSI_KEY') }}"
+                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                 """
             }
         ),

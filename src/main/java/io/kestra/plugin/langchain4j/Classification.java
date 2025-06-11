@@ -34,53 +34,11 @@ import java.util.List;
 @Plugin(
     examples = {
         @Example(
-            title = "Text Classification using OpenAI",
-            full = true,
-            code = {
-                """
-                id: openai_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Is 'This is a joke' a good joke?"
-                    classes:
-                      - true
-                      - false
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.OpenAI
-                        apiKey: your_openai_api_key
-                        modelName: gpt-4o
-                """
-            }
-        ),
-        @Example(
-            title = "Text Classification using Ollama",
-            full = true,
-            code = {
-                """
-                id: ollama_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Is 'This is a joke' a good joke?"
-                    classes:
-                      - true
-                      - false
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.Ollama
-                        modelName: llama3
-                        endpoint: http://localhost:11434
-                """
-            }
-        ),
-        @Example(
             title = "Text Classification using Gemini",
             full = true,
             code = {
                 """
-                id: gemini_text_classification
+                id: text_classification
                 namespace: company.team
                 task:
                     id: text_classification
@@ -92,100 +50,11 @@ import java.util.List;
                       - neutral
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: your_gemini_api_key
-                        modelName: gemini-1.5-flash
+                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                        modelName: gemini-2.0-flash
                 """
             }
         ),
-        @Example(
-            title = "Text Classification using Anthropic",
-            full = true,
-            code = {
-                """
-                id: anthropic_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
-                    classes:
-                      - positive
-                      - negative
-                      - neutral
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.Anthropic
-                        apiKey: your_anthropic_api_key
-                        modelName: claude-3-haiku-20240307
-                """
-            }
-        ),
-        @Example(
-            title = "Text Classification using DeepSeek",
-            full = true,
-            code = {
-                """
-                id: deepseek_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
-                    classes:
-                      - positive
-                      - negative
-                      - neutral
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
-                        apiKey: your_deepseek_api_key
-                        modelName: deepseek-chat
-                """
-            }
-        ),
-        @Example(
-            title = "Text Classification using Mistral AI",
-            full = true,
-            code = {
-                """
-                id: mistral_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
-                    classes:
-                      - positive
-                      - negative
-                      - neutral
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.MistralAI
-                        apiKey: your_mistral_api_key
-                        modelName: mistral:7b
-                """
-            }
-        ),
-        @Example(
-            title = "Text Classification using Azure OpenAI",
-            full = true,
-            code = {
-                """
-                id: azure_openai_text_classification
-                namespace: company.team
-                task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.Classification
-                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
-                    classes:
-                      - positive
-                      - negative
-                      - neutral
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
-                        apiKey: your_azure_openai_api_key
-                        endpoint: https://your-resource.openai.azure.com/
-                        modelName: mistral:7b
-                """
-            }
-        )
     },
     beta = true
 )
