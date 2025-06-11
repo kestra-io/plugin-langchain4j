@@ -4,7 +4,6 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -220,7 +219,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
             return Output.builder()
                 .completion(completion.content().text())
-                .tokenUsage(completion.tokenUsage())
+                .tokenUsage(TokenUsage.from(completion.tokenUsage()))
                 .finishReason(completion.finishReason())
                 .build();
         } finally {

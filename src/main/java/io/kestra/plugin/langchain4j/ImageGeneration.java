@@ -4,7 +4,6 @@ import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.output.TokenUsage;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -13,6 +12,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.domain.TokenUsage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -80,7 +80,7 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
 
         return Output.builder()
             .imageUrl(String.valueOf(imageUrl.content().url()))
-            .tokenUsage(imageUrl.tokenUsage())
+            .tokenUsage(TokenUsage.from(imageUrl.tokenUsage()))
             .finishReason(imageUrl.finishReason())
             .build();
     }

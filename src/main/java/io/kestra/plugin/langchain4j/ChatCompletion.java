@@ -7,7 +7,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.AiServices;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
@@ -19,6 +18,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.langchain4j.domain.ChatConfiguration;
 import io.kestra.plugin.langchain4j.domain.ModelProvider;
+import io.kestra.plugin.langchain4j.domain.TokenUsage;
 import io.kestra.plugin.langchain4j.domain.ToolProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
@@ -147,7 +147,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             // Return updated messages
             return Output.builder()
                 .aiResponse(aiResponse.content().text())
-                .tokenUsage(aiResponse.tokenUsage())
+                .tokenUsage(TokenUsage.from(aiResponse.tokenUsage()))
                 .finishReason(aiResponse.finishReason())
                 .build();
         } finally {
@@ -179,7 +179,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
         @Schema(title = "AI Response", description = "The generated response from the AI")
-        private final String aiResponse;
+        private String aiResponse;
 
         @Schema(title = "Token usage")
         private TokenUsage tokenUsage;
