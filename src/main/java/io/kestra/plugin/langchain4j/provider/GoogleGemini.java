@@ -47,9 +47,9 @@ import lombok.experimental.SuperBuilder;
                   - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                        modelName: gemini-2.0-flash
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                      modelName: gemini-2.0-flash
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.

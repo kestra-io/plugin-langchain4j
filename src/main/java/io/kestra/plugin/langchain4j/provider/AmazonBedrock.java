@@ -53,10 +53,10 @@ import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
                   - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
-                        accessKeyId: "{{secret('AWS_ACCESS_KEY')}}"
-                        secretAccessKey: "{{secret('AWS_SECRET_KEY')}}"
-                        modelName: anthropic.claude-3-sonnet-20240229-v1:0
+                      type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
+                      accessKeyId: "{{secret('AWS_ACCESS_KEY')}}"
+                      secretAccessKey: "{{secret('AWS_SECRET_KEY')}}"
+                      modelName: anthropic.claude-3-sonnet-20240229-v1:0
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.

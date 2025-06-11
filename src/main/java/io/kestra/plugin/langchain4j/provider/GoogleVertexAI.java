@@ -48,10 +48,10 @@ import lombok.experimental.SuperBuilder;
                   - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
-                        endpoint: your-vertex-ai-endpoint
-                        location: your-google-cloud-region
-                        project: your-google-cloud-project-id
+                      type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
+                      endpoint: your-vertex-ai-endpoint
+                      location: your-google-cloud-region
+                      project: your-google-cloud-project-id
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.

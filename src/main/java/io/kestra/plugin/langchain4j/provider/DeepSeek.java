@@ -49,9 +49,9 @@ import lombok.experimental.SuperBuilder;
                   - id: chat_completion
                     type: io.kestra.core.plugin.langchain4j.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.DeepSeek
-                        apiKey: "{{secret('DEEPSEEK_API_KEY')}}"
-                        modelName: deepseek-chat
+                      type: io.kestra.plugin.langchain4j.provider.DeepSeek
+                      apiKey: "{{secret('DEEPSEEK_API_KEY')}}"
+                      modelName: deepseek-chat
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.

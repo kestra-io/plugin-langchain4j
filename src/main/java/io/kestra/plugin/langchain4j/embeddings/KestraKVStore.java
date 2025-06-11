@@ -38,7 +38,7 @@ import java.util.Optional;
     examples = {
         @Example(
             full = true,
-            title = "Ingest documents into a KV embedding store.\\nWARNING: the KV embedding store is for quick prototyping only, as it stores the embedding vectors in a K/V Store and load them all in memory.",
+            title = "Ingest documents into a KV embedding store.\\nWARNING: the `KestraKVStore` embeddings are for quick prototyping only; since they are stored in a KV Store and loaded from there into memory, this won't scale with a large number of documents.",
             code = """
                 id: document-ingestion
                 namespace: company.team
