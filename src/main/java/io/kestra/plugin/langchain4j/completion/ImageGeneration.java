@@ -1,4 +1,4 @@
-package io.kestra.plugin.langchain4j;
+package io.kestra.plugin.langchain4j.completion;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
@@ -37,7 +37,7 @@ import org.slf4j.Logger;
                 namespace: company.team
                 task:
                     id: image_generation
-                    type: io.kestra.core.plugin.langchain4j.ImageGeneration
+                    type: io.kestra.core.plugin.langchain4j.completion.ImageGeneration
                     prompt: "A futuristic cityscape at sunset"
                     provider:
                         type: io.kestra.plugin.langchain4j.provider.OpenAI
@@ -90,7 +90,8 @@ import org.slf4j.Logger;
             }
         )
     },
-    beta = true
+    beta = true,
+    aliases = "io.kestra.plugin.langchain4j.ImageGeneration"
 )
 
 public class ImageGeneration extends Task implements RunnableTask<ImageGeneration.Output> {
