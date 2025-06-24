@@ -116,8 +116,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.hamcrest:hamcrest"
     testImplementation "org.hamcrest:hamcrest-library"
-    testImplementation "org.wiremock:wiremock"
-
+    testImplementation "org.wiremock:wiremock:3.1.0"
 
     testImplementation 'org.testcontainers:ollama:1.21.0'
     testImplementation 'org.testcontainers:elasticsearch:1.21.0'
