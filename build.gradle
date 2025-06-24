@@ -132,8 +132,8 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library"
     testImplementation "org.wiremock:wiremock-jetty12"
 
-    testImplementation 'org.testcontainers:ollama:1.21.1'
-    testImplementation 'org.testcontainers:elasticsearch:1.21.1'
+    testImplementation 'org.testcontainers:ollama:1.21.2'
+    testImplementation 'org.testcontainers:elasticsearch:1.21.2'
 
     // Embeddings stores
     testImplementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
