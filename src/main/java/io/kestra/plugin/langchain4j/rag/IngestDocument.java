@@ -133,7 +133,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
 
     @Schema(
         title = "A path inside the task working directory that contains documents to ingest",
-        description = "Each document inside the directory will be ingested into the embedding store."
+        description = "Each document inside the directory will be ingested into the embedding store. This is recursive and protected from being path traversal (CWE-22)."
     )
     private Property<String> fromPath;
 
@@ -176,9 +176,10 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
         List<Document> documents = new ArrayList<>();
 
         runContext.render(fromPath).as(String.class).ifPresent(path -> {
-            // we restrict to documents on the working directory
+            // we restrict to documents on the working directory*
+            // resolve protects from path traversal (CWE-22), see: https://cwe.mitre.org/data/definitions/22.html
             Path finalPath = runContext.workingDir().resolve(Path.of(path));
-            documents.addAll(FileSystemDocumentLoader.loadDocuments(finalPath));
+            documents.addAll(FileSystemDocumentLoader.loadDocumentsRecursively(finalPath));
         });
 
         ListUtils.emptyOnNull(fromDocuments).forEach(throwConsumer(inlineDocument -> {
