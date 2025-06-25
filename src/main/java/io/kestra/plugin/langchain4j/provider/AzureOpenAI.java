@@ -50,7 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 
                 tasks:
                   - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
                       apiKey: "{{secret('AZURE_API_KEY')}}"

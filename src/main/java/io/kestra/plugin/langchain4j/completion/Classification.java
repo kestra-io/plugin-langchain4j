@@ -41,17 +41,17 @@ import java.util.List;
                 id: text_classification
                 namespace: company.team
                 task:
-                    id: text_classification
-                    type: io.kestra.core.plugin.langchain4j.completion.Classification
-                    prompt: "Classify the sentiment of this sentence: 'I love this product!'"
-                    classes:
-                      - positive
-                      - negative
-                      - neutral
-                    provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                        modelName: gemini-2.0-flash
+                  id: text_classification
+                  type: io.kestra.plugin.langchain4j.completion.Classification
+                  prompt: "Classify the sentiment of this sentence: 'I love this product!'"
+                  classes:
+                    - positive
+                    - negative
+                    - neutral
+                  provider:
+                    type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                    apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                    modelName: gemini-2.0-flash
                 """
             }
         ),

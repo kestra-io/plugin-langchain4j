@@ -46,7 +46,7 @@ import lombok.experimental.SuperBuilder;
 
                 tasks:
                   - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleVertexAI
                       endpoint: your-vertex-ai-endpoint

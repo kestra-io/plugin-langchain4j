@@ -71,10 +71,10 @@ import java.util.Map;
                       modelName: gemini-embedding-exp-03-07
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddings:
-                        type: io.kestra.plugin.langchain4j.embeddings.Elasticsearch
-                        connection:
-                          hosts:
-                            - http://localhost:9200
+                      type: io.kestra.plugin.langchain4j.embeddings.Elasticsearch
+                      connection:
+                        hosts:
+                          - http://localhost:9200
                     fromExternalURLs:
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """

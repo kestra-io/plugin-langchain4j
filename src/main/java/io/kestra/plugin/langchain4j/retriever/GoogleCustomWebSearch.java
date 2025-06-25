@@ -45,9 +45,9 @@ import lombok.experimental.SuperBuilder;
                       modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
-                    - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
-                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
+                      - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
+                        apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                        csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                     prompt: What is the latest release of Kestra?
                 """
         )

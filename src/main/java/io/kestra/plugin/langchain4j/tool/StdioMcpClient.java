@@ -44,7 +44,7 @@ import java.util.Map;
 
                 tasks:
                   - id: chat_completion_with_tools
-                    type: io.kestra.core.plugin.langchain4j.ChatCompletion
+                    type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       apiKey: "{{secret('GOOGLE_API_KEY')}}"
@@ -53,7 +53,7 @@ import java.util.Map;
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
                       - type: USER
-                        content: "{{inputs.prompt}}
+                        content: "{{inputs.prompt}}"
                     tools:
                       - type: io.kestra.plugin.langchain4j.tool.StdioMcpClient
                         command: ["docker", "run", "--rm", "-i", "mcp/time"]
