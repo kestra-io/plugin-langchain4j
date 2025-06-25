@@ -45,8 +45,8 @@ import lombok.experimental.SuperBuilder;
                       modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
-                    - type: io.kestra.plugin.langchain4j.retriever.TavilyWebSearch
-                      apiKey: "{{ secret('TAVILY_API_KEY') }}"
+                      - type: io.kestra.plugin.langchain4j.retriever.TavilyWebSearch
+                        apiKey: "{{ secret('TAVILY_API_KEY') }}"
                     prompt: What is the latest release of Kestra?
                 """
         )

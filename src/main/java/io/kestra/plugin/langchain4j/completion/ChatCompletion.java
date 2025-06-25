@@ -55,11 +55,11 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 
                 tasks:
                   - id: chat_completion
-                    type: io.kestra.core.plugin.langchain4j.completion.ChatCompletion
+                    type: io.kestra.plugin.langchain4j.completion.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                        modelName: gemini-2.0-flash
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                      modelName: gemini-2.0-flash
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
@@ -82,20 +82,20 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 
                 tasks:
                   - id: chat_completion_with_tools
-                    type: io.kestra.core.plugin.langchain4j.completion.ChatCompletion
+                    type: io.kestra.plugin.langchain4j.completion.ChatCompletion
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                        modelName: gemini-2.0-flash
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                      modelName: gemini-2.0-flash
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
                       - type: USER
-                        content: "{{inputs.prompt}}
+                        content: "{{inputs.prompt}}"
                     tools:
-                    - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
-                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
-                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
+                      - type: io.kestra.plugin.langchain4j.tool.GoogleCustomWebSearch
+                        apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                        csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                 """
             }
         ),

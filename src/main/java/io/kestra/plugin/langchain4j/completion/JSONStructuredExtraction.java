@@ -47,16 +47,16 @@ import java.util.List;
                 namespace: company.team
                 task:
                     id: json_structured_extraction
-                    type: io.kestra.core.plugin.langchain4j.completion.JSONStructuredExtraction
+                    type: io.kestra.plugin.langchain4j.completion.JSONStructuredExtraction
                     jsonFields:
                       - name
                       - City
                     schemaName: Person
                     prompt: Hello, my name is John, I live in Paris
                     provider:
-                        type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                        apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                        modelName: gemini-2.0-flash
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                      modelName: gemini-2.0-flash
                 """
             }
         ),
