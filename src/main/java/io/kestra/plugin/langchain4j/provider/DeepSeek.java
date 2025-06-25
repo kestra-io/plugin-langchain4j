@@ -87,6 +87,8 @@ public class DeepSeek extends ModelProvider {
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
+            .logRequests(true)
+            .logResponses(true)
             .build();
     }
 

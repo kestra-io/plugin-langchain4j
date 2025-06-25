@@ -109,6 +109,7 @@ public class AzureOpenAI extends ModelProvider {
                     .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
+                    .logRequestsAndResponses(true)
                     .build();
         } else if (tenantId != null && clientId != null && clientSecret != null) {
             return AzureOpenAiChatModel.builder()
@@ -119,6 +120,7 @@ public class AzureOpenAI extends ModelProvider {
                     .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
+                    .logRequestsAndResponses(true)
                     .build();
         } else {
             throw new IllegalArgumentException("You need to set an API Key or a tenantId, clientId and clientSecret");

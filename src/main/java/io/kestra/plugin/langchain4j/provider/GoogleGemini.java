@@ -77,6 +77,7 @@ public class GoogleGemini extends ModelProvider {
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
+            .logRequestsAndResponses(true)
             .build();
     }
 
