@@ -1,1 +1,1 @@
-io.kestra.plugin.langchain4j.spi.NoopPromptTemplateFactory
+io.kestra.plugin.langchain4j.spi.LenientTemplateFactory
