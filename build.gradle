@@ -137,8 +137,8 @@ dependencies {
 
     // Embeddings stores
     testImplementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
-    testImplementation 'org.testcontainers:chromadb:1.19.6'
-    testImplementation 'org.testcontainers:milvus:1.19.6'
+    testImplementation 'org.testcontainers:chromadb:1.21.3'
+    testImplementation 'org.testcontainers:milvus:1.21.3'
     testImplementation 'org.testcontainers:mongodb:1.20.4'
 }
 
