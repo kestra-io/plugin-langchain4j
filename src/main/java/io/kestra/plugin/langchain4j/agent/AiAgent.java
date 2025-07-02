@@ -1,17 +1,14 @@
-package io.kestra.plugin.langchain4j.rag;
+package io.kestra.plugin.langchain4j.agent;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageDeserializer;
+import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.rag.DefaultRetrievalAugmentor;
-import dev.langchain4j.rag.RetrievalAugmentor;
-import dev.langchain4j.rag.content.retriever.ContentRetriever;
-import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.rag.query.router.DefaultQueryRouter;
-import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
@@ -21,19 +18,18 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.storages.kv.KVStore;
+import io.kestra.core.storages.kv.KVValue;
+import io.kestra.core.storages.kv.KVValueAndMetadata;
 import io.kestra.plugin.langchain4j.domain.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
@@ -108,9 +104,9 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       modelName: gemini-2.0-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
-                      - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
-                        apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
-                        csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
+                    - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
+                      apiKey: "{{ secret('GOOGLE_SEARCH_API_KEY') }}"
+                      csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                     prompt: What is the latest release of Kestra?
                 """
         ),
@@ -159,7 +155,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
     },
     beta = true
 )
-public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
+public class AiAgent extends Task implements RunnableTask<AiAgent.Output> {
     @Schema(title = "System message", description = "The system message for the language model")
     @NotNull
     protected Property<String> systemMessage;
@@ -167,20 +163,6 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Schema(title = "Text prompt", description = "The input prompt for the language model")
     @NotNull
     protected Property<String> prompt;
-
-    @Schema(
-        title = "Embedding Store Provider",
-        description = "Optional if at least one `contentRetrievers` is provided"
-    )
-    @PluginProperty
-    private EmbeddingStoreProvider embeddings;
-
-    @Schema(
-        title = "Embedding Store Model Provider",
-        description = "Optional, if not set, the embedding model will be created by the `chatModelProvider`. In this case, be sure that the `chatModelProvider` supports embeddings."
-        )
-    @PluginProperty
-    private ModelProvider embeddingProvider;
 
     @Schema(title = "Chat Model Provider")
     @NotNull
@@ -193,18 +175,6 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Builder.Default
     private ChatConfiguration chatConfiguration = ChatConfiguration.empty();
 
-    @Schema(title = "Content Retriever Configuration")
-    @NotNull
-    @PluginProperty
-    @Builder.Default
-    private ContentRetrieverConfiguration contentRetrieverConfiguration = ContentRetrieverConfiguration.builder().build();
-
-    @Schema(
-        title = "Additional content retrievers",
-        description = "Some content retrievers like WebSearch can be used also as tools, but using them as content retrievers will make them always used whereas tools are only used when the LLM decided to."
-    )
-    private Property<List<ContentRetrieverProvider>> contentRetrievers;
-
     @Schema(title = "Tools that the LLM may use to augment its response")
     private Property<List<ToolProvider>> tools;
 
@@ -212,6 +182,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         title = "Agent Memory",
         description = "Agent memory will store messages and add them as history inside the LLM context."
     )
+    @PluginProperty
     private MemoryProvider memory;
 
     @Override
@@ -229,7 +200,6 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         try {
             Assistant assistant = AiServices.builder(Assistant.class)
                 .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
-                .retrievalAugmentor(buildRetrievalAugmentor(runContext))
                 .tools(buildTools(runContext, toolProviders))
                 .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
                 .chatMemory(chatMemory)
@@ -259,40 +229,6 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .toList();
     }
 
-    private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext) throws Exception {
-        List<ContentRetriever> toolContentRetrievers = runContext.render(contentRetrievers).asList(ContentRetrieverProvider.class).stream()
-            .map(throwFunction(provider -> provider.contentRetriever(runContext)))
-            .collect(Collectors.toList());
-
-        Optional<ContentRetriever> contentRetriever = Optional.ofNullable(embeddings).map(throwFunction(
-            embeddings -> {
-                var embeddingModel = Optional.ofNullable(embeddingProvider).orElse(chatProvider).embeddingModel(runContext);
-                return EmbeddingStoreContentRetriever.builder()
-                    .embeddingModel(embeddingModel)
-                    .embeddingStore(embeddings.embeddingStore(runContext, embeddingModel.dimension(), false))
-                    .maxResults(contentRetrieverConfiguration.getMaxResults())
-                    .minScore(contentRetrieverConfiguration.getMinScore())
-                    .build();
-            }));
-
-        if (toolContentRetrievers.isEmpty() && contentRetriever.isEmpty()) {
-            throw new IllegalArgumentException("Either `embeddings` or `contentRetrievers` must be provided.");
-        }
-
-        if (toolContentRetrievers.isEmpty()) {
-            return DefaultRetrievalAugmentor.builder().contentRetriever(contentRetriever.get()).build();
-        } else {
-            // always add it first so it has precedence over the additional content retrievers
-            contentRetriever.ifPresent(ct -> toolContentRetrievers.addFirst(ct));
-            QueryRouter queryRouter = new DefaultQueryRouter(toolContentRetrievers.toArray(new ContentRetriever[0]));
-
-            // Create a query router that will route each query to the embedding store content retriever and the tools content retrievers
-            return DefaultRetrievalAugmentor.builder()
-                .queryRouter(queryRouter)
-                .build();
-        }
-    }
-
     interface Assistant {
         Response<AiMessage> chat(String userMessage);
     }
@@ -310,15 +246,28 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         private FinishReason finishReason;
     }
 
-    @Builder
+    // FIXME remove this note
+    // n8n support as memory: in-memory which didn't work if you run multiple instances!, MongoDB, Redis and Postgres
+    // as we already have a bunch of vector stores available, we could use their client to store memory in all supported vector databases...
+    // for that, we would need the chat memory to be a plugin
+    @SuperBuilder
     @Getter
-    public static class ContentRetrieverConfiguration {
-        @Schema(title = "The maximum number of results from the embedding store.")
+    @Jacksonized
+    public static class Memory {
+        @Schema(title = "Whether memory is enabled")
         @Builder.Default
-        private Integer maxResults = 3;
+        private Property<Boolean> enabled = Property.ofValue(false);
 
-        @Schema(title = "The minimum score, ranging from 0 to 1 (inclusive). Only embeddings with a score >= minScore will be returned.")
+        @Schema(title = "The maximum number of messages to keep inside the memory.")
         @Builder.Default
-        private Double minScore = 0.0D;
+        private Property<Integer> messages = Property.ofValue(10);
+
+        @Schema(title = "The memory id. Defaults to the value of the 'system.correlationId' label. This means that a memory is valid for the whole flow execution including its subflows.")
+        @Builder.Default
+        private Property<String> memoryId = Property.ofExpression("{{ flow.id }}-{{ labels.system.correlationId }}");
+
+        @Schema(title = "The memory duration. Defaults to 60mn.")
+        @Builder.Default
+        private Property<Duration> ttl = Property.ofValue(Duration.ofMinutes(60));
     }
 }
