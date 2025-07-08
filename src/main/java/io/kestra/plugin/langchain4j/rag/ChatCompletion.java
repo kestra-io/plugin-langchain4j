@@ -2,6 +2,8 @@ package io.kestra.plugin.langchain4j.rag;
 
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
@@ -70,7 +72,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     messages:
                     - type: user
@@ -80,7 +82,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddingProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
@@ -103,7 +105,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
                       - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
@@ -139,7 +141,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddingProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
@@ -153,11 +155,66 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       csi: "{{ secret('GOOGLE_SEARCH_CSI') }}"
                     prompt: What is the latest release of Kestra?
                 """
-        )
+        ),
+        @Example(
+            full = true,
+            title = "Store chat memory inside a K/V pair.",
+            code = """
+                id: chat-with-memory
+                namespace: company.team
+
+                inputs:
+                  - id: first
+                    type: STRING
+                    defaults: Hello, my name is John
+                  - id: second
+                    type: STRING
+                    defaults: What's my name?
+
+                tasks:
+                  - id: first
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-2.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddingProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    memory:
+                      type: io.kestra.plugin.langchain4j.memory.KestraKVMemory
+                    systemMessage: You are an helpful assistant, answer concisely
+                    prompt: "{{inputs.first}}"
+                  - id: second
+                    type: io.kestra.plugin.langchain4j.rag.ChatCompletion
+                    chatProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-2.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddingProvider:
+                      type: io.kestra.plugin.langchain4j.provider.GoogleGemini
+                      modelName: gemini-embedding-exp-03-07
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    embeddings:
+                      type: io.kestra.plugin.langchain4j.embeddings.KestraKVStore
+                    memory:
+                      type: io.kestra.plugin.langchain4j.memory.KestraKVMemory
+                      drop: true
+                    systemMessage: You are an helpful assistant, answer concisely
+                    prompt: "{{inputs.second}}"
+                """
+        ),
     },
     beta = true
 )
 public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
+    @Schema(title = "System message", description = "The system message for the language model")
+    @NotNull
+    protected Property<String> systemMessage;
+
     @Schema(title = "Text prompt", description = "The input prompt for the language model")
     @NotNull
     protected Property<String> prompt;
@@ -202,15 +259,31 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     @Schema(title = "Tools that the LLM may use to augment its response")
     private Property<List<ToolProvider>> tools;
 
+    @Schema(
+        title = "Agent Memory",
+        description = "Agent memory will store messages and add them as history inside the LLM context."
+    )
+    private MemoryProvider memory;
+
     @Override
     public Output run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
+
+        ChatMemory chatMemory;
+        if (memory != null) {
+            chatMemory = memory.chatMemory(runContext);
+        } else {
+            // null memory is not allowed, so we use an in-memory memory with a capacity of two to support both system and user message
+            chatMemory = MessageWindowChatMemory.withMaxMessages(2);
+        }
 
         try {
             Assistant assistant = AiServices.builder(Assistant.class)
                 .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
                 .retrievalAugmentor(buildRetrievalAugmentor(runContext))
                 .tools(buildTools(runContext, toolProviders))
+                .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
+                .chatMemory(chatMemory)
                 .build();
 
             String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
@@ -224,6 +297,10 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
                 .build();
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
+
+            if (memory != null) {
+                memory.close(runContext);
+            }
         }
     }
 

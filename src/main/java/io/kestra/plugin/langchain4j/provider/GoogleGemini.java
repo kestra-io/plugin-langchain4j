@@ -49,7 +49,7 @@ import lombok.experimental.SuperBuilder;
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
                       apiKey: "{{secret('GOOGLE_API_KEY')}}"
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                     messages:
                       - type: SYSTEM
                         content: You are a helpful assistant, answer concisely, avoid overly casual language or unnecessary verbosity.
