@@ -42,7 +42,7 @@ import lombok.experimental.SuperBuilder;
                     type: io.kestra.plugin.langchain4j.rag.ChatCompletion
                     chatProvider:
                       type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                      modelName: gemini-2.0-flash
+                      modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
                       - type: io.kestra.plugin.langchain4j.retriever.GoogleCustomWebSearch
