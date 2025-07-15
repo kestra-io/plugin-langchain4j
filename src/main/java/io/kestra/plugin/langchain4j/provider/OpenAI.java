@@ -50,7 +50,7 @@ import lombok.experimental.SuperBuilder;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.OpenAI
-                      apiKey: "{{secret('OPENAI_API_KEY')}}"
+                      apiKey: "{{ secret('OPENAI_API_KEY') }}"
                       modelName: gpt-4o-mini
                     messages:
                       - type: SYSTEM

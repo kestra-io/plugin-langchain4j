@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @KestraTest
 class ChatCompletionTest extends ContainerTest {
-    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
-    private final String ANTHROPIC_APIKEY = System.getenv("ANTHROPIC_API_KEY");
-    private final String MISTRAL_APIKEY = System.getenv("MISTRAL_API_KEY");
-    private final String DEEPSEEK_APIKEY = System.getenv("DEEPSEEK_API_KEY");
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+    private final String ANTHROPIC_API_KEY = System.getenv("ANTHROPIC_API_KEY");
+    private final String MISTRAL_API_KEY = System.getenv("MISTRAL_API_KEY");
+    private final String DEEPSEEK_API_KEY = System.getenv("DEEPSEEK_API_KEY");
     private final String AMAZON_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
     private final String AMAZON_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
     private final String AZURE_OPENAI_API_KEY = System.getenv("AZURE_OPENAI_API_KEY");
@@ -71,10 +71,10 @@ class ChatCompletionTest extends ContainerTest {
      * Test Chat Completion using Gemini.
      */
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
     void testChatCompletionGemini() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", GEMINI_APIKEY,
+            "apiKey", GEMINI_API_KEY,
             "modelName", "gemini-1.5-flash",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -211,12 +211,12 @@ class ChatCompletionTest extends ContainerTest {
     }
 
 
-    @EnabledIfEnvironmentVariable(named = "ANTHROPIC_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "ANTHROPIC_API_KEY", matches = ".*")
     @Test
     void testChatCompletionAnthropicAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", AnthropicChatModelName.CLAUDE_3_HAIKU_20240307,
-            "apiKey", ANTHROPIC_APIKEY,
+            "apiKey", ANTHROPIC_API_KEY,
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
@@ -244,7 +244,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionAnthropicAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", AnthropicChatModelName.CLAUDE_3_HAIKU_20240307,
-            "apiKey", "ANTHROPIC_APIKEY",
+            "apiKey", "ANTHROPIC_API_KEY",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
@@ -272,12 +272,12 @@ class ChatCompletionTest extends ContainerTest {
     }
 
 
-    @EnabledIfEnvironmentVariable(named = "MISTRAL_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "MISTRAL_API_KEY", matches = ".*")
     @Test
     void testChatCompletionMistralAI() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", MISTRAL_APIKEY,
+            "apiKey", MISTRAL_API_KEY,
             "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -307,7 +307,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionMistralAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", "MISTRAL_APIKEY",
+            "apiKey", "MISTRAL_API_KEY",
             "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -340,7 +340,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionMistralAI_givenInvalidBaseUrlMistralAI_shouldThrow4xx() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", "MISTRAL_APIKEY",
+            "apiKey", "MISTRAL_API_KEY",
             "baseUrl", ollamaEndpoint,
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -370,10 +370,10 @@ class ChatCompletionTest extends ContainerTest {
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "DEEPSEEK_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "DEEPSEEK_API_KEY", matches = ".*")
     void testChatCompletionDeepseek() throws Exception {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", DEEPSEEK_APIKEY,
+            "apiKey", DEEPSEEK_API_KEY,
             "modelName", "deepseek-chat",
             "baseUrl", "https://api.deepseek.com/v1",
             "messages", List.of(
@@ -403,7 +403,7 @@ class ChatCompletionTest extends ContainerTest {
     @Test
     void testChatCompletionDeepseek_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", "DEEPSEEK_APIKEY",
+            "apiKey", "DEEPSEEK_API_KEY",
             "modelName", "deepseek-chat",
             "baseUrl", "https://api.deepseek.com/v1",
             "messages", List.of(

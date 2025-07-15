@@ -50,7 +50,7 @@ import lombok.experimental.SuperBuilder;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.DeepSeek
-                      apiKey: "{{secret('DEEPSEEK_API_KEY')}}"
+                      apiKey: "{{ secret('DEEPSEEK_API_KEY') }}"
                       modelName: deepseek-chat
                     messages:
                       - type: SYSTEM

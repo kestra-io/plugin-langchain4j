@@ -54,8 +54,8 @@ import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.AmazonBedrock
-                      accessKeyId: "{{secret('AWS_ACCESS_KEY')}}"
-                      secretAccessKey: "{{secret('AWS_SECRET_KEY')}}"
+                      accessKeyId: "{{ secret('AWS_ACCESS_KEY') }}"
+                      secretAccessKey: "{{ secret('AWS_SECRET_KEY') }}"
                       modelName: anthropic.claude-3-sonnet-20240229-v1:0
                     messages:
                       - type: SYSTEM

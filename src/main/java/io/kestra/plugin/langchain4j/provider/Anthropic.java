@@ -47,7 +47,7 @@ import lombok.experimental.SuperBuilder;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.Anthropic
-                      apiKey: "{{secret('ANTHROPIC_API_KEY')}}"
+                      apiKey: "{{ secret('ANTHROPIC_API_KEY') }}"
                       modelName: claude-3-haiku-20240307
                     messages:
                       - type: SYSTEM

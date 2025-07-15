@@ -43,7 +43,7 @@ import org.slf4j.Logger;
                   prompt: "A futuristic cityscape at sunset"
                   provider:
                     type: io.kestra.plugin.langchain4j.provider.OpenAI
-                    apiKey: "{{secret('OPENAI_API_KEY')}}"
+                    apiKey: "{{ secret('OPENAI_API_KEY') }}"
                     modelName: dall-e-3
                     size: LARGE
                     download: false
