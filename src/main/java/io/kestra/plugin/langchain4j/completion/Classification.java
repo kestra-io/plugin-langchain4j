@@ -50,7 +50,7 @@ import java.util.List;
                     - neutral
                   provider:
                     type: io.kestra.plugin.langchain4j.provider.GoogleGemini
-                    apiKey: "{{secret('GOOGLE_API_KEY')}}"
+                    apiKey: "{{ secret('GOOGLE_API_KEY') }}"
                     modelName: gemini-2.5-flash
                 """
             }

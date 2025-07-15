@@ -24,13 +24,13 @@ import static org.hamcrest.Matchers.*;
 
 @KestraTest
 class JSONStructuredExtractionTest extends ContainerTest {
-    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
     void testJSONStructuredGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
@@ -38,7 +38,7 @@ class JSONStructuredExtractionTest extends ContainerTest {
             "jsonFields", List.of("name", "date"),
             "schemaName", "Person",
             "modelName", "gemini-1.5-flash",
-            "apiKey", GEMINI_APIKEY
+            "apiKey", GEMINI_API_KEY
         ));
 
         JSONStructuredExtraction task = JSONStructuredExtraction.builder()

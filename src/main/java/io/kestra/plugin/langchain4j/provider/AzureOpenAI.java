@@ -53,7 +53,7 @@ import org.apache.commons.lang3.StringUtils;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.AzureOpenAI
-                      apiKey: "{{secret('AZURE_API_KEY')}}"
+                      apiKey: "{{ secret('AZURE_API_KEY') }}"
                       endpoint: https://your-resource.openai.azure.com/
                       modelName: anthropic.claude-3-sonnet-20240229-v1:0
                     messages:

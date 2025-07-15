@@ -45,7 +45,7 @@ import java.util.List;
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     embeddings:
                       type: io.kestra.plugin.langchain4j.embeddings.Weaviate
-                      apiKey: "{{secret('WEAVIATE_API_KEY')}}"
+                      apiKey: "{{ secret('WEAVIATE_API_KEY') }}"
                       host: your-weaviate-host
                     drop: true
                     fromExternalURLs:

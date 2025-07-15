@@ -22,19 +22,19 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @KestraTest
 class ClassificationTest extends ContainerTest {
-    private final String GEMINI_APIKEY = System.getenv("GEMINI_APIKEY");
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
 
     @Test
-    @EnabledIfEnvironmentVariable(named = "GEMINI_APIKEY", matches = ".*")
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
     void testClassificationGemini() throws Exception {
         // GIVEN
         RunContext runContext = runContextFactory.of(Map.of(
             "prompt", "Is 'This is a joke' a good joke?",
             "classes", List.of("true", "false"),
-            "apiKey", GEMINI_APIKEY,
+            "apiKey", GEMINI_API_KEY,
             "modelName", "gemini-1.5-flash"
 
         ));

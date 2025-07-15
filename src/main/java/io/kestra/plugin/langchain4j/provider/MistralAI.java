@@ -48,7 +48,7 @@ import lombok.experimental.SuperBuilder;
                     type: io.kestra.plugin.langchain4j.ChatCompletion
                     provider:
                       type: io.kestra.plugin.langchain4j.provider.MistralAI
-                      apiKey: "{{secret('MISTRAL_API_KEY')}}"
+                      apiKey: "{{ secret('MISTRAL_API_KEY') }}"
                       modelName: mistral:7b
                     messages:
                       - type: SYSTEM
