@@ -92,8 +92,9 @@ import java.util.Optional;
     }
 )
 public class KestraKVMemory extends MemoryProvider {
-     @JsonIgnore
-     private transient ChatMemory chatMemory;
+
+    @JsonIgnore
+    private transient ChatMemory chatMemory;
 
     @Override
     public ChatMemory chatMemory(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
@@ -124,7 +125,7 @@ public class KestraKVMemory extends MemoryProvider {
         } else {
             String memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
             Duration duration = runContext.render(this.getTtl()).as(Duration.class).orElseThrow();
-            KVValueAndMetadata kvValueAndMetadata = new KVValueAndMetadata(new KVMetadata(duration), memoryJson);
+            KVValueAndMetadata kvValueAndMetadata = new KVValueAndMetadata(new KVMetadata("Chat memory for the flow " + runContext.flowInfo().id(), duration), memoryJson);
             kvStore.put(memoryId, kvValueAndMetadata);
         }
     }
