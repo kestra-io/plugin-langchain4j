@@ -244,7 +244,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionAnthropicAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", AnthropicChatModelName.CLAUDE_3_HAIKU_20240307,
-            "apiKey", "ANTHROPIC_API_KEY",
+            "apiKey", "DUMMY_ANTHROPIC_API_KEY",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
             )
@@ -307,7 +307,7 @@ class ChatCompletionTest extends ContainerTest {
     void testChatCompletionMistralAI_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", "MISTRAL_API_KEY",
+            "apiKey", "DUMMY_MISTRAL_API_KEY",
             "baseUrl", "https://api.mistral.ai/v1",
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -337,10 +337,11 @@ class ChatCompletionTest extends ContainerTest {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "MISTRAL_API_KEY", matches = ".*")
     void testChatCompletionMistralAI_givenInvalidBaseUrlMistralAI_shouldThrow4xx() {
         RunContext runContext = runContextFactory.of(Map.of(
             "modelName", "mistral:7b",
-            "apiKey", "MISTRAL_API_KEY",
+            "apiKey", MISTRAL_API_KEY,
             "baseUrl", ollamaEndpoint,
             "messages", List.of(
                 ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John").build()
@@ -403,7 +404,7 @@ class ChatCompletionTest extends ContainerTest {
     @Test
     void testChatCompletionDeepseek_givenInvalidApiKey_shouldThrow4xxUnAuthorizedException() {
         RunContext runContext = runContextFactory.of(Map.of(
-            "apiKey", "DEEPSEEK_API_KEY",
+            "apiKey", "DUMMY_DEEPSEEK_API_KEY",
             "modelName", "deepseek-chat",
             "baseUrl", "https://api.deepseek.com/v1",
             "messages", List.of(
@@ -430,7 +431,7 @@ class ChatCompletionTest extends ContainerTest {
         }, "status code: 401");
 
         // Verify error message contains 404 details
-        assertThat(exception.getMessage(), containsString("Authentication Fails, Your api key: ****IKEY is invalid"));
+        assertThat(exception.getMessage(), containsString("Authentication Fails, Your api key: ****_KEY is invalid"));
     }
 
 
@@ -492,9 +493,7 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         // Assert RuntimeException and error message
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            ChatCompletion.Output output = task.run(runContext);
-        }, "status code: 401");
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> task.run(runContext), "status code: 401");
 
         // Verify error message
         assertThat(exception.getMessage(), containsString("Unable to load region from any of the providers in the chain"));
