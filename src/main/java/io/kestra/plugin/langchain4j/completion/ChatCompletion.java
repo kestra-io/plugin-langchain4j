@@ -8,6 +8,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolExecutor;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -27,8 +28,12 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
@@ -190,10 +195,14 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         Response<AiMessage> chat(@dev.langchain4j.service.UserMessage String chatMessage);
     }
 
-    private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
-        return toolProviders.stream()
-            .flatMap(throwFunction(provider -> provider.tool(runContext).stream()))
-            .toList();
+    private Map<ToolSpecification, ToolExecutor> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
+        if (toolProviders.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
+        toolProviders.forEach(throwConsumer(provider -> tools.putAll(provider.tool(runContext))));
+        return tools;
     }
 
     private List<dev.langchain4j.data.message.ChatMessage> convertMessages(List<ChatCompletion.ChatMessage> messages) {
