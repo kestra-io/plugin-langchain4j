@@ -2,7 +2,7 @@ package io.kestra.plugin.langchain4j.tool;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.agent.tool.ToolSpecifications;
+import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.web.search.WebSearchEngine;
 import dev.langchain4j.web.search.WebSearchTool;
 import dev.langchain4j.web.search.google.customsearch.GoogleCustomWebSearchEngine;
@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @SuperBuilder
@@ -75,12 +75,12 @@ public class GoogleCustomWebSearch extends ToolProvider {
     private Property<String> apiKey;
 
     @Override
-    public List<ToolSpecification> tool(RunContext runContext) throws IllegalVariableEvaluationException {
+    public Map<ToolSpecification, ToolExecutor> tool(RunContext runContext) throws IllegalVariableEvaluationException {
         final WebSearchEngine searchEngine = GoogleCustomWebSearchEngine.builder()
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .csi((runContext.render(this.csi).as(String.class).orElseThrow()))
             .build();
 
-        return ToolSpecifications.toolSpecificationsFrom(new WebSearchTool(searchEngine));
+        return extract(new WebSearchTool(searchEngine));
     }
 }

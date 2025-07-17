@@ -7,6 +7,7 @@ import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
+import dev.langchain4j.service.tool.ToolExecutor;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -21,7 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @SuperBuilder
@@ -78,7 +80,7 @@ public class HttpMcpClient extends ToolProvider {
     private transient McpClient mcpClient;
 
     @Override
-    public List<ToolSpecification> tool(RunContext runContext) throws IllegalVariableEvaluationException {
+    public Map<ToolSpecification, ToolExecutor> tool(RunContext runContext) throws IllegalVariableEvaluationException {
         McpTransport transport = new HttpMcpTransport.Builder()
             .sseUrl(runContext.render(sseUrl).as(String.class).orElseThrow())
             .timeout(runContext.render(timeout).as(Duration.class).orElse(null))
@@ -88,7 +90,10 @@ public class HttpMcpClient extends ToolProvider {
             .transport(transport)
             .build();
 
-        return mcpClient.listTools();
+        return mcpClient.listTools().stream().collect(Collectors.toMap(
+            tool -> tool,
+            tool -> new McpToolExecutor(mcpClient)
+        ));
     }
 
     @Override

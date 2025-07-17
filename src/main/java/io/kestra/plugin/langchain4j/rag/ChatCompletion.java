@@ -13,6 +13,7 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolExecutor;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
@@ -31,10 +32,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
@@ -304,10 +305,14 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
         }
     }
 
-    private List<ToolSpecification> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
-        return toolProviders.stream()
-            .flatMap(throwFunction(provider -> provider.tool(runContext).stream()))
-            .toList();
+    private Map<ToolSpecification, ToolExecutor> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
+        if (toolProviders.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
+        toolProviders.forEach(throwConsumer(provider -> tools.putAll(provider.tool(runContext))));
+        return tools;
     }
 
     private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext) throws Exception {
