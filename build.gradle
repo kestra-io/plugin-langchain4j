@@ -214,8 +214,8 @@ jar {
     manifest {
         attributes(
             "X-Kestra-Name": project.name,
-            "X-Kestra-Title": "langchain4j",
-            "X-Kestra-Group": project.group + ".langchain4j",
+            "X-Kestra-Title": "ai",
+            "X-Kestra-Group": project.group + ".ai",
             "X-Kestra-Description": project.description,
             "X-Kestra-Version": project.version
         )
