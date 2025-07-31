@@ -1,0 +1,146 @@
+package io.kestra.plugin.ai.tool;
+
+import com.google.api.client.googleapis.testing.TestUtils;
+import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.Label;
+import io.kestra.core.models.flows.GenericFlow;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.repositories.ExecutionRepositoryInterface;
+import io.kestra.core.repositories.FlowRepositoryInterface;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
+import io.kestra.core.runners.RunnerUtils;
+import io.kestra.core.tenant.TenantService;
+import io.kestra.core.utils.TestsUtils;
+import io.kestra.plugin.ai.completion.ChatCompletion;
+import io.kestra.plugin.ai.provider.OpenAI;
+import io.micronaut.data.model.Pageable;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@KestraTest(startRunner = true)
+class KestraFlowCallingTest {
+    @Inject
+    private RunContextFactory runContextFactory;
+
+    @Inject
+    private FlowRepositoryInterface flowRepository;
+
+    @Inject
+    private ExecutionRepositoryInterface executionRepository;
+
+    @Test
+    void helloWorld() throws Exception {
+        String flowYaml = """
+            id: hello-world
+            namespace: company.team
+
+            tasks:
+              - id: hello
+                type: io.kestra.plugin.core.log.Log
+                message: Hello World! 🚀
+            """;
+        var flow = flowRepository.create(GenericFlow.fromYaml(null, flowYaml));
+
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "demo",
+            "modelName", "gpt-4o-mini",
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1"
+        ));
+
+        var chat = ChatCompletion.builder()
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
+                .build()
+            )
+            .tools(Property.ofValue(
+                List.of(KestraFlowCalling.builder().namespace(Property.ofValue("company.team")).flowId(Property.ofValue("hello-world")).description(Property.ofValue("A flow that say Hello World")).build())
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to execute a flow to say Hello World.").build()
+                )))
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getAiResponse()).contains("success");
+
+        // check that an execution has been created
+        var executions = executionRepository.findByFlowId(null, "company.team", "hello-world", Pageable.UNPAGED);
+        assertThat(executions).hasSize(1);
+
+        flowRepository.delete(flow);
+    }
+
+    @Test
+    void inputsAndLabels() throws Exception {
+        String flowYaml = """
+            id: hello-world-with-input
+            namespace: company.team
+
+            labels:
+            - key: existing
+              value: label
+
+            inputs:
+            - id: name
+              type: STRING
+
+            tasks:
+              - id: hello
+                type: io.kestra.plugin.core.log.Log
+                message: Hello {{inputs.name}}
+            """;
+        var flow = flowRepository.create(GenericFlow.fromYaml(null, flowYaml));
+
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "demo",
+            "modelName", "gpt-4o-mini",
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1"
+        ));
+
+        var chat = ChatCompletion.builder()
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
+                .build()
+            )
+            .tools(Property.ofValue(
+                List.of(KestraFlowCalling.builder().namespace(Property.ofValue("company.team")).flowId(Property.ofValue("hello-world-with-input")).description(Property.ofValue("A flow that say Hello World")).build())
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("""
+                        I want to execute a flow to say Hello World.
+                        Call it with the input id 'name' value 'John' and add a label key 'llm' value 'true'.""").build()
+                )))
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getAiResponse()).contains("success");
+
+        // check that an execution has been created
+        var executions = executionRepository.findByFlowId(null, "company.team", "hello-world-with-input", Pageable.UNPAGED);
+        assertThat(executions).hasSize(1);
+        assertThat(executions.getFirst().getLabels()).hasSize(3);
+        assertThat(executions.getFirst().getLabels()).contains(
+            new Label("existing", "label"),
+            new Label("llm", "true")
+        );
+
+        flowRepository.delete(flow);
+    }
+}
