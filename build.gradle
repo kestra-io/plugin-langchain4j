@@ -71,6 +71,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-milvus"
     implementation "dev.langchain4j:langchain4j-pinecone"
     implementation "dev.langchain4j:langchain4j-pgvector"
+    implementation "dev.langchain4j:langchain4j-community-redis:1.2.0-beta8"
     implementation "dev.langchain4j:langchain4j-qdrant"
     implementation "dev.langchain4j:langchain4j-weaviate"
 
@@ -135,6 +136,7 @@ dependencies {
     testImplementation 'org.testcontainers:elasticsearch:1.21.3'
 
     // Embeddings stores
+    testImplementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
     testImplementation "dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2"
     testImplementation 'org.testcontainers:chromadb:1.21.3'
     testImplementation 'org.testcontainers:milvus:1.21.3'
