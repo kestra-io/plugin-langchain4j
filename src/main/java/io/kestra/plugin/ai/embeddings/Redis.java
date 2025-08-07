@@ -12,6 +12,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.ai.domain.EmbeddingStoreProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -29,6 +30,7 @@ import java.io.IOException;
     title = "Redis Embedding Store"
 )
 @Plugin(
+    beta = true,
     examples = {
         @Example(
             full = true,
@@ -53,9 +55,7 @@ import java.io.IOException;
                       - https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/blogs/release-0-22.md
                 """
         )
-    },
-    beta = true,
-    aliases = "io.kestra.plugin.langchain4j.embeddings.Redis"
+    }
 )
 public class Redis extends EmbeddingStoreProvider {
 
@@ -68,7 +68,8 @@ public class Redis extends EmbeddingStoreProvider {
     private Property<Integer> port;
 
     @Schema(title = "The index name", description = "Default value: \"embedding-index\".")
-    private Property<String> indexName;
+    @Builder.Default
+    private Property<String> indexName = Property.ofValue("embedding-index");
 
     @Override
     public EmbeddingStore<TextSegment> embeddingStore(RunContext runContext, int dimension, boolean drop) throws IOException, IllegalVariableEvaluationException {

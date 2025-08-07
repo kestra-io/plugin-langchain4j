@@ -21,7 +21,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
-class RedisMemoryTest extends ContainerTest {
+class RedisTest extends ContainerTest {
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -57,7 +57,7 @@ class RedisMemoryTest extends ContainerTest {
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())
-            .memory(RedisMemory.builder()
+            .memory(Redis.builder()
                 .host(Property.ofValue(redisHost))
                 .port(Property.ofValue(redisPort))
                 .ttl(Property.ofValue(Duration.ofMinutes(5)))
@@ -79,7 +79,7 @@ class RedisMemoryTest extends ContainerTest {
                     .build()
             )
             .embeddings(KestraKVStore.builder().build())
-            .memory(RedisMemory.builder()
+            .memory(Redis.builder()
                 .host(Property.ofValue(redisHost))
                 .port(Property.ofValue(redisPort))
                 .memoryId(Property.ofValue("test-memory"))

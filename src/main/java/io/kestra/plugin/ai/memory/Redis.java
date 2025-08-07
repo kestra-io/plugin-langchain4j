@@ -65,7 +65,7 @@ import java.time.Duration;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.RedisMemory
+                      type: io.kestra.plugin.ai.memory.Redis
                       host: localhost
                       port: 6379
                     systemMessage: You are an helpful assistant, answer concisely
@@ -84,7 +84,7 @@ import java.time.Duration;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.RedisMemory
+                      type: io.kestra.plugin.ai.memory.Redis
                       host: localhost
                       port: 6379
                     systemMessage: You are an helpful assistant, answer concisely
@@ -93,7 +93,7 @@ import java.time.Duration;
         )
     }
 )
-public class RedisMemory extends MemoryProvider {
+public class Redis extends MemoryProvider {
 
     @JsonIgnore
     private transient ChatMemory chatMemory;
@@ -105,7 +105,6 @@ public class RedisMemory extends MemoryProvider {
     )
     private Property<String> host;
 
-    @NotNull
     @Schema(
         title = "Redis port",
         description = "The port of your Redis server",
@@ -118,7 +117,7 @@ public class RedisMemory extends MemoryProvider {
     public ChatMemory chatMemory(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
 
         var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
-        var rPort = runContext.render(this.getPort()).as(Integer.class).orElseThrow();
+        var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
 
         this.chatMemory = MessageWindowChatMemory.withMaxMessages(runContext.render(this.getMessages()).as(Integer.class).orElseThrow());
         var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
@@ -138,7 +137,7 @@ public class RedisMemory extends MemoryProvider {
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
 
         var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
-        var rPort = runContext.render(this.getPort()).as(Integer.class).orElseThrow();
+        var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
         var rDrop = runContext.render(this.getDrop()).as(Boolean.class).orElse(false);
 
         var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
