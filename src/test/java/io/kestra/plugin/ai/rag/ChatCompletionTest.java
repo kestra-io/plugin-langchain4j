@@ -5,6 +5,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.ai.ContainerTest;
+import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.provider.Ollama;
 import io.kestra.plugin.ai.embeddings.KestraKVStore;
 import io.kestra.plugin.ai.retriever.GoogleCustomWebSearch;
@@ -60,6 +61,8 @@ class ChatCompletionTest extends ContainerTest {
             )
             .embeddings(KestraKVStore.builder().build())
             .prompt(Property.ofValue("How's the weather today?"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         var ragOutput = rag.run(runContext);
@@ -107,6 +110,8 @@ class ChatCompletionTest extends ContainerTest {
                 .csi(Property.ofExpression("{{ csi }}"))
                 .apiKey(Property.ofExpression("{{ apikey }}"))
                 .build())))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         var ragOutput = rag.run(runContext);
@@ -151,6 +156,8 @@ class ChatCompletionTest extends ContainerTest {
             .contentRetrievers(Property.ofValue(List.of(TavilyWebSearch.builder()
                 .apiKey(Property.ofExpression("{{ apikey }}"))
                 .build())))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         var ragOutput = rag.run(runContext);

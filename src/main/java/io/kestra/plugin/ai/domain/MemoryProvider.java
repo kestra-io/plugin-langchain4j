@@ -46,9 +46,15 @@ public abstract class MemoryProvider extends AdditionalPlugin {
     @Builder.Default
     private Property<Boolean> drop = Property.ofValue(false);
 
-
     public abstract ChatMemory chatMemory(RunContext runContext) throws IllegalVariableEvaluationException, IOException;
 
+    /**
+     * Tasks to achieve once the operations have been done
+     *
+     * @param runContext
+     * @throws IllegalVariableEvaluationException
+     * @throws IOException
+     */
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
         // by default: no-op
     }
