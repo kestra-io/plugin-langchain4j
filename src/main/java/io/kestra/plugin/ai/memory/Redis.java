@@ -107,8 +107,7 @@ public class Redis extends MemoryProvider {
 
     @Schema(
         title = "Redis port",
-        description = "The port of your Redis server",
-        defaultValue = "6379"
+        description = "The port of your Redis server"
     )
     @Builder.Default
     private Property<Integer> port = Property.ofValue(6379);

@@ -67,7 +67,7 @@ public class Redis extends EmbeddingStoreProvider {
     @Schema(title = "The database server port")
     private Property<Integer> port;
 
-    @Schema(title = "The index name", description = "Default value: \"embedding-index\".")
+    @Schema(title = "The index name")
     @Builder.Default
     private Property<String> indexName = Property.ofValue("embedding-index");
 

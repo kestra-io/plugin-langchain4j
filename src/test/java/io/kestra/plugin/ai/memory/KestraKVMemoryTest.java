@@ -6,6 +6,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.plugin.ai.ContainerTest;
+import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.embeddings.KestraKVStore;
 import io.kestra.plugin.ai.provider.Ollama;
 import io.kestra.plugin.ai.rag.ChatCompletion;
@@ -41,6 +42,8 @@ class KestraKVMemoryTest extends ContainerTest {
             .embeddings(KestraKVStore.builder().build())
             .memory(KestraKVMemory.builder().build())
             .prompt(Property.ofValue("Hello, my name is John"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         var ragOutput = rag.run(runContext);
@@ -58,6 +61,8 @@ class KestraKVMemoryTest extends ContainerTest {
             .embeddings(KestraKVStore.builder().build())
             .memory(KestraKVMemory.builder().build())
             .prompt(Property.ofValue("What's my name?"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         ragOutput = rag.run(runContext);
