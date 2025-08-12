@@ -1,4 +1,5 @@
 @PluginSubGroup(
+    title = "RAG",
     description = "This sub-group of plugins contains tasks for Retrieval Augmented Generation AI for Kestra.\n" +
         "It uses the Langchain4j framework.",
     categories = PluginSubGroup.PluginCategory.AI
