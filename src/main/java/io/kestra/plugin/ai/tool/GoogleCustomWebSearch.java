@@ -42,7 +42,7 @@ import java.util.Map;
 
                 tasks:
                   - id: chat_completion_with_tools
-                    type: io.kestra.plugin.ai.ChatCompletion
+                    type: io.kestra.plugin.ai.completion.ChatCompletion
                     provider:
                       type: io.kestra.plugin.ai.provider.GoogleGemini
                       apiKey: "{{ secret('GOOGLE_API_KEY') }}"
