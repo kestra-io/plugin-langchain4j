@@ -262,8 +262,8 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     private Property<List<ToolProvider>> tools;
 
     @Schema(
-        title = "Agent Memory",
-        description = "Agent memory will store messages and add them as history inside the LLM context."
+        title = "Chat Memory",
+        description = "Chat memory will store messages and add them as history inside the LLM context."
     )
     private MemoryProvider memory;
 
