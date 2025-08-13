@@ -6,10 +6,11 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.ai.ContainerTest;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
-import io.kestra.plugin.ai.provider.Ollama;
 import io.kestra.plugin.ai.embeddings.KestraKVStore;
+import io.kestra.plugin.ai.provider.Ollama;
 import io.kestra.plugin.ai.retriever.GoogleCustomWebSearch;
 import io.kestra.plugin.ai.retriever.TavilyWebSearch;
+import io.kestra.plugin.ai.tool.CodeExecution;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -24,6 +25,7 @@ class ChatCompletionTest extends ContainerTest {
     private final String GOOGLE_API_KEY = System.getenv("GOOGLE_API_KEY");
     private final String GOOGLE_CSI = System.getenv("GOOGLE_CSI_KEY");
     private final String TAVILY_API_KEY = System.getenv("TAVILY_API_KEY");
+    private final String RAPID_API_KEY = System.getenv("RAPID_API_KEY");
 
     @Inject
     private RunContextFactory runContextFactory;
@@ -162,5 +164,41 @@ class ChatCompletionTest extends ContainerTest {
 
         var ragOutput = rag.run(runContext);
         assertThat(ragOutput.getCompletion()).isNotNull();
+    }
+
+    @EnabledIfEnvironmentVariable(named = "RAPID_API_KEY", matches = ".*")
+    @Test
+    void tools_givenJudge0JavaScript() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "tinydolphin",
+            "endpoint", ollamaEndpoint,
+            "apikey", RAPID_API_KEY,
+            "flow", Map.of("id", "flow", "namespace", "namespace")
+        ));
+
+        var chat = ChatCompletion.builder()
+            .chatProvider(
+                Ollama.builder()
+                    .type(Ollama.class.getName())
+                    .modelName(Property.ofExpression("{{ modelName }}"))
+                    .endpoint(Property.ofExpression("{{ endpoint }}"))
+                    .build()
+            )
+            .embeddings(KestraKVStore.builder().build())
+            .prompt(Property.ofValue(
+                "Use the JavaScript execution tool to evaluate `21*2`. Return only the number."
+            ))
+            .tools(Property.ofValue(List.of(
+                CodeExecution.builder()
+                    .apiKey(Property.ofExpression("{{ apikey }}"))
+                    .build()
+            )))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getCompletion()).isNotNull();
+        assertThat(output.getCompletion().trim()).contains("42");
     }
 }
