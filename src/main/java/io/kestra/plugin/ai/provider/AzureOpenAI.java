@@ -100,6 +100,8 @@ public class AzureOpenAI extends ModelProvider {
         var tenantId = runContext.render(this.tenantId).as(String.class).orElse(null);
         var clientId = runContext.render(this.clientId).as(String.class).orElse(null);
         var clientSecret = runContext.render(this.clientSecret).as(String.class).orElse(null);
+        var logRequestAndResponses = runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false) ||
+            runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false);
 
         if (apiKey != null) {
             return AzureOpenAiChatModel.builder()
@@ -110,7 +112,7 @@ public class AzureOpenAI extends ModelProvider {
                     .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
-                    .logRequestsAndResponses(true)
+                    .logRequestsAndResponses(logRequestAndResponses)
                     .build();
         } else if (tenantId != null && clientId != null && clientSecret != null) {
             return AzureOpenAiChatModel.builder()
@@ -121,7 +123,7 @@ public class AzureOpenAI extends ModelProvider {
                     .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
-                    .logRequestsAndResponses(true)
+                    .logRequestsAndResponses(logRequestAndResponses)
                     .build();
         } else {
             throw new IllegalArgumentException("You need to set an API Key or a tenantId, clientId and clientSecret");
