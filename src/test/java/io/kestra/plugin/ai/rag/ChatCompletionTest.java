@@ -184,11 +184,11 @@ class ChatCompletionTest extends ContainerTest {
             .prompt(Property.ofValue(
                 "Use the JavaScript execution tool to evaluate `21*2`. Return only the number."
             ))
-            .tools(Property.ofValue(List.of(
+            .tools(List.of(
                 CodeExecution.builder()
                     .apiKey(Property.ofExpression("{{ apikey }}"))
                     .build()
-            )))
+            ))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .chatConfiguration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();

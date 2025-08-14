@@ -260,7 +260,7 @@ public class KestraFlowCalling extends ToolProvider {
         return Map.of(
             ToolSpecification.builder()
                 .name("kestra_flow_" + IdUtils.fromPartsAndSeparator('_', flowInterface.getNamespace().replace('.', '_'), flowInterface.getId()))
-                .description("This tool allow to execute a Kestra workflow also called a flow.")
+                .description("This tool allows to execute a Kestra workflow also called a flow.")
                 .parameters(jsonSchema.build())
                 .build(),
             new KestraFlowToolExecutor((DefaultRunContext) runContext, flowInterface, rInputs, newLabels)

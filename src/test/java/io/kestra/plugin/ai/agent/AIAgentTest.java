@@ -6,7 +6,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
-import io.kestra.plugin.ai.memory.KestraKVMemory;
+import io.kestra.plugin.ai.memory.KestraKVStore;
 import io.kestra.plugin.ai.provider.OpenAI;
 import io.kestra.plugin.ai.tool.StdioMcpClient;
 import jakarta.inject.Inject;
@@ -74,6 +74,9 @@ class AIAgentTest {
 
         var output = agent.run(runContext);
         assertThat(output.getCompletion()).isNotNull();
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
+
     }
 
     @Test
@@ -96,7 +99,7 @@ class AIAgentTest {
             .prompt(Property.ofValue("My name is John."))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .memory(KestraKVMemory.builder().build())
+            .memory(KestraKVStore.builder().build())
             .build();
         var output = agent.run(runContext);
         assertThat(output.getCompletion()).isNotNull();
@@ -112,7 +115,7 @@ class AIAgentTest {
             .prompt(Property.ofValue("What's my name."))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
             .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
-            .memory(KestraKVMemory.builder().build())
+            .memory(KestraKVStore.builder().build())
             .build();
         output = agent.run(runContext);
         assertThat(output.getCompletion()).contains("John");
