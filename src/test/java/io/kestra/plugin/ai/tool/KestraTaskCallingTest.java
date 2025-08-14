@@ -6,6 +6,7 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.ai.ContainerTest;
 import io.kestra.plugin.ai.completion.ChatCompletion;
+import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.provider.GoogleGemini;
 import io.kestra.plugin.ai.provider.OpenAI;
 import io.kestra.plugin.core.execution.SetVariables;
@@ -45,6 +46,8 @@ class KestraTaskCallingTest extends ContainerTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .tools(List.of(
                 KestraTaskCalling.builder().tasks(
                     List.of(
@@ -60,7 +63,9 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_log");
     }
 
     @Test
@@ -79,6 +84,8 @@ class KestraTaskCallingTest extends ContainerTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .tools(List.of(
                 KestraTaskCalling.builder().tasks(
                     List.of(
@@ -113,6 +120,8 @@ class KestraTaskCallingTest extends ContainerTest {
                 .modelName(Property.ofExpression("{{ modelName }}"))
                 .build()
             )
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .tools(List.of(
                 KestraTaskCalling.builder().tasks(
                     List.of(
@@ -130,7 +139,9 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
+        assertThat(output.getCompletion()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_request");
     }
 
     @Test
@@ -150,6 +161,8 @@ class KestraTaskCallingTest extends ContainerTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .tools(List.of(
                 KestraTaskCalling.builder().tasks(
                     List.of(
@@ -165,11 +178,13 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("logs");
-        assertThat(output.getAiResponse()).contains("fetch");
-        assertThat(output.getAiResponse()).contains("task");
-        assertThat(output.getAiResponse()).contains("task1");
-        assertThat(output.getAiResponse()).contains("task2");
-        assertThat(output.getAiResponse()).contains("task3");
+        assertThat(output.getCompletion()).contains("logs");
+        assertThat(output.getCompletion()).contains("fetch");
+        assertThat(output.getCompletion()).contains("task");
+        assertThat(output.getCompletion()).contains("task1");
+        assertThat(output.getCompletion()).contains("task2");
+        assertThat(output.getCompletion()).contains("task3");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_fetch");
     }
 }
