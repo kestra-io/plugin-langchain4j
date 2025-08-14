@@ -1,11 +1,8 @@
 package io.kestra.plugin.ai.rag;
 
-import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.output.FinishReason;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -13,8 +10,7 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.tool.ToolExecutor;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import dev.langchain4j.service.Result;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -23,6 +19,7 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.utils.ListUtils;
+import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -36,7 +33,6 @@ import lombok.experimental.SuperBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
@@ -187,7 +183,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.first}}"
                   - id: second
@@ -203,7 +199,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                       drop: true
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.second}}"
@@ -213,7 +209,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
     beta = true,
     aliases = "io.kestra.plugin.langchain4j.rag.ChatCompletion"
 )
-public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
+public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
     @Schema(title = "System message", description = "The system message for the language model")
     @NotNull
     protected Property<String> systemMessage;
@@ -269,7 +265,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     private MemoryProvider memory;
 
     @Override
-    public Output run(RunContext runContext) throws Exception {
+    public AIOutput run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = ListUtils.emptyOnNull(tools);
 
         ChatMemory chatMemory;
@@ -284,20 +280,16 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             Assistant assistant = AiServices.builder(Assistant.class)
                 .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
                 .retrievalAugmentor(buildRetrievalAugmentor(runContext))
-                .tools(buildTools(runContext, toolProviders))
+                .tools(AIUtils.buildTools(runContext, toolProviders))
                 .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
                 .chatMemory(chatMemory)
                 .build();
 
             String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-            Response<AiMessage> completion = assistant.chat(renderedPrompt);
+            Result<AiMessage> completion = assistant.chat(renderedPrompt);
             runContext.logger().debug("Generated Completion: {}", completion.content());
 
-            return Output.builder()
-                .completion(completion.content().text())
-                .tokenUsage(TokenUsage.from(completion.tokenUsage()))
-                .finishReason(completion.finishReason())
-                .build();
+            return AIOutput.from(completion);
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
 
@@ -305,16 +297,6 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
                 memory.close(runContext);
             }
         }
-    }
-
-    private Map<ToolSpecification, ToolExecutor> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
-        if (toolProviders.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
-        toolProviders.forEach(throwConsumer(provider -> tools.putAll(provider.tool(runContext))));
-        return tools;
     }
 
     private RetrievalAugmentor buildRetrievalAugmentor(final RunContext runContext) throws Exception {
@@ -352,20 +334,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     interface Assistant {
-        Response<AiMessage> chat(String userMessage);
-    }
-
-    @Builder
-    @Getter
-    public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Generated text completion", description = "The result of the text completion")
-        private String completion;
-
-        @Schema(title = "Token usage")
-        private TokenUsage tokenUsage;
-
-        @Schema(title = "Finish reason")
-        private FinishReason finishReason;
+        Result<AiMessage> chat(String userMessage);
     }
 
     @Builder
