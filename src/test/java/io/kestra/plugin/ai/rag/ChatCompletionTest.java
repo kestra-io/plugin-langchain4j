@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.rag;
 
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -26,14 +27,13 @@ class ChatCompletionTest extends ContainerTest {
     private final String TAVILY_API_KEY = System.getenv("TAVILY_API_KEY");
 
     @Inject
-    private RunContextFactory runContextFactory;
+    private TestRunContextFactory runContextFactory;
 
     @Test
     void rag() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         var ingest = IngestDocument.builder()
@@ -73,12 +73,11 @@ class ChatCompletionTest extends ContainerTest {
     @EnabledIfEnvironmentVariable(named = "GOOGLE_CSI", matches = ".*")
     @Test
     void rag_givenGoogleCustomWebSearch() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
             "endpoint", ollamaEndpoint,
             "apikey", GOOGLE_API_KEY,
-            "csi", GOOGLE_CSI,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "csi", GOOGLE_CSI
         ));
 
         var ingest = IngestDocument.builder()
@@ -121,11 +120,10 @@ class ChatCompletionTest extends ContainerTest {
     @EnabledIfEnvironmentVariable(named = "TAVILY_API_KEY", matches = ".*")
     @Test
     void rag_givenTavilyWebSearch() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
             "endpoint", ollamaEndpoint,
-            "apikey", TAVILY_API_KEY,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "apikey", TAVILY_API_KEY
         ));
 
         var ingest = IngestDocument.builder()

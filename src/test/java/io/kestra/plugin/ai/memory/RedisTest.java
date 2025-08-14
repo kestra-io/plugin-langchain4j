@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.memory;
 
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RedisTest extends ContainerTest {
 
     @Inject
-    private RunContextFactory runContextFactory;
+    private TestRunContextFactory runContextFactory;
 
     static GenericContainer<?> redis;
 
@@ -41,10 +42,9 @@ class RedisTest extends ContainerTest {
         String redisHost = redis.getHost();
         Integer redisPort = redis.getMappedPort(6379);
 
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
             "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace"),
             "labels", Map.of("system", Map.of("correlationId", IdUtils.create()))
         ));
 
