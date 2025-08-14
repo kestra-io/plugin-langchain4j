@@ -196,5 +196,6 @@ class ChatCompletionTest extends ContainerTest {
         var output = chat.run(runContext);
         assertThat(output.getCompletion()).isNotNull();
         assertThat(output.getCompletion().trim()).contains("42");
+        assertThat(output.getToolExecutions()).isNotEmpty();
     }
 }
