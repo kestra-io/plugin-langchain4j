@@ -166,11 +166,10 @@ class ChatCompletionTest extends ContainerTest {
     @EnabledIfEnvironmentVariable(named = "RAPID_API_KEY", matches = ".*")
     @Test
     void tools_givenJudge0JavaScript() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
             "endpoint", ollamaEndpoint,
-            "apikey", RAPID_API_KEY,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "apikey", RAPID_API_KEY
         ));
 
         var chat = ChatCompletion.builder()
