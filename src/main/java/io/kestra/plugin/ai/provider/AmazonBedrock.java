@@ -108,8 +108,8 @@ public class AmazonBedrock extends ModelProvider {
                 .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
                 .build()
             )
-            .logRequests(true)
-            .logResponses(true)
+            .logRequests(runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false))
+            .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
             .build();
     }
 

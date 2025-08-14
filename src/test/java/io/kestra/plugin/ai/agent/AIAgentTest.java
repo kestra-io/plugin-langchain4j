@@ -76,7 +76,6 @@ class AIAgentTest {
         assertThat(output.getCompletion()).isNotNull();
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
-
     }
 
     @Test

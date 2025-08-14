@@ -67,7 +67,7 @@ import java.util.Optional;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.first}}"
                   - id: second
@@ -83,7 +83,7 @@ import java.util.Optional;
                     embeddings:
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                       drop: true
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.second}}"

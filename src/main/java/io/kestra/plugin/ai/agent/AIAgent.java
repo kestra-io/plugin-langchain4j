@@ -1,18 +1,14 @@
 package io.kestra.plugin.ai.agent;
 
-import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.query.router.DefaultQueryRouter;
 import dev.langchain4j.rag.query.router.QueryRouter;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.Result;
-import dev.langchain4j.service.tool.ToolExecutor;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -20,7 +16,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.utils.ListUtils;
+import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +25,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.*;
 
-import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
@@ -105,7 +100,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                     prompt: "Hello, my name is John"
                   - id: ai-agent-second
                     type: io.kestra.plugin.ai.agent.AIAgent
@@ -114,7 +109,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       modelName: gemini-2.5-flash
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     memory:
-                      type: io.kestra.plugin.ai.memory.KestraKVMemory
+                      type: io.kestra.plugin.ai.memory.KestraKVStore
                     prompt: "What's my name?\""""
         ),
         @Example(
@@ -145,7 +140,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
     },
     beta = true
 )
-public class AIAgent extends Task implements RunnableTask<AIAgent.Output> {
+public class AIAgent extends Task implements RunnableTask<AIOutput> {
     @Schema(title = "System message", description = "The system message for the language model")
     protected Property<String> systemMessage;
 
@@ -183,7 +178,7 @@ public class AIAgent extends Task implements RunnableTask<AIAgent.Output> {
     private MemoryProvider memory;
 
     @Override
-    public Output run(RunContext runContext) throws Exception {
+    public AIOutput run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
 
         ChatMemory chatMemory;
@@ -197,7 +192,7 @@ public class AIAgent extends Task implements RunnableTask<AIAgent.Output> {
         try {
             AiServices<Agent> agent = AiServices.builder(Agent.class)
                 .chatModel(provider.chatModel(runContext, configuration))
-                .tools(buildTools(runContext, toolProviders))
+                .tools(AIUtils.buildTools(runContext, toolProviders))
                 .maxSequentialToolsInvocations(runContext.render(maxSequentialToolsInvocations).as(Integer.class).orElse(Integer.MAX_VALUE))
                 .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
                 .chatMemory(chatMemory);
@@ -219,12 +214,7 @@ public class AIAgent extends Task implements RunnableTask<AIAgent.Output> {
             Result<AiMessage> completion = agent.build().invoke(renderedPrompt);
             runContext.logger().debug("Generated Completion: {}", completion.content());
 
-            return Output.builder()
-                .completion(completion.content().text())
-                .tokenUsage(TokenUsage.from(completion.tokenUsage()))
-                .finishReason(completion.finishReason())
-                .toolExecutions(ListUtils.emptyOnNull(completion.toolExecutions()).stream().map(ToolExecution::from).toList())
-                .build();
+            return AIOutput.from(completion);
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
 
@@ -234,33 +224,8 @@ public class AIAgent extends Task implements RunnableTask<AIAgent.Output> {
         }
     }
 
-    private Map<ToolSpecification, ToolExecutor> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
-        if (toolProviders.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
-        toolProviders.forEach(throwConsumer(provider -> tools.putAll(provider.tool(runContext))));
-        return tools;
-    }
-
     interface Agent {
         Result<AiMessage> invoke(String userMessage);
     }
 
-    @Builder
-    @Getter
-    public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Generated text completion", description = "The result of the text completion")
-        private String completion;
-
-        @Schema(title = "Token usage")
-        private TokenUsage tokenUsage;
-
-        @Schema(title = "Finish reason")
-        private FinishReason finishReason;
-
-        @Schema(title = "Tool executions")
-        private List<ToolExecution> toolExecutions;
-    }
 }

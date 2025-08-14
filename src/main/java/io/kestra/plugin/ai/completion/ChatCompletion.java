@@ -1,15 +1,11 @@
 package io.kestra.plugin.ai.completion;
 
-import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.output.FinishReason;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.tool.ToolExecutor;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import dev.langchain4j.service.Result;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
@@ -18,10 +14,8 @@ import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.utils.ListUtils;
-import io.kestra.plugin.ai.domain.ChatConfiguration;
-import io.kestra.plugin.ai.domain.ModelProvider;
-import io.kestra.plugin.ai.domain.TokenUsage;
-import io.kestra.plugin.ai.domain.ToolProvider;
+import io.kestra.plugin.ai.AIUtils;
+import io.kestra.plugin.ai.domain.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
@@ -29,12 +23,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static io.kestra.core.utils.Rethrow.throwConsumer;
 
 @SuperBuilder
 @ToString
@@ -175,16 +164,20 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
                         .orElse(null)
                 )
                 .chatMemory(chatMemory)
-                .tools(buildTools(runContext, toolProviders))
+                .tools(AIUtils.buildTools(runContext, toolProviders))
                 .build();
-            Response<AiMessage> aiResponse = assistant.chat(((UserMessage)chatMessages.getLast()).singleText());
+            Result<AiMessage> aiResponse = assistant.chat(((UserMessage)chatMessages.getLast()).singleText());
             logger.debug("AI Response: {}", aiResponse.content());
 
-            // Return updated messages
+            // unfortunately, as we have a deprecated aiResponse field, we have no choice but to first build an AIOutput,
+            // then, create the final Output based on it.
+            AIOutput output = AIOutput.from(aiResponse);
             return Output.builder()
-                .aiResponse(aiResponse.content().text())
-                .tokenUsage(TokenUsage.from(aiResponse.tokenUsage()))
-                .finishReason(aiResponse.finishReason())
+                .aiResponse(output.getCompletion())
+                .tokenUsage(output.getTokenUsage())
+                .completion(output.getCompletion())
+                .finishReason(output.getFinishReason())
+                .toolExecutions(output.getToolExecutions())
                 .build();
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
@@ -192,17 +185,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     }
 
     interface Assistant {
-        Response<AiMessage> chat(@dev.langchain4j.service.UserMessage String chatMessage);
-    }
-
-    private Map<ToolSpecification, ToolExecutor> buildTools(RunContext runContext, List<ToolProvider> toolProviders) throws IllegalVariableEvaluationException {
-        if (toolProviders.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
-        toolProviders.forEach(throwConsumer(provider -> tools.putAll(provider.tool(runContext))));
-        return tools;
+        Result<AiMessage> chat(@dev.langchain4j.service.UserMessage String chatMessage);
     }
 
     private List<dev.langchain4j.data.message.ChatMessage> convertMessages(List<ChatCompletion.ChatMessage> messages) {
@@ -215,17 +198,15 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             .toList();
     }
 
-    @Builder
+    @SuperBuilder
     @Getter
-    public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "AI Response", description = "The generated response from the AI")
+    public static class Output extends AIOutput { // we must keep this one to keep the deprecated aiResponse
+        @Schema(
+            title = "AI Response",
+            description = "The generated response from the AI. Deprecated: use `completion` instead."
+        )
+        @Deprecated(forRemoval = true, since = "1.0.0")
         private String aiResponse;
-
-        @Schema(title = "Token usage")
-        private TokenUsage tokenUsage;
-
-        @Schema(title = "Finish reason")
-        private FinishReason finishReason;
     }
 
     @Builder
