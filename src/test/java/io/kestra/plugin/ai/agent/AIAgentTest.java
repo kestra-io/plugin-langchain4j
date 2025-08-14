@@ -1,9 +1,9 @@
 package io.kestra.plugin.ai.agent;
 
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.memory.KestraKVMemory;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @KestraTest
 class AIAgentTest {
     @Inject
-    private RunContextFactory runContextFactory;
+    private TestRunContextFactory runContextFactory;
 
     @Test
     void prompt() throws Exception {
@@ -78,11 +78,10 @@ class AIAgentTest {
 
     @Test
     void withMemory() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "apiKey", "demo",
             "modelName", "gpt-4o-mini",
             "baseUrl", "http://langchain4j.dev/demo/openai/v1",
-            "flow", Map.of("id", "flow", "namespace", "namespace"),
             "labels", Map.of("system", Map.of("correlationId", IdUtils.create()))
         ));
 
