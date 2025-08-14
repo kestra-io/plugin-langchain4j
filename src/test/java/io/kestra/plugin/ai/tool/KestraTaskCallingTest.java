@@ -61,6 +61,8 @@ class KestraTaskCallingTest extends ContainerTest {
 
         var output = chat.run(runContext);
         assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_log");
     }
 
     @Test
@@ -131,6 +133,8 @@ class KestraTaskCallingTest extends ContainerTest {
 
         var output = chat.run(runContext);
         assertThat(output.getAiResponse()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_request");
     }
 
     @Test
@@ -171,5 +175,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getAiResponse()).contains("task1");
         assertThat(output.getAiResponse()).contains("task2");
         assertThat(output.getAiResponse()).contains("task3");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_fetch");
     }
 }

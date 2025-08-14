@@ -72,6 +72,8 @@ class KestraFlowCallingTest {
 
         var output = chat.run(runContext);
         assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world");
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world", Pageable.UNPAGED);
@@ -131,6 +133,8 @@ class KestraFlowCallingTest {
 
         var output = chat.run(runContext);
         assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world-with-input");
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world-with-input", Pageable.UNPAGED);

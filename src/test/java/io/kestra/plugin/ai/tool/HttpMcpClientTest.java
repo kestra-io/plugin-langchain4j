@@ -77,5 +77,7 @@ class HttpMcpClientTest {
 
         var output = chat.run(runContext);
         assertThat(output.getAiResponse()).contains("17");
+        assertThat(output.getToolExecutions()).isNotEmpty();
+        assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
     }
 }
