@@ -90,9 +90,9 @@ import java.util.Optional;
                 """
         ),
     },
-    aliases = "io.kestra.plugin.langchain4j.memory.KestraKVMemory"
+    aliases = { "io.kestra.plugin.langchain4j.memory.KestraKVMemory", "io.kestra.plugin.ai.memory.KestraKVMemory" }
 )
-public class KestraKVMemory extends MemoryProvider {
+public class KestraKVStore extends MemoryProvider {
 
     @JsonIgnore
     private transient ChatMemory chatMemory;
