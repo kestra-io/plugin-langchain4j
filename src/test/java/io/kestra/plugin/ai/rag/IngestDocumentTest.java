@@ -1,11 +1,11 @@
 package io.kestra.plugin.ai.rag;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.exceptions.ResourceExpiredException;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.storages.kv.KVEntry;
 import io.kestra.core.storages.kv.KVStore;
@@ -30,14 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IngestDocumentTest extends ContainerTest {
 
     @Inject
-    private RunContextFactory runContextFactory;
+    private TestRunContextFactory runContextFactory;
 
     @Test
     void inlineDocuments() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         var task = IngestDocument.builder()
@@ -65,10 +64,9 @@ class IngestDocumentTest extends ContainerTest {
 
     @Test
     void internalStorageURIs() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         Path path = runContext.workingDir().createFile("document.txt");
@@ -100,10 +98,9 @@ class IngestDocumentTest extends ContainerTest {
 
     @Test
     void workingDirectoryPath() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         Path path1 = runContext.workingDir().createFile("ingest/document1.txt");
@@ -136,10 +133,9 @@ class IngestDocumentTest extends ContainerTest {
 
     @Test
     void externalURLs() throws Exception {
-        RunContext runContext = runContextFactory.of(Map.of(
+        RunContext runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         var task = IngestDocument.builder()
