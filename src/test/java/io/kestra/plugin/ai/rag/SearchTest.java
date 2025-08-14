@@ -1,9 +1,9 @@
 package io.kestra.plugin.ai.rag;
 
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.common.FetchType;
-import io.kestra.core.runners.RunContextFactory;
 import io.kestra.plugin.ai.ContainerTest;
 import io.kestra.plugin.ai.embeddings.KestraKVStore;
 import io.kestra.plugin.ai.provider.Ollama;
@@ -19,15 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SearchTest extends ContainerTest {
 
     @Inject
-    private RunContextFactory runContextFactory;
+    private TestRunContextFactory runContextFactory;
 
     @Test
     void searchFromStore() throws Exception {
         // Given
-        var runContext = runContextFactory.of(Map.of(
+        var runContext = runContextFactory.of("namespace", Map.of(
             "modelName", "tinydolphin",
-            "endpoint", ollamaEndpoint,
-            "flow", Map.of("id", "flow", "namespace", "namespace")
+            "endpoint", ollamaEndpoint
         ));
 
         var ollamaProvider = Ollama.builder()
