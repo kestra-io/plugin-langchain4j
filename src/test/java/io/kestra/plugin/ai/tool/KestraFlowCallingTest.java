@@ -1,6 +1,5 @@
 package io.kestra.plugin.ai.tool;
 
-import com.google.api.client.googleapis.testing.TestUtils;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.Label;
 import io.kestra.core.models.flows.GenericFlow;
@@ -9,15 +8,11 @@ import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.runners.RunnerUtils;
-import io.kestra.core.tenant.TenantService;
-import io.kestra.core.utils.TestsUtils;
 import io.kestra.plugin.ai.completion.ChatCompletion;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.provider.OpenAI;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -63,9 +58,9 @@ class KestraFlowCallingTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .tools(Property.ofValue(
-                List.of(KestraFlowCalling.builder().namespace(Property.ofValue("company.team")).flowId(Property.ofValue("hello-world")).description(Property.ofValue("A flow that say Hello World")).build())
-            ))
+            .tools(List.of(
+                KestraFlowCalling.builder().namespace(Property.ofValue("company.team")).flowId(Property.ofValue("hello-world")).description(Property.ofValue("A flow that say Hello World")).build())
+            )
             .messages(Property.ofValue(
                 List.of(
                     ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
@@ -120,9 +115,9 @@ class KestraFlowCallingTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .tools(Property.ofValue(
+            .tools(
                 List.of(KestraFlowCalling.builder().namespace(Property.ofValue("company.team")).flowId(Property.ofValue("hello-world-with-input")).description(Property.ofValue("A flow that say Hello World")).build())
-            ))
+            )
             .messages(Property.ofValue(
                 List.of(
                     ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),

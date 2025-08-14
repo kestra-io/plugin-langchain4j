@@ -1,0 +1,175 @@
+package io.kestra.plugin.ai.tool;
+
+import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.runners.RunContextFactory;
+import io.kestra.plugin.ai.ContainerTest;
+import io.kestra.plugin.ai.completion.ChatCompletion;
+import io.kestra.plugin.ai.provider.GoogleGemini;
+import io.kestra.plugin.ai.provider.OpenAI;
+import io.kestra.plugin.core.execution.SetVariables;
+import io.kestra.plugin.core.http.Request;
+import io.kestra.plugin.core.log.Fetch;
+import io.kestra.plugin.core.log.Log;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
+
+@KestraTest
+class KestraTaskCallingTest extends ContainerTest {
+    private final String GEMINI_API_KEY = System.getenv("GEMINI_API_KEY");
+
+    @Inject
+    private RunContextFactory runContextFactory;
+
+    @Test
+    void logTask() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "demo",
+            "modelName", "gpt-4o-mini",
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1"
+        ));
+
+        var chat = ChatCompletion.builder()
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
+                .build()
+            )
+            .tools(List.of(
+                KestraTaskCalling.builder().tasks(
+                    List.of(
+                        Log.builder().id("log").type(Log.class.getName()).message("{{agent.message}}").build()
+                    )
+                ).build()
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to log the following message: \"Hello World!\"").build()
+                )))
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getAiResponse()).contains("success");
+    }
+
+    @Test
+    void setVariables() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "demo",
+            "modelName", "gpt-4o-mini",
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1"
+        ));
+
+        var chat = ChatCompletion.builder()
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
+                .build()
+            )
+            .tools(List.of(
+                KestraTaskCalling.builder().tasks(
+                    List.of(
+                        SetVariables.builder().id("setVariables").type(SetVariables.class.getName()).variables(Property.ofExpression("{{agent.variables}}")).build()
+                    )
+                ).build()
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to set a variable of name 'some' and value 'variable'").build()
+                )))
+            .build();
+
+        IllegalArgumentException exception =  assertThrows(IllegalArgumentException.class, () -> chat.run(runContext));
+        assertThat(exception.getMessage()).isEqualTo("KestraTaskCalling is only capable of calling runnable tasks but 'setVariables' is not a runnable task.");
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
+    void httpRequest() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", GEMINI_API_KEY,
+            "modelName", "gemini-2.0-flash"
+        ));
+
+        // we use Gemini as the context window of the Langchain4J demo OpenAI API is limited to 5000
+        var chat = ChatCompletion.builder()
+            .provider(GoogleGemini.builder()
+                .type(GoogleGemini.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .build()
+            )
+            .tools(List.of(
+                KestraTaskCalling.builder().tasks(
+                    List.of(
+                        Request.builder().id("request").type(SetVariables.class.getName()).uri(Property.ofExpression("{{agent.variables}}")).build()
+                    )
+                ).build()
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("""
+                            Call the HTTP URL https://raw.githubusercontent.com/kestra-io/docs/refs/heads/main/content/docs/07.architecture/01.main-components.md, retrieve its outputs and extract the body.
+                            Add a HTTP Header X-Kestra-API: anything when calling the URL.""")
+                        .build()
+                )))
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getAiResponse()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
+    }
+
+    @Test
+    void fetchTask() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "apiKey", "demo",
+            "modelName", "gpt-4o-mini",
+            "baseUrl", "http://langchain4j.dev/demo/openai/v1",
+            "execution", Map.of("id", "executionId")
+        ));
+
+        var chat = ChatCompletion.builder()
+            .provider(OpenAI.builder()
+                .type(OpenAI.class.getName())
+                .apiKey(Property.ofExpression("{{ apiKey }}"))
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .baseUrl(Property.ofExpression("{{ baseUrl }}"))
+                .build()
+            )
+            .tools(List.of(
+                KestraTaskCalling.builder().tasks(
+                    List.of(
+                        Fetch.builder().id("fetch").type(Fetch.class.getName()).build()
+                    )
+                ).build()
+            ))
+            .messages(Property.ofValue(
+                List.of(
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to fetch logs from the following task ids: task1, task2 and task3").build()
+                )))
+            .build();
+
+        var output = chat.run(runContext);
+        assertThat(output.getAiResponse()).contains("logs");
+        assertThat(output.getAiResponse()).contains("fetch");
+        assertThat(output.getAiResponse()).contains("task");
+        assertThat(output.getAiResponse()).contains("task1");
+        assertThat(output.getAiResponse()).contains("task2");
+        assertThat(output.getAiResponse()).contains("task3");
+    }
+}

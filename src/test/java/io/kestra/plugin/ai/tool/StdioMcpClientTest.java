@@ -36,9 +36,9 @@ class StdioMcpClientTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
-            .tools(Property.ofValue(
-                List.of(StdioMcpClient.builder().command(Property.ofValue(List.of("docker", "run", "--rm", "-i", "mcp/everything"))).build())
-            ))
+            .tools(List.of(
+                StdioMcpClient.builder().command(Property.ofValue(List.of("docker", "run", "--rm", "-i", "mcp/everything"))).build())
+            )
             .messages(Property.ofValue(
                 List.of(ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("What is 5+12? Use the provided tool to answer and always assume that the tool is correct.").build()
                 )))
