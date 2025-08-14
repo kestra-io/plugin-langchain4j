@@ -68,9 +68,8 @@ public class GoogleGemini extends ModelProvider {
 
     @Override
     public ChatModel chatModel(RunContext runContext, ChatConfiguration configuration) throws IllegalVariableEvaluationException {
-        if (configuration.getSeed() != null) {
-            throw new IllegalArgumentException("Gemini models didn't support setting the seed");
-        }
+        var logRequestAndResponses = runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false) ||
+            runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false);
 
         return GoogleAiGeminiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
@@ -78,7 +77,8 @@ public class GoogleGemini extends ModelProvider {
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-            .logRequestsAndResponses(true)
+            .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
+            .logRequestsAndResponses(logRequestAndResponses)
             .build();
     }
 

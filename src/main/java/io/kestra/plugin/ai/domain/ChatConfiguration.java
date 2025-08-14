@@ -20,6 +20,18 @@ public class ChatConfiguration {
     @Schema(title = "seed")
     private Property<Integer> seed;
 
+    @Schema(
+        title = "Whether to log LLM requests",
+        description = "Log will be send to the server log in DEBUG."
+    )
+    private Property<Boolean> logRequest;
+
+    @Schema(
+        title = "Whether to log LLM responses",
+        description = "Log will be send to the server log in DEBUG."
+    )
+    private Property<Boolean> logResponses;
+
     public static ChatConfiguration empty() {
         return ChatConfiguration.builder().build();
     }
