@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.tool;
 
+import dev.langchain4j.model.output.FinishReason;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
@@ -65,19 +67,23 @@ class HttpMcpClientTest {
                 .baseUrl(Property.ofExpression("{{ baseUrl }}"))
                 .build()
             )
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .tools(List.of(
                 HttpMcpClient.builder().sseUrl(Property.ofExpression("{{mcpSseUrl}}")).timeout(Property.ofValue(Duration.ofSeconds(60))).build())
             )
             .messages(Property.ofValue(
                 List.of(ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("What is 5+12? Use the provided tool to answer and always assume that the tool is correct.").build()
                 )))
-            // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("17");
+        assertThat(output.getCompletion()).contains("17");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("add");
     }
 }

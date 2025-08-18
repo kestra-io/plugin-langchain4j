@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.tool;
 
+import dev.langchain4j.model.output.FinishReason;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.Label;
 import io.kestra.core.models.flows.GenericFlow;
@@ -71,9 +72,13 @@ class KestraFlowCallingTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getCompletion()).contains("success");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_flow_company_team_hello-world");
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world", Pageable.UNPAGED);
@@ -132,9 +137,13 @@ class KestraFlowCallingTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getAiResponse()).contains("success");
+        assertThat(output.getCompletion()).contains("success");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world-with-input");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_flow_company_team_hello-world-with-input");
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world-with-input", Pageable.UNPAGED);
