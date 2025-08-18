@@ -268,25 +268,20 @@ public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
     public AIOutput run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = ListUtils.emptyOnNull(tools);
 
-        ChatMemory chatMemory;
-        if (memory != null) {
-            chatMemory = memory.chatMemory(runContext);
-        } else {
-            // null memory is not allowed, so we use an in-memory memory with a capacity of two to support both system and user message
-            chatMemory = MessageWindowChatMemory.withMaxMessages(2);
-        }
 
         try {
-            Assistant assistant = AiServices.builder(Assistant.class)
+            AiServices<Assistant> assistant = AiServices.builder(Assistant.class)
                 .chatModel(chatProvider.chatModel(runContext, chatConfiguration))
                 .retrievalAugmentor(buildRetrievalAugmentor(runContext))
                 .tools(AIUtils.buildTools(runContext, toolProviders))
-                .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
-                .chatMemory(chatMemory)
-                .build();
+                .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)));
+
+            if (memory != null) {
+                assistant.chatMemory(memory.chatMemory(runContext));
+            }
 
             String renderedPrompt = runContext.render(prompt).as(String.class).orElseThrow();
-            Result<AiMessage> completion = assistant.chat(renderedPrompt);
+            Result<AiMessage> completion = assistant.build().chat(renderedPrompt);
             runContext.logger().debug("Generated Completion: {}", completion.content());
 
             return AIOutput.from(completion);
