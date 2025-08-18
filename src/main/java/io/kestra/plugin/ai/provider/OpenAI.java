@@ -30,7 +30,6 @@ import lombok.experimental.SuperBuilder;
     title = "OpenAI Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with OpenAI",

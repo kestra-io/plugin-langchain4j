@@ -137,8 +137,7 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                         maxResults: 5
                     prompt: "{{inputs.text}}\""""
         ),
-    },
-    beta = true
+    }
 )
 public class AIAgent extends Task implements RunnableTask<AIOutput> {
     @Schema(title = "System message", description = "The system message for the language model")

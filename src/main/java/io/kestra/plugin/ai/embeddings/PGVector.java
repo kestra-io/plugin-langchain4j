@@ -25,7 +25,6 @@ import lombok.experimental.SuperBuilder;
     title = "PGVector Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

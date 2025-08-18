@@ -51,7 +51,6 @@ import org.slf4j.Logger;
             }
         ),
     },
-    beta = true,
     aliases = {"io.kestra.plugin.langchain4j.ImageGeneration", "io.kestra.plugin.langchain4j.completion.ImageGeneration"}
 )
 

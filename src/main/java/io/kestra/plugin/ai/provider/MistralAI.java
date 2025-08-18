@@ -29,7 +29,6 @@ import lombok.experimental.SuperBuilder;
     title = "Mistral AI Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with Mistral AI",

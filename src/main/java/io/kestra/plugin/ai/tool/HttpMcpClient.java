@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat Completion with Google Gemini and an HTTP MCP Client tool",

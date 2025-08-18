@@ -35,7 +35,6 @@ import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
     title = "Amazon Bedrock Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with OpenAI",

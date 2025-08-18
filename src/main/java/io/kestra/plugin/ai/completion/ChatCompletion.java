@@ -94,7 +94,6 @@ import java.util.List;
             }
         ),
     },
-    beta = true,
     aliases = {"io.kestra.plugin.langchain4j.ChatCompletion", "io.kestra.plugin.langchain4j.completion.ChatCompletion"}
 )
 public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {

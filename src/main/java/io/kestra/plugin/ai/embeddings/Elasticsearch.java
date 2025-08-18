@@ -54,7 +54,6 @@ import java.util.Map;
     title = "Elasticsearch Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

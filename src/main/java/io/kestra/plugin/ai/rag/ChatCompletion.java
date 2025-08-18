@@ -206,7 +206,6 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                 """
         ),
     },
-    beta = true,
     aliases = "io.kestra.plugin.langchain4j.rag.ChatCompletion"
 )
 public class ChatCompletion extends Task implements RunnableTask<AIOutput> {

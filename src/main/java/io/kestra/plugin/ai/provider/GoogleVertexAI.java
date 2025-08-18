@@ -30,7 +30,6 @@ import lombok.experimental.SuperBuilder;
     title = "Google VertexAI Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with Google Vertex AI",

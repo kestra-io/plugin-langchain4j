@@ -29,7 +29,6 @@ import lombok.experimental.SuperBuilder;
     title = "Ollama Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with Ollama",

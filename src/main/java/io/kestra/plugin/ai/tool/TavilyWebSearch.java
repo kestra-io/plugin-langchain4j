@@ -26,7 +26,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat Completion with Google Gemini and a WebSearch tool",

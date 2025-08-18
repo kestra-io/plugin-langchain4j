@@ -66,7 +66,6 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
                 """
         ),
     },
-    beta = true,
     aliases = "io.kestra.plugin.langchain4j.rag.IngestDocument"
 )
 public class IngestDocument extends Task implements RunnableTask<IngestDocument.Output> {

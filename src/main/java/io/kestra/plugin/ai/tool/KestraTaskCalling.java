@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Plugin(
-    beta = true,
     examples =  {
         @Example(
             title = "Call a Kestra runnable task as a tool",
