@@ -181,21 +181,16 @@ public class AIAgent extends Task implements RunnableTask<AIOutput> {
     public AIOutput run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = runContext.render(tools).asList(ToolProvider.class);
 
-        ChatMemory chatMemory;
-        if (memory != null) {
-            chatMemory = memory.chatMemory(runContext);
-        } else {
-            // null memory is not allowed, so we use an in-memory memory with a capacity of two to support both system and user message
-            chatMemory = MessageWindowChatMemory.withMaxMessages(2);
-        }
-
         try {
             AiServices<Agent> agent = AiServices.builder(Agent.class)
                 .chatModel(provider.chatModel(runContext, configuration))
                 .tools(AIUtils.buildTools(runContext, toolProviders))
                 .maxSequentialToolsInvocations(runContext.render(maxSequentialToolsInvocations).as(Integer.class).orElse(Integer.MAX_VALUE))
-                .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)))
-                .chatMemory(chatMemory);
+                .systemMessageProvider(throwFunction(memoryId -> runContext.render(systemMessage).as(String.class).orElse(null)));
+
+            if (memory != null) {
+                agent.chatMemory(memory.chatMemory(runContext));
+            }
 
             List<ContentRetriever> toolContentRetrievers = runContext.render(contentRetrievers).asList(ContentRetrieverProvider.class).stream()
                 .map(throwFunction(provider -> provider.contentRetriever(runContext)))
