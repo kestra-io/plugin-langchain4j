@@ -49,7 +49,6 @@ import lombok.experimental.SuperBuilder;
                 """
         )
     },
-    beta = true,
     aliases = "io.kestra.plugin.langchain4j.embeddings.Chroma"
 )
 public class Chroma extends EmbeddingStoreProvider {

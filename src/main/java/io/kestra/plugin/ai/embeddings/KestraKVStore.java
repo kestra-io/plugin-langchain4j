@@ -34,7 +34,6 @@ import java.util.Optional;
     title = "In-memory Embedding Store that then store its serialization form as a Kestra K/V pair"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

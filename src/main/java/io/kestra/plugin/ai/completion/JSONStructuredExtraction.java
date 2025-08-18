@@ -61,7 +61,6 @@ import java.util.List;
             }
         ),
     },
-    beta = true,
     aliases = {"io.kestra.plugin.langchain4j.JSONStructuredExtraction", "io.kestra.plugin.langchain4j.completion.JSONStructuredExtraction"}
 )
 public class JSONStructuredExtraction extends Task implements RunnableTask<JSONStructuredExtraction.Output> {

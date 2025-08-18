@@ -47,7 +47,6 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 @SuperBuilder
 @NoArgsConstructor
 @Plugin(
-    beta = true,
     examples =  {
         @Example(
             title = "Call a Kestra flow as a tool",

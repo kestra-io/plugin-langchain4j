@@ -27,7 +27,6 @@ import java.util.List;
     title = "Weaviate Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

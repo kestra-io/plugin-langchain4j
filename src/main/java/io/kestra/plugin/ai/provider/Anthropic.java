@@ -28,7 +28,6 @@ import lombok.experimental.SuperBuilder;
     title = "Anthropic AI Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with Anthropic",

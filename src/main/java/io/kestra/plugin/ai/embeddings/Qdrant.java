@@ -26,7 +26,6 @@ import lombok.experimental.SuperBuilder;
     title = "Qdrant Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

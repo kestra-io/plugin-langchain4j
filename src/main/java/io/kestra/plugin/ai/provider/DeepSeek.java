@@ -31,7 +31,6 @@ import lombok.experimental.SuperBuilder;
     title = "Deepseek Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with DeepSeek",

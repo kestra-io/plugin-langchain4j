@@ -74,7 +74,6 @@ import static io.kestra.core.models.tasks.common.FetchType.NONE;
                 """
         ),
     },
-    beta = true,
     aliases = "io.kestra.plugin.langchain4j.rag.Search"
 )
 @Schema(

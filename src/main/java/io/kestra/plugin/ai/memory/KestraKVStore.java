@@ -36,7 +36,6 @@ import java.util.Optional;
         Be careful that if your internal storage implementation didn't support expiration, the K/V pair may exist forever even if you set a TTL inside the Memory."""
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

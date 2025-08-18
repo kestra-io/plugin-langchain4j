@@ -56,7 +56,6 @@ import java.util.List;
             }
         ),
     },
-    beta = true,
     aliases = {"io.kestra.plugin.langchain4j.Classification", "io.kestra.plugin.langchain4j.completion.Classification"}
 )
 public class Classification extends Task implements RunnableTask<Classification.Output> {

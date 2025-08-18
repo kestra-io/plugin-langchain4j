@@ -28,7 +28,6 @@ import lombok.experimental.SuperBuilder;
     title = "WebSearch content retriever for Google Custom Search"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

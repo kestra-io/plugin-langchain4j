@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
     title = "MongoDB Atlas Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

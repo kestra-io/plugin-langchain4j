@@ -27,7 +27,6 @@ import java.io.IOException;
     title = "Pinecone Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

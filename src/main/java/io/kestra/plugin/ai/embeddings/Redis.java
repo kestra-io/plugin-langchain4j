@@ -30,7 +30,6 @@ import java.io.IOException;
     title = "Redis Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

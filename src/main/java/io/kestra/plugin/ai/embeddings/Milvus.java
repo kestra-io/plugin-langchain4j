@@ -29,7 +29,6 @@ import java.io.IOException;
     title = "Milvus Embedding Store"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             full = true,

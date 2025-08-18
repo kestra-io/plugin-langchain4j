@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
         title = "Azure OpenAI Model Provider"
 )
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat completion with Azure OpenAI",
