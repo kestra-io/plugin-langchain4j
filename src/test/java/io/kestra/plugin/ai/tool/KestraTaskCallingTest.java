@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.tool;
 
+import dev.langchain4j.model.output.FinishReason;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -66,6 +67,10 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getCompletion()).contains("success");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_log");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_log");
     }
 
     @Test
@@ -142,6 +147,10 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getCompletion()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_request");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_request");
     }
 
     @Test
@@ -186,5 +195,9 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getCompletion()).contains("task3");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_fetch");
+        assertThat(output.getIntermediateResponses()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
+        assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_fetch");
     }
 }
