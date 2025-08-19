@@ -40,6 +40,7 @@ tasks.withType(JavaCompile).configureEach {
 dependencies {
     // Platform
     implementation enforcedPlatform("dev.langchain4j:langchain4j-bom:$langchain4jVersion")
+    implementation enforcedPlatform("dev.langchain4j:langchain4j-community-bom:$langchain4jCommunityVersion")
     annotationProcessor enforcedPlatform("io.kestra:platform:$kestraVersion")
     implementation enforcedPlatform("io.kestra:platform:$kestraVersion")
     api enforcedPlatform("io.kestra:platform:$kestraVersion")
@@ -73,7 +74,7 @@ dependencies {
     implementation "dev.langchain4j:langchain4j-milvus"
     implementation "dev.langchain4j:langchain4j-pinecone"
     implementation "dev.langchain4j:langchain4j-pgvector"
-    implementation "dev.langchain4j:langchain4j-community-redis:1.3.0-beta9"
+    implementation "dev.langchain4j:langchain4j-community-redis"
     implementation "dev.langchain4j:langchain4j-qdrant"
     implementation "dev.langchain4j:langchain4j-weaviate"
 
