@@ -83,7 +83,7 @@ import java.util.Optional;
                       type: io.kestra.plugin.ai.embeddings.KestraKVStore
                     memory:
                       type: io.kestra.plugin.ai.memory.KestraKVStore
-                      drop: true
+                      drop: AFTER_EXECUTION
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.second}}"
                 """
@@ -101,12 +101,19 @@ public class KestraKVStore extends MemoryProvider {
         this.chatMemory = MessageWindowChatMemory.withMaxMessages(runContext.render(this.getMessages()).as(Integer.class).orElseThrow());
 
         String key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
+        KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
         Optional<KVEntry> kvEntry = runContext.namespaceKv(runContext.flowInfo().namespace()).get(key);
         if (kvEntry.isPresent() && !kvEntry.get().expirationDate().isBefore(Instant.now())) {
             try {
-                KVValue value = runContext.namespaceKv(runContext.flowInfo().namespace()).getValue(kvEntry.get().key()).orElseThrow();
-                List<ChatMessage> messages = ChatMessageDeserializer.messagesFromJson((String) value.value());
-                messages.forEach(chatMemory::add);
+                if (runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER) == Drop.AFTER_EXECUTION) {
+                    String rMemoryId = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
+                    kvStore.delete(rMemoryId);
+                }
+                else {
+                    KVValue value = runContext.namespaceKv(runContext.flowInfo().namespace()).getValue(kvEntry.get().key()).orElseThrow();
+                    List<ChatMessage> messages = ChatMessageDeserializer.messagesFromJson((String) value.value());
+                    messages.forEach(chatMemory::add);
+                }
             } catch (ResourceExpiredException ree) {
                 // Should not happen as we check for expiry before
                 throw new IOException(ree);
@@ -118,15 +125,15 @@ public class KestraKVStore extends MemoryProvider {
 
     @Override
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
-        String memoryId = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
+        String rMemoryId = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
         KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        if (runContext.render(this.getDrop()).as(Boolean.class).orElseThrow()) {
-            kvStore.delete(memoryId);
+        if (runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER) == Drop.AFTER_EXECUTION) {
+            kvStore.delete(rMemoryId);
         } else {
             String memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
             Duration duration = runContext.render(this.getTtl()).as(Duration.class).orElseThrow();
             KVValueAndMetadata kvValueAndMetadata = new KVValueAndMetadata(new KVMetadata("Chat memory for the flow " + runContext.flowInfo().id(), duration), memoryJson);
-            kvStore.put(memoryId, kvValueAndMetadata);
+            kvStore.put(rMemoryId, kvValueAndMetadata);
         }
     }
 }

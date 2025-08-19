@@ -87,6 +87,7 @@ import java.time.Duration;
                       type: io.kestra.plugin.ai.memory.Redis
                       host: localhost
                       port: 6379
+                      drop: AFTER_EXECUTION
                     systemMessage: You are an helpful assistant, answer concisely
                     prompt: "{{inputs.second}}"
                 """
@@ -117,6 +118,7 @@ public class Redis extends MemoryProvider {
 
         var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
         var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
+        var rDrop = runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER);
 
         this.chatMemory = MessageWindowChatMemory.withMaxMessages(runContext.render(this.getMessages()).as(Integer.class).orElseThrow());
         var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
@@ -124,8 +126,12 @@ public class Redis extends MemoryProvider {
         try (var jedis = new Jedis(rHost, rPort)) {
             var json = jedis.get(key);
             if (json != null) {
-                var messages = ChatMessageDeserializer.messagesFromJson(json);
-                messages.forEach(chatMemory::add);
+                if (rDrop == Drop.BEFORE_EXECUTION) {
+                    jedis.del(key);
+                } else {
+                    var messages = ChatMessageDeserializer.messagesFromJson(json);
+                    messages.forEach(chatMemory::add);
+                }
             }
         }
 
@@ -137,12 +143,12 @@ public class Redis extends MemoryProvider {
 
         var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
         var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
-        var rDrop = runContext.render(this.getDrop()).as(Boolean.class).orElse(false);
+        var rDrop = runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER);
 
         var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
 
         try (var jedis = new Jedis(rHost, rPort)) {
-            if (rDrop) {
+            if (rDrop == Drop.AFTER_EXECUTION) {
                 jedis.del(key);
             } else {
                 var memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());

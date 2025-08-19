@@ -38,13 +38,14 @@ public abstract class MemoryProvider extends AdditionalPlugin {
     private Property<String> memoryId = Property.ofExpression("{{ labels.system.correlationId }}");
 
     @Schema(
-        title = "Drop the memory at the end of the task.",
+        title = "Drop memory: never, before or after task execution .",
         description = """
-            By default, the memory ID is value of the 'system.correlationId' label, this means that the same memory will be used by all tasks of the flow and its subflow.
-            If you want to remove the memory eagerly (before expiration), you can set `drop: true` inside the last task of the flow so the memory is erased after its execution."""
+            By default, the memory ID is value of the 'system.correlationId' label, this means that the same memory will be used by all tasks of the flow and its subflows.
+            If you want to remove the memory eagerly (before expiration), you can set `drop: AFTER_EXECUTION` inside the last task of the flow so the memory is erased after its execution.
+            You can also set `drop: BEFORE_EXECUTION` to drop the memory before the task execution, this can be useful for eg. in a subflow in case you want a different memory."""
     )
     @Builder.Default
-    private Property<Boolean> drop = Property.ofValue(false);
+    private Property<Drop> drop = Property.ofValue(Drop.NEVER);
 
     public abstract ChatMemory chatMemory(RunContext runContext) throws IllegalVariableEvaluationException, IOException;
 
@@ -58,4 +59,6 @@ public abstract class MemoryProvider extends AdditionalPlugin {
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
         // by default: no-op
     }
+
+    public enum Drop { NEVER, BEFORE_EXECUTION, AFTER_EXECUTION }
 }
