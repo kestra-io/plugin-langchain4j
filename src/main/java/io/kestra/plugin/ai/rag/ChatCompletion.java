@@ -283,6 +283,10 @@ public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
             Result<AiMessage> completion = assistant.build().chat(renderedPrompt);
             runContext.logger().debug("Generated Completion: {}", completion.content());
 
+            // send metrics for token usage
+            TokenUsage tokenUsage = TokenUsage.from(completion.tokenUsage());
+            AIUtils.sendMetrics(runContext, tokenUsage);
+
             return AIOutput.from(completion);
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));

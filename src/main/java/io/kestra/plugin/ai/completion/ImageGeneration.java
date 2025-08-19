@@ -11,6 +11,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.ModelProvider;
 import io.kestra.plugin.ai.domain.TokenUsage;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -78,9 +79,13 @@ public class ImageGeneration extends Task implements RunnableTask<ImageGeneratio
         Response<Image> imageUrl = model.generate(renderedPrompt);
         logger.debug("Generated Image URL: {}", imageUrl.content().url());
 
+        // send metrics for token usage
+        TokenUsage tokenUsage = TokenUsage.from(imageUrl.tokenUsage());
+        AIUtils.sendMetrics(runContext, tokenUsage);
+
         return Output.builder()
             .imageUrl(String.valueOf(imageUrl.content().url()))
-            .tokenUsage(TokenUsage.from(imageUrl.tokenUsage()))
+            .tokenUsage(tokenUsage)
             .finishReason(imageUrl.finishReason())
             .build();
     }

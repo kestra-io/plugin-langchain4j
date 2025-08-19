@@ -11,6 +11,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.domain.ModelProvider;
 import io.kestra.plugin.ai.domain.TokenUsage;
@@ -97,9 +98,13 @@ public class Classification extends Task implements RunnableTask<Classification.
         ChatResponse classificationResponse = model.chat(UserMessage.userMessage(classificationPrompt));
         logger.debug("Generated Classification: {}", classificationResponse.aiMessage().text());
 
+        // send metrics for token usage
+        TokenUsage tokenUsage = TokenUsage.from(classificationResponse.tokenUsage());
+        AIUtils.sendMetrics(runContext, tokenUsage);
+
         return Output.builder()
             .classification(classificationResponse.aiMessage().text())
-            .tokenUsage(TokenUsage.from(classificationResponse.tokenUsage()))
+            .tokenUsage(tokenUsage)
             .finishReason(classificationResponse.finishReason())
             .build();
     }
