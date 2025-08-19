@@ -16,6 +16,7 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.RunnableTask;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
+import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.ChatConfiguration;
 import io.kestra.plugin.ai.domain.ModelProvider;
 import io.kestra.plugin.ai.domain.TokenUsage;
@@ -121,10 +122,14 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
 
         logger.debug("Generated Structured Extraction: {}", answer);
 
+        // send metrics for token usage
+        TokenUsage tokenUsage = TokenUsage.from(answer.tokenUsage());
+        AIUtils.sendMetrics(runContext, tokenUsage);
+
         return Output.builder()
             .schemaName(renderedSchemaName)
             .extractedJson(answer.aiMessage().text())
-            .tokenUsage(TokenUsage.from(answer.tokenUsage()))
+            .tokenUsage(tokenUsage)
             .finishReason(answer.finishReason())
             .build();
     }

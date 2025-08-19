@@ -168,6 +168,10 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
             Result<AiMessage> aiResponse = assistant.chat(((UserMessage)chatMessages.getLast()).singleText());
             logger.debug("AI Response: {}", aiResponse.content());
 
+            // send metrics for token usage
+            TokenUsage tokenUsage = TokenUsage.from(aiResponse.tokenUsage());
+            AIUtils.sendMetrics(runContext, tokenUsage);
+
             // unfortunately, as we have a deprecated aiResponse field, we have no choice but to first build an AIOutput,
             // then, create the final Output based on it.
             AIOutput output = AIOutput.from(aiResponse);
