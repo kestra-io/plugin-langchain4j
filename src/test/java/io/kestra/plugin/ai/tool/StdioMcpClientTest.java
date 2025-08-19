@@ -55,6 +55,7 @@ class StdioMcpClientTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("add");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
     }
 
 }

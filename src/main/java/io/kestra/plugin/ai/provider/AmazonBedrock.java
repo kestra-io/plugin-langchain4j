@@ -26,6 +26,8 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
@@ -109,6 +111,7 @@ public class AmazonBedrock extends ModelProvider {
             )
             .logRequests(runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
+            .listeners(List.of(new TimingChatModelListener()))
             .build();
     }
 

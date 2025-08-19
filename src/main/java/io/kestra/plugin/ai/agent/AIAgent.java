@@ -18,6 +18,7 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.RunContext;
 import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.domain.*;
+import io.kestra.plugin.ai.provider.TimingChatModelListener;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -211,13 +212,15 @@ public class AIAgent extends Task implements RunnableTask<AIOutput> {
             TokenUsage tokenUsage = TokenUsage.from(completion.tokenUsage());
             AIUtils.sendMetrics(runContext, tokenUsage);
 
-            return AIOutput.from(completion);
+            return AIOutput.from(runContext, completion);
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
 
             if (memory != null) {
                 memory.close(runContext);
             }
+
+            TimingChatModelListener.clear();
         }
     }
 

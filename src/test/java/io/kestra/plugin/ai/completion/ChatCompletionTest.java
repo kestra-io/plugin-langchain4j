@@ -63,8 +63,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     /**
@@ -95,8 +96,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     /**
@@ -126,7 +128,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
+        assertThat(output.getCompletion(), notNullValue());
     }
 
     @Test
@@ -153,7 +155,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
+        assertThat(output.getCompletion(), notNullValue());
     }
 
     @Test
@@ -236,8 +238,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     @Test
@@ -299,8 +302,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     @Test
@@ -397,8 +401,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     @Test
@@ -464,8 +469,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     @Test
@@ -529,8 +535,9 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getAiResponse(), notNullValue());
-        assertThat(output.getAiResponse(), containsString("John"));
+        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getRequestDuration(), notNullValue());
     }
 
     @Test

@@ -79,6 +79,7 @@ class KestraFlowCallingTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_flow_company_team_hello-world");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world", Pageable.UNPAGED);
@@ -144,6 +145,7 @@ class KestraFlowCallingTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_flow_company_team_hello-world-with-input");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
 
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world-with-input", Pageable.UNPAGED);
