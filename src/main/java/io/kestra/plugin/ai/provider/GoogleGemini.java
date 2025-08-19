@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
@@ -78,6 +80,7 @@ public class GoogleGemini extends ModelProvider {
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
             .logRequestsAndResponses(logRequestAndResponses)
+            .listeners(List.of(new TimingChatModelListener()))
             .build();
     }
 

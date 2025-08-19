@@ -5,15 +5,19 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.service.Result;
+import io.kestra.core.runners.RunContext;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.plugin.ai.AIUtils;
+import io.kestra.plugin.ai.provider.TimingChatModelListener;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
@@ -35,7 +39,10 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
     @Schema(title = "Intermediate responses")
     private List<AIResponse> intermediateResponses;
 
-    public static AIOutput from(Result<AiMessage> result) throws JsonProcessingException {
+    @Schema(title = "Request duration in milliseconds")
+    private Long requestDuration;
+
+    public static AIOutput from(RunContext runContext, Result<AiMessage> result) throws JsonProcessingException {
         return AIOutput.builder()
             .completion(result.content().text())
             .tokenUsage(TokenUsage.from(result.tokenUsage()))
@@ -45,10 +52,39 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
                 .toList()
             )
             .intermediateResponses(ListUtils.emptyOnNull(result.intermediateResponses().stream()
-                .map(throwFunction(resp -> AIResponse.from(resp)))
+                .map(throwFunction(resp -> AIResponse.from(runContext, resp)))
                 .toList())
             )
+            .requestDuration(extractTiming(runContext, result.finalResponse().id()))
             .build();
+    }
+
+    private static Long extractTiming(RunContext runContext, String id) {
+        if (id != null) {
+            StopWatch timer = TimingChatModelListener.getTimer(id);
+            return timer.getTime(TimeUnit.MILLISECONDS);
+        } else {
+            runContext.logger().info("The model provider didn't include any identifier in its response, timing the response is not possible");
+            return null;
+        }
+    }
+
+    @Builder
+    @Getter
+    public static class ToolExecution {
+        private String requestId;
+        private String requestName;
+        private Map<String, Object> requestArguments;
+        private String result;
+
+        public static ToolExecution from(dev.langchain4j.service.tool.ToolExecution toolExecution) throws JsonProcessingException {
+            return ToolExecution.builder()
+                .requestId(toolExecution.request().id())
+                .requestName(toolExecution.request().name())
+                .requestArguments(AIUtils.parseJson(toolExecution.request().arguments()))
+                .result(toolExecution.result())
+                .build();
+        }
     }
 
     @Getter
@@ -69,7 +105,10 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Tool execution requests")
         private List<ToolExecutionRequest>  toolExecutionRequests;
 
-        static AIResponse from(ChatResponse chatResponse) throws JsonProcessingException {
+        @Schema(title = "Request duration in milliseconds")
+        private Long requestDuration;
+
+        static AIResponse from(RunContext runContext, ChatResponse chatResponse) throws JsonProcessingException {
             return AIResponse.builder()
                 .id(chatResponse.id())
                 .completion(chatResponse.aiMessage().text())
@@ -78,6 +117,7 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
                 .toolExecutionRequests(ListUtils.emptyOnNull(chatResponse.aiMessage().toolExecutionRequests()).stream()
                     .map(throwFunction(req -> ToolExecutionRequest.from(req)))
                     .toList())
+                .requestDuration(extractTiming(runContext, chatResponse.id()))
                 .build();
         }
 

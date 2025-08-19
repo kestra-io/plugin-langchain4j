@@ -71,6 +71,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_log");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
     }
 
     @Test
@@ -151,6 +152,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_request");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
     }
 
     @Test
@@ -199,5 +201,6 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getFinishReason()).isEqualTo(FinishReason.TOOL_EXECUTION);
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_fetch");
+        assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
     }
 }

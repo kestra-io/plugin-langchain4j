@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
@@ -91,6 +93,7 @@ public class GoogleVertexAI extends ModelProvider {
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
             .logRequests(runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
+            .listeners(List.of(new TimingChatModelListener()))
             .build();
     }
 

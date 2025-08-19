@@ -25,6 +25,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
@@ -112,6 +114,7 @@ public class AzureOpenAI extends ModelProvider {
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
                     .logRequestsAndResponses(logRequestAndResponses)
+                .listeners(List.of(new TimingChatModelListener()))
                     .build();
         } else if (tenantId != null && clientId != null && clientSecret != null) {
             return AzureOpenAiChatModel.builder()
@@ -123,6 +126,7 @@ public class AzureOpenAI extends ModelProvider {
                     .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                     .seed(seed != null ? seed.longValue() : null)
                     .logRequestsAndResponses(logRequestAndResponses)
+                .listeners(List.of(new TimingChatModelListener()))
                     .build();
         } else {
             throw new IllegalArgumentException("You need to set an API Key or a tenantId, clientId and clientSecret");
