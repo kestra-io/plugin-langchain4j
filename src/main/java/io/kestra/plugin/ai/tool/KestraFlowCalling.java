@@ -205,7 +205,8 @@ public class KestraFlowCalling extends ToolProvider {
         var defaultRunContext = (DefaultRunContext) runContext;
         var flowMetaStoreInterface = defaultRunContext.getApplicationContext().getBean(FlowMetaStoreInterface.class);
         var flowInfo = runContext.flowInfo();
-        var flowInterface = flowMetaStoreInterface.findByIdFromTask(flowInfo.tenantId(), rNamespace, rFlowId, rRevision, flowInfo.tenantId(), flowInfo.namespace(), flowInfo.id()).orElseThrow();
+        var flowInterface = flowMetaStoreInterface.findByIdFromTask(flowInfo.tenantId(), rNamespace, rFlowId, rRevision, flowInfo.tenantId(), flowInfo.namespace(), flowInfo.id())
+            .orElseThrow(() -> new IllegalArgumentException("Unable to find flow at '"+ rFlowId + "' in namespace '" + rNamespace + "'"));
 
         var rDescription = runContext.render(this.description).as(String.class).orElse(flowInterface.getDescription());
         if (rDescription == null) {
