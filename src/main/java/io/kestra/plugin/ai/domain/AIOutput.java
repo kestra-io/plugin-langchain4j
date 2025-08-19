@@ -1,16 +1,21 @@
 package io.kestra.plugin.ai.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.service.Result;
 import io.kestra.core.utils.ListUtils;
+import io.kestra.plugin.ai.AIUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Map;
+
+import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @SuperBuilder
 @Getter
@@ -30,14 +35,17 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
     @Schema(title = "Intermediate responses")
     private List<AIResponse> intermediateResponses;
 
-    public static AIOutput from(Result<AiMessage> result) {
+    public static AIOutput from(Result<AiMessage> result) throws JsonProcessingException {
         return AIOutput.builder()
             .completion(result.content().text())
             .tokenUsage(TokenUsage.from(result.tokenUsage()))
             .finishReason(result.finishReason())
-            .toolExecutions(ListUtils.emptyOnNull(result.toolExecutions()).stream().map(ToolExecution::from).toList())
+            .toolExecutions(ListUtils.emptyOnNull(result.toolExecutions()).stream()
+                .map(throwFunction(toolExecution -> ToolExecution.from(toolExecution)))
+                .toList()
+            )
             .intermediateResponses(ListUtils.emptyOnNull(result.intermediateResponses().stream()
-                .map(resp -> AIResponse.from(resp))
+                .map(throwFunction(resp -> AIResponse.from(resp)))
                 .toList())
             )
             .build();
@@ -61,14 +69,14 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
         @Schema(title = "Tool execution requests")
         private List<ToolExecutionRequest>  toolExecutionRequests;
 
-        static AIResponse from(ChatResponse chatResponse) {
+        static AIResponse from(ChatResponse chatResponse) throws JsonProcessingException {
             return AIResponse.builder()
                 .id(chatResponse.id())
                 .completion(chatResponse.aiMessage().text())
                 .tokenUsage(TokenUsage.from(chatResponse.tokenUsage()))
                 .finishReason(chatResponse.finishReason())
                 .toolExecutionRequests(ListUtils.emptyOnNull(chatResponse.aiMessage().toolExecutionRequests()).stream()
-                    .map(req -> ToolExecutionRequest.from(req))
+                    .map(throwFunction(req -> ToolExecutionRequest.from(req)))
                     .toList())
                 .build();
         }
@@ -83,13 +91,13 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
             private String name;
 
             @Schema(title = "Tool request arguments")
-            private String arguments;
+            private Map<String, Object> arguments;
 
-            static ToolExecutionRequest from(dev.langchain4j.agent.tool.ToolExecutionRequest toolExecutionRequest) {
+            static ToolExecutionRequest from(dev.langchain4j.agent.tool.ToolExecutionRequest toolExecutionRequest) throws JsonProcessingException {
                 return ToolExecutionRequest.builder()
                     .id(toolExecutionRequest.id())
                     .name(toolExecutionRequest.name())
-                    .arguments(toolExecutionRequest.arguments())
+                    .arguments(AIUtils.parseJson(toolExecutionRequest.arguments()))
                     .build();
 
             }
