@@ -91,7 +91,7 @@ public class GoogleVertexAI extends ModelProvider {
             .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).map(d -> d.floatValue()).orElse(null))
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
-            .logRequests(runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false))
+            .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
             .listeners(List.of(new TimingChatModelListener()))
             .build();

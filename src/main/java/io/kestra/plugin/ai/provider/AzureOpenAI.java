@@ -101,7 +101,7 @@ public class AzureOpenAI extends ModelProvider {
         var tenantId = runContext.render(this.tenantId).as(String.class).orElse(null);
         var clientId = runContext.render(this.clientId).as(String.class).orElse(null);
         var clientSecret = runContext.render(this.clientSecret).as(String.class).orElse(null);
-        var logRequestAndResponses = runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false) ||
+        var logRequestAndResponses = runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false) ||
             runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false);
 
         if (apiKey != null) {
