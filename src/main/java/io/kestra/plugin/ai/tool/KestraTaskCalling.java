@@ -15,8 +15,10 @@ import io.kestra.core.models.tasks.Task;
 import io.kestra.core.runners.DefaultRunContext;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
+import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.MapUtils;
 import io.kestra.plugin.ai.domain.ToolProvider;
+import io.kestra.plugin.ai.tool.internal.JsonObjectSchemaTranslator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -36,7 +39,7 @@ import java.util.stream.Collectors;
 @Plugin(
     examples =  {
         @Example(
-            title = "Call a Kestra runnable task as a tool",
+            title = "Call a Kestra runnable task as a tool, letting the agent setting the `message` property for you.",
             full = true,
             code = {
                 """
@@ -55,7 +58,7 @@ import java.util.stream.Collectors;
                             tasks:
                               - id: log
                                 type: io.kestra.plugin.core.log.Log
-                                message: "{{agent.message}}"
+                                message: "..." # This is a placeholder, the agent will fill it
                         messages:
                           - type: SYSTEM
                             content: You are an AI agent, please use the provided tool to fulfill the request.
@@ -68,9 +71,23 @@ import java.util.stream.Collectors;
 )
 @JsonDeserialize
 @Schema(
-    title = "Call a Kestra runnable task as a tool"
+    title = "Call a Kestra runnable task as a tool",
+    description = """
+       This tool provider will provide one tool by Kestra tasks, the name of the tool will be `kestra_task_<taskId>`.
+
+       When you define the task inside the tool:
+        - You can set task properties as usually, those would not be overridden by the agent.
+        - If you want the agent to fill a mandatory property, set it with the value `...` and the agent will fill it.
+        - Optional properties not already set may be filled by the agent if it decided to.
+       """
 )
 public class KestraTaskCalling extends ToolProvider {
+    // This placeholder would be used in the flow definition to denote a property that the LLM must set.
+    private static final String LLM_PLACEHOLDER = "...";
+
+    // Tool description, it could be fine-tuned if needed
+    private static final String TOOL_DESCRIPTION = "This tool allows to call a Kestra task. A Kestra task will respond with its output that is a map of key/value pairs from where you can extract variables.";
+
     @Schema(title = "List of Kestra runnable tasks")
     @NotNull
     private List<Task> tasks;
@@ -87,12 +104,22 @@ public class KestraTaskCalling extends ToolProvider {
                 throw new IllegalArgumentException("KestraTaskCalling is only capable of calling runnable tasks but '" + task.getId() + "' is not a runnable task.");
             }
 
-            var description = task.getClass().getAnnotation(Schema.class).title();
+            var schemaAnnotation = Optional.ofNullable(task.getClass().getAnnotation(Schema.class));
+            if (schemaAnnotation.isEmpty()) {
+                runContext.logger().warn("The task {} has no description, the LLM may not understand what it's purpose is so you may need to explicitly describe it in the prompt.", task.getId());
+            }
+            var description = schemaAnnotation.map(s -> s.title()).orElse(null);
             var schema = jsonSchemaGenerator.properties(Task.class, task.getClass());
-            var parameters = parametersFrom(schema, description); // TODO we may need to restrict to what's intended to be asked to the AI
+            var taskProperties = JacksonMapper.toMap(task);
+
+            // we will remove from the schema what's already set as taskProperties
+            removeAlreadySet(schema, taskProperties);
+            // then transform the schema as a Langchain4J schema
+            var parameters = JsonObjectSchemaTranslator.fromOpenAPISchema(schema, description);
+
             var toolSpecification = ToolSpecification.builder()
                 .name("kestra_task_" + task.getId())
-                .description("This tool allows to call a Kestra task. A Kestra task will respond with its output that is a map of key value from where you can extract variables.")
+                .description(TOOL_DESCRIPTION)
                 .parameters(parameters)
                 .build();
             runContext.logger().debug("Tool specification: {}", toolSpecification);
@@ -104,112 +131,19 @@ public class KestraTaskCalling extends ToolProvider {
     }
 
     @SuppressWarnings("unchecked")
-    private JsonObjectSchema parametersFrom(Map<String, Object> schema, String description) {
-        var definitions = mapDefinitions((Map<String, Object>) schema.get("$defs"));
-        var properties = mapProperties((Map<String, Object>) schema.get("properties"));
+    private void removeAlreadySet(Map<String, Object> schema, Map<String, Object> taskProperties) {
+        var properties = (Map<String, Object>) schema.get("properties");
+        var required = (List<String>) schema.get("required");
 
-        // some LLM didn't support definitions, so we will remove them and replace them by their schema.
-        definitions = replaceDefinitions(definitions, definitions);
-        properties = replaceDefinitions(properties, definitions);
-
-        return JsonObjectSchema.builder()
-            .addProperties(properties)
-            .required((List<String>) schema.get("required"))
-            .definitions(definitions)
-            .description(description)
-            .build();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, JsonSchemaElement> mapDefinitions(Map<String, Object> defs) {
-        return MapUtils.emptyOnNull(defs).entrySet().stream()
-            .map(entry -> {
-                var schema = (Map<String, Object>) entry.getValue();
-                var jsonSchemaElement = parametersFrom(schema, null);
-                return Map.entry(
-                    entry.getKey(),
-                    jsonSchemaElement
-                );
-            })
-            .collect(Collectors.toMap(
-                entry -> entry.getKey(),
-                entry -> entry.getValue()
-            ));
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, JsonSchemaElement>  mapProperties(Map<String, Object> properties) {
-        return MapUtils.emptyOnNull(properties).entrySet().stream()
-            .filter(prop -> !prop.getKey().equals("type"))
-            .map(entry -> {
-                var schema = (Map<String, Object>) entry.getValue();
-                var jsonSchemaElement = mapSchema(schema);
-                return Map.entry(
-                    entry.getKey(),
-                    jsonSchemaElement
-                );
-            })
-            .filter(entry -> !(entry.getValue() instanceof JsonNullSchema))
-            .collect(Collectors.toMap(
-                entry -> entry.getKey(),
-                entry -> entry.getValue()
-            ));
-    }
-
-    @SuppressWarnings("unchecked")
-    private JsonSchemaElement mapSchema(Map<String, Object> schema) {
-        var type = (String) schema.get("type");
-        var title =  (String) schema.get("title");
-        var _enum =  (List<String>) schema.get("enum");
-        var anyOf = (List<Map<String, Object>>) schema.get("anyOf");
-        var ref = (String) schema.get("$ref");
-        if (_enum != null) {
-            return JsonEnumSchema.builder().description(title).enumValues(_enum).build();
-        }
-        if (anyOf != null) {
-            // anyOf is not supported by all LLM (for ex gemini).
-            // So instead, we try to find a type which is not a string and return it as it's supposed to be more specific.
-            return anyOf.stream()
-                .filter(subSchema -> !"string".equals(subSchema.get("type")))
-                .map(subSchema -> mapSchema(subSchema))
-                .findAny()
-                .orElse(JsonStringSchema.builder().description(title).build());
-        }
-        if (ref != null) {
-            // reference starts with "#/$defs/"
-            String referenceType = ref.substring(8);
-            return JsonReferenceSchema.builder().reference(referenceType).build();
-        }
-
-        return switch (type) {
-            case "number" -> JsonNumberSchema.builder().description(title).build();
-            case "integer" -> JsonIntegerSchema.builder().description(title).build();
-            case "boolean" -> JsonBooleanSchema.builder().description(title).build();
-            case "null" -> new JsonNullSchema();
-            case "object" -> JsonObjectSchema.builder().description(title).build();
-            case "array" -> JsonArraySchema.builder().description(title).items(mapSchema((Map<String, Object>) schema.get("items"))).build();
-            case null -> new JsonNullSchema();
-            // we coalesce other types to String for now...
-            default -> JsonStringSchema.builder().description(title).build();
-        };
-    }
-
-    private Map<String, JsonSchemaElement> replaceDefinitions(Map<String, JsonSchemaElement> properties, Map<String, JsonSchemaElement> definitions) {
-        return properties.entrySet().stream()
-            .map(entry -> {
-                JsonSchemaElement schema = switch(entry.getValue()) {
-                    case JsonReferenceSchema jsonReferenceSchema -> definitions.getOrDefault(jsonReferenceSchema.reference(),
-                        JsonObjectSchema.builder().description(jsonReferenceSchema.description()).build());
-                    case JsonObjectSchema jsonObjectSchema -> JsonObjectSchema.builder()
-                        .description(jsonObjectSchema.description())
-                        .required(jsonObjectSchema.required()).
-                        addProperties(replaceDefinitions(jsonObjectSchema.properties(), definitions))
-                        .build();
-                    default -> entry.getValue();
-                };
-                return Map.entry(entry.getKey(), schema);
-            })
+        properties = MapUtils.emptyOnNull(properties).entrySet().stream()
+            .filter(entry -> !taskProperties.containsKey(entry.getKey()) || taskProperties.get(entry.getKey()).equals("...")) // "..." is the placeholder for the LLM agent
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        schema.put("properties", properties);
+
+        required = ListUtils.emptyOnNull(required).stream()
+            .filter(entry -> !taskProperties.containsKey(entry) || taskProperties.get(entry).equals("...")) // "..." is the placeholder for the LLM agent
+            .toList();
+        schema.put("required", required);
     }
 
     static class KestraTaskToolExecutor implements ToolExecutor {

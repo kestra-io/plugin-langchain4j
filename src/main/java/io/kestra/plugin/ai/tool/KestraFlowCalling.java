@@ -138,12 +138,15 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 @Schema(
     title = "Call a Kestra flow as a tool.",
     description = """
-        Tool that can call a defined flow.
+        This tool provider will provide a tool that can call a defined Kestra flow, the name of the tool will be `kestra_flow_<namespace>_<id>`.
+
         To instruct what the flow is doing, the provider either use the description set as the `description` property or the description of the flow itself. If none are provider an error will be thrown.
         The LLM can set `inputs`, `labels` and a `scheduledDate` if needed.
         The called flow will have the `correlationId` label of the current flow if none is provided by the LLM."""
 )
 public class KestraFlowCalling extends ToolProvider {
+    // Tool description, it could be fine-tuned if needed
+    private static final String TOOL_DESCRIPTION = "This tool allows to execute a Kestra workflow also called a flow.";
 
     @Schema(
         title = "Description of the flow if not already provided inside the flow itself.",
