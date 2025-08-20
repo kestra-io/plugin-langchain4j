@@ -24,7 +24,7 @@ public class ChatConfiguration {
         title = "Whether to log LLM requests",
         description = "Log will be send to the server log in DEBUG."
     )
-    private Property<Boolean> logRequest;
+    private Property<Boolean> logRequests;
 
     @Schema(
         title = "Whether to log LLM responses",

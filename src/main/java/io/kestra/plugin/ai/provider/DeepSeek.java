@@ -88,7 +88,7 @@ public class DeepSeek extends ModelProvider {
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())
             .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-            .logRequests(runContext.render(configuration.getLogRequest()).as(Boolean.class).orElse(false))
+            .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
             .listeners(List.of(new TimingChatModelListener()))
             .build();
