@@ -125,15 +125,17 @@ public class KestraKVStore extends MemoryProvider {
 
     @Override
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
-        String rMemoryId = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
-        KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
-        if (runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER) == Drop.AFTER_EXECUTION) {
-            kvStore.delete(rMemoryId);
-        } else {
-            String memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
-            Duration duration = runContext.render(this.getTtl()).as(Duration.class).orElseThrow();
-            KVValueAndMetadata kvValueAndMetadata = new KVValueAndMetadata(new KVMetadata("Chat memory for the flow " + runContext.flowInfo().id(), duration), memoryJson);
-            kvStore.put(rMemoryId, kvValueAndMetadata);
+        if (chatMemory != null) {
+            String rMemoryId = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
+            KVStore kvStore = runContext.namespaceKv(runContext.flowInfo().namespace());
+            if (runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER) == Drop.AFTER_EXECUTION) {
+                kvStore.delete(rMemoryId);
+            } else {
+                String memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
+                Duration duration = runContext.render(this.getTtl()).as(Duration.class).orElseThrow();
+                KVValueAndMetadata kvValueAndMetadata = new KVValueAndMetadata(new KVMetadata("Chat memory for the flow " + runContext.flowInfo().id(), duration), memoryJson);
+                kvStore.put(rMemoryId, kvValueAndMetadata);
+            }
         }
     }
 }
