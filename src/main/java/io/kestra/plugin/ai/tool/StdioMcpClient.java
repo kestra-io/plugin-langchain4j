@@ -74,7 +74,7 @@ public class StdioMcpClient extends ToolProvider {
     private Property<List<String>> command;
 
     @Schema(title = "Environment variables")
-    private Property<Map<String, String>> environment;
+    private Property<Map<String, String>> env;
 
     @JsonIgnore
     private transient McpClient mcpClient;
@@ -83,7 +83,7 @@ public class StdioMcpClient extends ToolProvider {
     public Map<ToolSpecification, ToolExecutor> tool(RunContext runContext) throws IllegalVariableEvaluationException {
         McpTransport transport = new StdioMcpTransport.Builder()
             .command(runContext.render(command).asList(String.class))
-            .environment(runContext.render(environment).asMap(String.class, String.class))
+            .environment(runContext.render(env).asMap(String.class, String.class))
             .logEvents(true)
             .build();
 
