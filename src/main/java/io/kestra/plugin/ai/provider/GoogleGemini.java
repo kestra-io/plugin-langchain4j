@@ -28,7 +28,8 @@ import java.util.List;
 @AllArgsConstructor
 @JsonDeserialize
 @Schema(
-    title = "Google Gemini Model Provider"
+    title = "Google Gemini Model Provider",
+    description = "WARNING: when using tools, this provider didn't support JSON Schema with `anyOf`."
 )
 @Plugin(
     examples = {
