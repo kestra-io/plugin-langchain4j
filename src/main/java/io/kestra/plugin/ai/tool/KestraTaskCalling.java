@@ -79,7 +79,9 @@ import java.util.stream.Collectors;
         - You can set task properties as usually, those would not be overridden by the agent.
         - If you want the agent to fill a mandatory property, set it with the value `...` and the agent will fill it.
         - Optional properties not already set may be filled by the agent if it decided to.
-       """
+
+        WARNING: as some model providers didn't support JSON schema with `anyOf`, when creating the JSON Schema to call the task, each `anyOf` will be replaced by one of the sub-schema.
+        You can see the generated schema in debug logs."""
 )
 public class KestraTaskCalling extends ToolProvider {
     // This placeholder would be used in the flow definition to denote a property that the LLM must set.
@@ -116,6 +118,7 @@ public class KestraTaskCalling extends ToolProvider {
             removeAlreadySet(schema, taskProperties);
             // then transform the schema as a Langchain4J schema
             var parameters = JsonObjectSchemaTranslator.fromOpenAPISchema(schema, description);
+            runContext.logger().debug("Generated JSON schema:\n{}", parameters);
 
             var toolSpecification = ToolSpecification.builder()
                 .name("kestra_task_" + task.getId())
