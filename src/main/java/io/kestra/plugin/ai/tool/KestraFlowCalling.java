@@ -335,7 +335,7 @@ public class KestraFlowCalling extends ToolProvider {
                 var executionQueue = (QueueInterface<Execution>) runContext.getApplicationContext().getBean(QueueInterface.class, Qualifiers.byName(QueueFactoryInterface.EXECUTION_NAMED));
                 executionQueue.emit(execution);
 
-                return "Success";
+                return JacksonMapper.ofJson().writeValueAsString(execution);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
