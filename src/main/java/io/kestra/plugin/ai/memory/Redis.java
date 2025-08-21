@@ -140,20 +140,21 @@ public class Redis extends MemoryProvider {
 
     @Override
     public void close(RunContext runContext) throws IllegalVariableEvaluationException, IOException {
+        if (chatMemory != null) {
+            var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
+            var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
+            var rDrop = runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER);
 
-        var rHost = runContext.render(this.getHost()).as(String.class).orElseThrow();
-        var rPort = runContext.render(this.getPort()).as(Integer.class).orElse(6379);
-        var rDrop = runContext.render(this.getDrop()).as(Drop.class).orElse(Drop.NEVER);
+            var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
 
-        var key = runContext.render(this.getMemoryId()).as(String.class).orElseThrow();
-
-        try (var jedis = new Jedis(rHost, rPort)) {
-            if (rDrop == Drop.AFTER_EXECUTION) {
-                jedis.del(key);
-            } else {
-                var memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
-                var ttl = runContext.render(this.getTtl()).as(Duration.class).orElse(Duration.ofMinutes(10));
-                jedis.setex(key, (int) ttl.getSeconds(), memoryJson);
+            try (var jedis = new Jedis(rHost, rPort)) {
+                if (rDrop == Drop.AFTER_EXECUTION) {
+                    jedis.del(key);
+                } else {
+                    var memoryJson = ChatMessageSerializer.messagesToJson(chatMemory.messages());
+                    var ttl = runContext.render(this.getTtl()).as(Duration.class).orElse(Duration.ofMinutes(10));
+                    jedis.setex(key, (int) ttl.getSeconds(), memoryJson);
+                }
             }
         }
     }
