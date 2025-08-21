@@ -167,12 +167,13 @@ public class KestraTaskCalling extends ToolProvider {
                 Map<String, Object> arguments = JacksonMapper.toMap(toolExecutionRequest.arguments());
                 RunnableTask<?> runnable = JacksonMapper.ofJson().convertValue(MapUtils.merge(taskProperties, arguments), task.getClass());
                 Output output = runnable.run(runContext);
-                if (output!= null) {
+                if (output != null) {
                     Map<String, Object> outputMap = output.toMap();
                     if (!MapUtils.isEmpty(outputMap)) {
                         return JacksonMapper.ofJson().writeValueAsString(outputMap);
                     }
                 }
+
                 // we return Success here so when a task has no output but reply successfully, the LLM knows it and didn't re-call the task
                 return "Success";
             } catch (Exception e) {
