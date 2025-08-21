@@ -62,13 +62,13 @@ import java.util.stream.Collectors;
             }
         ),
     },
-    aliases = "io.kestra.plugin.langchain4j.tool.HttpMcpClient"
+    aliases = { "io.kestra.plugin.langchain4j.tool.HttpMcpClient", "io.kestra.plugin.ai.tool.HttpMcpClient" }
 )
 @JsonDeserialize
 @Schema(
-    title = "Model Context Protocol (MCP) HTTP client tool"
+    title = "Model Context Protocol (MCP) SSE client tool"
 )
-public class HttpMcpClient extends ToolProvider {
+public class SseMcpClient extends ToolProvider {
     @Schema(title = "SSE URL to the MCP server")
     @NotNull
     private Property<String> sseUrl;
