@@ -17,6 +17,7 @@ import io.kestra.plugin.ai.domain.ToolProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -76,6 +77,11 @@ public class StdioMcpClient extends ToolProvider {
     @Schema(title = "Environment variables")
     private Property<Map<String, String>> env;
 
+    @Schema(title = "Whether to log events")
+    @NotNull
+    @Builder.Default
+    private Property<Boolean> logEvents = Property.ofValue(false);
+
     @JsonIgnore
     private transient McpClient mcpClient;
 
@@ -84,7 +90,7 @@ public class StdioMcpClient extends ToolProvider {
         McpTransport transport = new StdioMcpTransport.Builder()
             .command(runContext.render(command).asList(String.class))
             .environment(runContext.render(env).asMap(String.class, String.class))
-            .logEvents(true)
+            .logEvents(runContext.render(logEvents).as(Boolean.class).orElseThrow())
             .build();
 
         this.mcpClient = new DefaultMcpClient.Builder()

@@ -17,6 +17,7 @@ import io.kestra.plugin.ai.domain.ToolProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -76,6 +77,16 @@ public class SseMcpClient extends ToolProvider {
     @Schema(title = "Connection timeout")
     private Property<Duration> timeout;
 
+    @Schema(title = "Whether to log requests")
+    @NotNull
+    @Builder.Default
+    private Property<Boolean> logRequests = Property.ofValue(false);
+
+    @Schema(title = "Whether to log responses")
+    @NotNull
+    @Builder.Default
+    private Property<Boolean> logResponses = Property.ofValue(false);
+
     @JsonIgnore
     private transient McpClient mcpClient;
 
@@ -84,6 +95,8 @@ public class SseMcpClient extends ToolProvider {
         McpTransport transport = new HttpMcpTransport.Builder()
             .sseUrl(runContext.render(sseUrl).as(String.class).orElseThrow())
             .timeout(runContext.render(timeout).as(Duration.class).orElse(null))
+            .logRequests(runContext.render(logRequests).as(Boolean.class).orElseThrow())
+            .logResponses(runContext.render(logResponses).as(Boolean.class).orElseThrow())
             .build();
 
         this.mcpClient = new DefaultMcpClient.Builder()
