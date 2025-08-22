@@ -1,8 +1,6 @@
 package io.kestra.plugin.ai.rag;
 
 import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -206,10 +204,45 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                     prompt: "{{inputs.second}}"
                 """
         ),
+        @Example(
+            full = true,
+            title = """
+                Extract structured outputs with a JSON schema.
+                Note that not all model providers support JSON schema, if not, you have to specify the schema inside the prompt.""",
+            code = """
+                id: structured-output
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+                    defaults: |
+                      Hello, my name is John. I was born on January 1, 2000.
+
+                tasks:
+                  - id: ai-agent
+                    type: io.kestra.plugin.ai.rag.ChatCompletion
+                    provider:
+                      type: io.kestra.plugin.ai.provider.GoogleGemini
+                      modelName: gemini-2.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    chatConfiguration:
+                      responseFormat:
+                        type: JSON
+                        jsonSchema:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            birth:
+                              type: string
+                    prompt: "{{inputs.prompt}}"
+                """
+        )
     },
     aliases = "io.kestra.plugin.langchain4j.rag.ChatCompletion"
 )
-public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
+public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.Output> {
     @Schema(title = "System message", description = "The system message for the language model")
     @NotNull
     protected Property<String> systemMessage;
@@ -265,9 +298,8 @@ public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
     private MemoryProvider memory;
 
     @Override
-    public AIOutput run(RunContext runContext) throws Exception {
+    public Output run(RunContext runContext) throws Exception {
         List<ToolProvider> toolProviders = ListUtils.emptyOnNull(tools);
-
 
         try {
             AiServices<Assistant> assistant = AiServices.builder(Assistant.class)
@@ -288,7 +320,17 @@ public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
             TokenUsage tokenUsage = TokenUsage.from(completion.tokenUsage());
             AIUtils.sendMetrics(runContext, tokenUsage);
 
-            return AIOutput.from(runContext, completion);
+            AIOutput output = AIOutput.from(runContext, completion, chatConfiguration.computeResponseFormat(runContext).type());
+            return Output.builder()
+                .completion(output.getTextOutput())
+                .tokenUsage(output.getTokenUsage())
+                .textOutput(output.getTextOutput())
+                .jsonOutput(output.getJsonOutput())
+                .finishReason(output.getFinishReason())
+                .toolExecutions(output.getToolExecutions())
+                .intermediateResponses(output.getIntermediateResponses())
+                .requestDuration(output.getRequestDuration())
+                .build();
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
 
@@ -348,5 +390,13 @@ public class ChatCompletion extends Task implements RunnableTask<AIOutput> {
         @Schema(title = "The minimum score, ranging from 0 to 1 (inclusive). Only embeddings with a score >= minScore will be returned.")
         @Builder.Default
         private Double minScore = 0.0D;
+    }
+
+    @SuperBuilder
+    @Getter
+    public static class Output extends AIOutput { // we must keep this one to keep the deprecated aiResponse
+        @Schema(title = "Generated text completion", description = "The result of the text completion")
+        @Deprecated(forRemoval = true, since = "1.0.0")
+        private String completion;
     }
 }

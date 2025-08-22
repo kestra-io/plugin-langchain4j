@@ -45,7 +45,7 @@ class KestraKVStoreTest extends ContainerTest {
             .build();
 
         var ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).isNotNull();
 
         // call it a second time, it should use the memory
         rag = ChatCompletion.builder()
@@ -64,7 +64,7 @@ class KestraKVStoreTest extends ContainerTest {
             .build();
 
         ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
-        assertThat(ragOutput.getCompletion()).contains("John");
+        assertThat(ragOutput.getTextOutput()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).contains("John");
     }
 }

@@ -1,6 +1,7 @@
 package io.kestra.plugin.ai.completion;
 
 import dev.langchain4j.model.anthropic.AnthropicChatModelName;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
@@ -63,8 +64,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -96,8 +97,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -128,7 +129,53 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getTextOutput(), notNullValue());
+    }
+
+    @Test
+    void testChatCompletionStructuredOutput() throws Exception {
+        RunContext runContext = runContextFactory.of(Map.of(
+            "modelName", "tinydolphin",
+            "ollamaEndpoint", ollamaEndpoint,
+            "messages", List.of(
+                ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("Hello, my name is John. I was born on January 1, 2000.").build()
+            )
+        ));
+
+        ChatCompletion task = ChatCompletion.builder()
+            .messages(Property.ofExpression("{{ messages }}"))
+            // Use a low temperature and a fixed seed so the completion would be more deterministic
+            .configuration(ChatConfiguration.builder()
+                .temperature(Property.ofValue(0.1))
+                .seed(Property.ofValue(123456789))
+                .responseFormat(ChatConfiguration.ResponseFormat.builder()
+                    .type(Property.ofValue(ResponseFormatType.JSON))
+                    .jsonSchema(Property.ofValue(
+                        Map.of(
+                            "type", "object",
+                            "properties", Map.of(
+                                "name", Map.of("type", "string"),
+                                "birth", Map.of("type", "string")
+                            )
+                        )
+                    ))
+                    .build()
+                )
+                .build()
+            )
+            .provider(Ollama.builder()
+                .type(Ollama.class.getName())
+                .modelName(Property.ofExpression("{{ modelName }}"))
+                .endpoint(Property.ofExpression("{{ ollamaEndpoint }}"))
+                .build()
+            )
+            .build();
+
+        ChatCompletion.Output output = task.run(runContext);
+
+        System.out.println(output.getJsonOutput());
+        assertThat(output.getJsonOutput(),  aMapWithSize(2));
+
     }
 
     @Test
@@ -155,7 +202,7 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
+        assertThat(output.getTextOutput(), notNullValue());
     }
 
     @Test
@@ -238,8 +285,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -302,8 +349,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -401,8 +448,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -469,8 +516,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 
@@ -535,8 +582,8 @@ class ChatCompletionTest extends ContainerTest {
 
         ChatCompletion.Output output = task.run(runContext);
 
-        assertThat(output.getCompletion(), notNullValue());
-        assertThat(output.getCompletion(), containsString("John"));
+        assertThat(output.getTextOutput(), notNullValue());
+        assertThat(output.getTextOutput(), containsString("John"));
         assertThat(output.getRequestDuration(), notNullValue());
     }
 

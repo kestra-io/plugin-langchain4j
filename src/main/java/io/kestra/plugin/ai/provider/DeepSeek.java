@@ -1,7 +1,9 @@
 package io.kestra.plugin.ai.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.nimbusds.oauth2.sdk.util.MapUtils;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -82,6 +84,11 @@ public class DeepSeek extends ModelProvider {
             throw new IllegalArgumentException("OpenAI models didn't support topK");
         }
 
+        var responseFormat = configuration.computeResponseFormat(runContext);
+        if (responseFormat.jsonSchema() != null) {
+            throw new IllegalArgumentException("DeepSeek models didn't support setting the JSON schema");
+        }
+
         return OpenAiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .baseUrl(runContext.render(baseUrl).as(String.class).orElse(BASE_URL))
@@ -90,6 +97,7 @@ public class DeepSeek extends ModelProvider {
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
             .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
+            .responseFormat(responseFormat.type() == ResponseFormatType.JSON ? "json_object" : null)
             .listeners(List.of(new TimingChatModelListener()))
             .build();
     }

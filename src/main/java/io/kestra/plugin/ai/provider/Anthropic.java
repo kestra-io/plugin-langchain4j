@@ -72,6 +72,10 @@ public class Anthropic extends ModelProvider {
             throw new IllegalArgumentException("Anthropic models didn't support setting the seed");
         }
 
+        if (configuration.getResponseFormat() != null) {
+            throw new IllegalVariableEvaluationException("Anthropic models didn't support configuring the response format");
+        }
+
         return AnthropicChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .apiKey(runContext.render(this.apiKey).as(String.class).orElseThrow())

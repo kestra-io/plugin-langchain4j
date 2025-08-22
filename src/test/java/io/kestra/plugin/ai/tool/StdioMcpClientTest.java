@@ -48,7 +48,7 @@ class StdioMcpClientTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("17");
+        assertThat(output.getTextOutput()).contains("17");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
         assertThat(output.getIntermediateResponses()).isNotEmpty();

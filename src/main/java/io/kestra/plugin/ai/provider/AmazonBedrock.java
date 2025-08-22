@@ -6,6 +6,8 @@ import dev.langchain4j.model.bedrock.BedrockChatRequestParameters;
 import dev.langchain4j.model.bedrock.BedrockCohereEmbeddingModel;
 import dev.langchain4j.model.bedrock.BedrockTitanEmbeddingModel;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
@@ -107,6 +109,7 @@ public class AmazonBedrock extends ModelProvider {
                 .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
                 .topK(runContext.render(configuration.getTopK()).as(Integer.class).orElse(null))
                 .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
+                .responseFormat(configuration.computeResponseFormat(runContext))
                 .build()
             )
             .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))

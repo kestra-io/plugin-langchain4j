@@ -94,6 +94,43 @@ import java.util.List;
                 """
             }
         ),
+        @Example(
+            full = true,
+            title = """
+                Extract structured outputs with a JSON schema.
+                Note that not all model providers support JSON schema, if not, you have to specify the schema inside the prompt.""",
+            code = """
+                id: structured-output
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+                    defaults: |
+                      Hello, my name is John. I was born on January 1, 2000.
+
+                tasks:
+                  - id: ai-agent
+                    type: io.kestra.plugin.ai.completion.ChatCompletion
+                    provider:
+                      type: io.kestra.plugin.ai.provider.GoogleGemini
+                      modelName: gemini-2.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    configuration:
+                      responseFormat:
+                        type: JSON
+                        jsonSchema:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            birth:
+                              type: string
+                      messages:
+                      - type: USER
+                        content: "{{inputs.prompt}}"
+                """
+        )
     },
     aliases = {"io.kestra.plugin.langchain4j.ChatCompletion", "io.kestra.plugin.langchain4j.completion.ChatCompletion"}
 )
@@ -175,11 +212,12 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
             // unfortunately, as we have a deprecated aiResponse field, we have no choice but to first build an AIOutput,
             // then, create the final Output based on it.
-            AIOutput output = AIOutput.from(runContext, aiResponse);
+            AIOutput output = AIOutput.from(runContext, aiResponse, configuration.computeResponseFormat(runContext).type());
             return Output.builder()
-                .aiResponse(output.getCompletion())
+                .aiResponse(output.getTextOutput())
                 .tokenUsage(output.getTokenUsage())
-                .completion(output.getCompletion())
+                .textOutput(output.getTextOutput())
+                .jsonOutput(output.getJsonOutput())
                 .finishReason(output.getFinishReason())
                 .toolExecutions(output.getToolExecutions())
                 .intermediateResponses(output.getIntermediateResponses())

@@ -73,7 +73,7 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getTextOutput()).contains("success");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_log");
         assertThat(output.getIntermediateResponses()).isNotEmpty();
@@ -154,7 +154,7 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
+        assertThat(output.getTextOutput()).contains("Technical description of Kestra's main components, including the internal storage, queue, repository, and plugins.");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_request");
         assertThat(output.getIntermediateResponses()).isNotEmpty();
@@ -198,9 +198,9 @@ class KestraTaskCallingTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("logs");
-        assertThat(output.getCompletion()).contains("fetch");
-        assertThat(output.getCompletion()).contains("task");
+        assertThat(output.getTextOutput()).contains("logs");
+        assertThat(output.getTextOutput()).contains("fetch");
+        assertThat(output.getTextOutput()).contains("task");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_fetch");
         assertThat(output.getIntermediateResponses()).isNotEmpty();
@@ -257,7 +257,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_awesome");
         assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getTextOutput()).contains("success");
         assertThat(MyAwesomeTask.spy).isEqualTo("7-Hello World-optional-[mykey:myvalue]");
     }
 
@@ -307,7 +307,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_awesome");
         assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getTextOutput()).contains("success");
         assertThat(MyAwesomeTask.spy).isEqualTo("7-Hello World-null-[mykey:myvalue]");
     }
 
@@ -359,7 +359,7 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests()).isNotEmpty();
         assertThat(output.getIntermediateResponses().getFirst().getToolExecutionRequests().getFirst().getName()).isEqualTo("kestra_task_awesome");
         assertThat(output.getIntermediateResponses().getFirst().getRequestDuration()).isNotNull();
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getTextOutput()).contains("success");
         assertThat(MyAwesomeTask.spy).isEqualTo("8-Hello World-null-[mykey:myvalue]");
     }
 
