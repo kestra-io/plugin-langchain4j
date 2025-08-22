@@ -2,10 +2,12 @@ package io.kestra.plugin.ai.domain;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.service.Result;
 import io.kestra.core.runners.RunContext;
+import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.plugin.ai.AIUtils;
 import io.kestra.plugin.ai.provider.TimingChatModelListener;
@@ -24,8 +26,17 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @SuperBuilder
 @Getter
 public class AIOutput implements io.kestra.core.models.tasks.Output {
-    @Schema(title = "Generated text completion", description = "The result of the text completion")
-    private String completion;
+    @Schema(
+        title = "LLM output for `TEXT` response format",
+        description = "The result of the LLM completion for response format of type `TEXT` (default), null otherwise."
+    )
+    private String textOutput;
+
+    @Schema(
+        title = "LLM output for `JSON` response format",
+        description = "The result of the LLM completion for response format of type `JSON`, null otherwise."
+    )
+    private Map<String, Object> jsonOutput;
 
     @Schema(title = "Token usage")
     private TokenUsage tokenUsage;
@@ -42,9 +53,12 @@ public class AIOutput implements io.kestra.core.models.tasks.Output {
     @Schema(title = "Request duration in milliseconds")
     private Long requestDuration;
 
-    public static AIOutput from(RunContext runContext, Result<AiMessage> result) throws JsonProcessingException {
+    // WARNING: When adding additional properties here, don't forget to update completion and rag ChatCompletion.Output
+
+    public static AIOutput from(RunContext runContext, Result<AiMessage> result, ResponseFormatType responseFormatType) throws JsonProcessingException {
         return AIOutput.builder()
-            .completion(result.content().text())
+            .textOutput(responseFormatType == ResponseFormatType.TEXT ? result.content().text() : null)
+            .jsonOutput(responseFormatType == ResponseFormatType.JSON ? JacksonMapper.toMap(result.content().text()) : null)
             .tokenUsage(TokenUsage.from(result.tokenUsage()))
             .finishReason(result.finishReason())
             .toolExecutions(ListUtils.emptyOnNull(result.toolExecutions()).stream()

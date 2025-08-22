@@ -86,6 +86,7 @@ public class MistralAI extends ModelProvider {
             .logRequests(true)
             .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
+            .responseFormat(configuration.computeResponseFormat(runContext))
             .listeners(List.of(new TimingChatModelListener()))
             .build();
     }

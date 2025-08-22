@@ -2,6 +2,7 @@ package io.kestra.plugin.ai.provider;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
@@ -83,6 +84,11 @@ public class GoogleVertexAI extends ModelProvider {
             throw new IllegalArgumentException("The `endpoint` property cannot be used for the Chat Model which uses Gemini only.");
         }
 
+        var responseFormat = configuration.computeResponseFormat(runContext);
+        if (responseFormat.jsonSchema() != null) {
+            throw new IllegalArgumentException("DeepSeek models didn't support setting the JSON schema");
+        }
+
         return VertexAiGeminiChatModel.builder()
             .modelName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
             .location(runContext.render(this.location).as(String.class).orElseThrow())
@@ -93,6 +99,7 @@ public class GoogleVertexAI extends ModelProvider {
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
             .logRequests(runContext.render(configuration.getLogRequests()).as(Boolean.class).orElse(false))
             .logResponses(runContext.render(configuration.getLogResponses()).as(Boolean.class).orElse(false))
+            .responseMimeType(responseFormat.type() == ResponseFormatType.JSON ? "application/json" : null)
             .listeners(List.of(new TimingChatModelListener()))
             .build();
     }

@@ -90,7 +90,7 @@ public class StdioMcpClient extends ToolProvider {
         McpTransport transport = new StdioMcpTransport.Builder()
             .command(runContext.render(command).asList(String.class))
             .environment(runContext.render(env).asMap(String.class, String.class))
-            .logEvents(runContext.render(logEvents).as(Boolean.class).orElseThrow())
+            .logEvents(runContext.render(logEvents).as(Boolean.class).orElse(false))
             .build();
 
         this.mcpClient = new DefaultMcpClient.Builder()

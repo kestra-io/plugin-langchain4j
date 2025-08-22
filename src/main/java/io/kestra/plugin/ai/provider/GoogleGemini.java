@@ -81,6 +81,7 @@ public class GoogleGemini extends ModelProvider {
             .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
             .seed(runContext.render(configuration.getSeed()).as(Integer.class).orElse(null))
             .logRequestsAndResponses(logRequestAndResponses)
+            .responseFormat(configuration.computeResponseFormat(runContext))
             .listeners(List.of(new TimingChatModelListener()))
             .build();
     }

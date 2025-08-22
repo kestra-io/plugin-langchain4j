@@ -67,7 +67,7 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         var ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).isNotNull();
     }
 
     @EnabledIfEnvironmentVariable(named = "GOOGLE_API_KEY", matches = ".*")
@@ -115,7 +115,7 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         var ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).isNotNull();
     }
 
     @EnabledIfEnvironmentVariable(named = "TAVILY_API_KEY", matches = ".*")
@@ -160,7 +160,7 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         var ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).isNotNull();
     }
 
     @EnabledIfEnvironmentVariable(named = "RAPID_API_KEY", matches = ".*")
@@ -194,8 +194,8 @@ class ChatCompletionTest extends ContainerTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).isNotNull();
-        assertThat(output.getCompletion().trim()).contains("42");
+        assertThat(output.getTextOutput()).isNotNull();
+        assertThat(output.getTextOutput().trim()).contains("42");
         assertThat(output.getToolExecutions()).isNotEmpty();
     }
 }

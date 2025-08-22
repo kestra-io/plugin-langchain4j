@@ -69,7 +69,7 @@ class RedisTest extends ContainerTest {
             .build();
 
         var ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
+        assertThat(ragOutput.getTextOutput()).isNotNull();
 
         // Second prompt - should retrieve memory from Redis
         rag = ChatCompletion.builder()
@@ -92,7 +92,7 @@ class RedisTest extends ContainerTest {
             .build();
 
         ragOutput = rag.run(runContext);
-        assertThat(ragOutput.getCompletion()).isNotNull();
-        assertThat(ragOutput.getCompletion().toLowerCase()).contains("john");
+        assertThat(ragOutput.getTextOutput()).isNotNull();
+        assertThat(ragOutput.getTextOutput().toLowerCase()).contains("john");
     }
 }

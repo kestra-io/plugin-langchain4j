@@ -1,5 +1,6 @@
 package io.kestra.plugin.ai.tool;
 
+import dev.langchain4j.model.chat.request.ResponseFormatType;
 import dev.langchain4j.model.output.FinishReason;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.Label;
@@ -83,7 +84,7 @@ class KestraFlowCallingTest {
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world", Pageable.UNPAGED);
         assertThat(executions).hasSize(1);
-        assertThat(output.getCompletion()).contains(executions.getFirst().getId());
+        assertThat(output.getTextOutput()).contains(executions.getFirst().getId());
 
         flowRepository.delete(flow);
         executionRepository.delete(executions.getFirst());
@@ -123,14 +124,21 @@ class KestraFlowCallingTest {
             .messages(Property.ofValue(
                 List.of(
                     ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.SYSTEM).content("You are an AI agent, please use the provided tool to fulfill the request.").build(),
-                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to execute a flow to say Hello World.").build()
+                    ChatCompletion.ChatMessage.builder().type(ChatCompletion.ChatMessageType.USER).content("I want to execute a flow to say Hello World, please return its response as a valid JSON.").build()
                 )))
             // Use a low temperature and a fixed seed so the completion would be more deterministic
-            .configuration(ChatConfiguration.builder().temperature(Property.ofValue(0.1)).seed(Property.ofValue(123456789)).build())
+            .configuration(ChatConfiguration.builder()
+                .temperature(Property.ofValue(0.1))
+                .seed(Property.ofValue(123456789))
+                .responseFormat(ChatConfiguration.ResponseFormat.builder().type(Property.ofValue(ResponseFormatType.JSON)).build())
+                .build()
+            )
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getJsonOutput()).isNotEmpty();
+        assertThat(output.getJsonOutput()).containsEntry("namespace", "company.team");
+        assertThat(output.getJsonOutput()).containsEntry("flowId", "hello-world-with-description");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world-with-description");
         assertThat(output.getIntermediateResponses()).isNotEmpty();
@@ -142,6 +150,7 @@ class KestraFlowCallingTest {
         // check that an execution has been created
         var executions = executionRepository.findByFlowId(null, "company.team", "hello-world-with-description", Pageable.UNPAGED);
         assertThat(executions).hasSize(1);
+        assertThat(output.getJsonOutput()).containsEntry("id", executions.getFirst().getId());
 
         flowRepository.delete(flow);
         executionRepository.delete(executions.getFirst());
@@ -197,7 +206,7 @@ class KestraFlowCallingTest {
             .build();
 
         var output = chat.run(runContext);
-        assertThat(output.getCompletion()).contains("success");
+        assertThat(output.getTextOutput()).contains("success");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_flow_company_team_hello-world-with-input");
         assertThat(output.getIntermediateResponses()).isNotEmpty();

@@ -146,7 +146,7 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 )
 public class KestraFlowCalling extends ToolProvider {
     // Tool description, it could be fine-tuned if needed
-    private static final String TOOL_DESCRIPTION = "This tool allows to execute a Kestra workflow also called a flow.";
+    private static final String TOOL_DESCRIPTION = "This tool allows to execute a Kestra workflow also called a flow. This tool will respond with the flow execution information.";
 
     @Schema(
         title = "Description of the flow if not already provided inside the flow itself.",
@@ -263,7 +263,7 @@ public class KestraFlowCalling extends ToolProvider {
         return Map.of(
             ToolSpecification.builder()
                 .name("kestra_flow_" + IdUtils.fromPartsAndSeparator('_', flowInterface.getNamespace().replace('.', '_'), flowInterface.getId()))
-                .description("This tool allows to execute a Kestra workflow also called a flow.")
+                .description(TOOL_DESCRIPTION)
                 .parameters(jsonSchema.build())
                 .build(),
             new KestraFlowToolExecutor((DefaultRunContext) runContext, flowInterface, rInputs, newLabels)

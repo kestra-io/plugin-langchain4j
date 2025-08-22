@@ -134,10 +134,45 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
                       apiKey: "{{ secret('GEMINI_API_KEY') }}"
                     contentRetrievers:
                       - type: io.kestra.plugin.ai.retriever.TavilyWebSearch
-                        apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                        apiKey: "{{ secret('TAVILY_API_KEY') }}"
                         maxResults: 5
                     prompt: "{{inputs.text}}\""""
         ),
+        @Example(
+            full = true,
+            title = """
+                Extract structured outputs with a JSON schema.
+                Note that not all model providers support JSON schema, if not, you have to specify the schema inside the prompt.""",
+            code = """
+                id: structured-output
+                namespace: company.team
+
+                inputs:
+                  - id: prompt
+                    type: STRING
+                    defaults: |
+                      Hello, my name is John. I was born on January 1, 2000.
+
+                tasks:
+                  - id: ai-agent
+                    type: io.kestra.plugin.ai.agent.AIAgent
+                    provider:
+                      type: io.kestra.plugin.ai.provider.GoogleGemini
+                      modelName: gemini-2.5-flash
+                      apiKey: "{{ secret('GEMINI_API_KEY') }}"
+                    configuration:
+                      responseFormat:
+                        type: JSON
+                        jsonSchema:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            birth:
+                              type: string
+                    prompt: "{{inputs.prompt}}"
+                """
+        )
     }
 )
 public class AIAgent extends Task implements RunnableTask<AIOutput> {
@@ -212,7 +247,7 @@ public class AIAgent extends Task implements RunnableTask<AIOutput> {
             TokenUsage tokenUsage = TokenUsage.from(completion.tokenUsage());
             AIUtils.sendMetrics(runContext, tokenUsage);
 
-            return AIOutput.from(runContext, completion);
+            return AIOutput.from(runContext, completion, configuration.computeResponseFormat(runContext).type());
         } finally {
             toolProviders.forEach(tool -> tool.close(runContext));
 

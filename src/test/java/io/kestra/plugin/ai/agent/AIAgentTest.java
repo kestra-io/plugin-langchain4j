@@ -45,7 +45,7 @@ class AIAgentTest {
             .build();
 
         var output = agent.run(runContext);
-        assertThat(output.getCompletion()).isNotNull();
+        assertThat(output.getTextOutput()).isNotNull();
     }
 
     @Test
@@ -73,7 +73,7 @@ class AIAgentTest {
             .build();
 
         var output = agent.run(runContext);
-        assertThat(output.getCompletion()).isNotNull();
+        assertThat(output.getTextOutput()).isNotNull();
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("add");
     }
@@ -101,7 +101,7 @@ class AIAgentTest {
             .memory(KestraKVStore.builder().build())
             .build();
         var output = agent.run(runContext);
-        assertThat(output.getCompletion()).isNotNull();
+        assertThat(output.getTextOutput()).isNotNull();
 
         agent = AIAgent.builder()
             .provider(OpenAI.builder()
@@ -117,6 +117,6 @@ class AIAgentTest {
             .memory(KestraKVStore.builder().build())
             .build();
         output = agent.run(runContext);
-        assertThat(output.getCompletion()).contains("John");
+        assertThat(output.getTextOutput()).contains("John");
     }
 }

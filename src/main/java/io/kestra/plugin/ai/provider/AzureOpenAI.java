@@ -106,28 +106,30 @@ public class AzureOpenAI extends ModelProvider {
 
         if (apiKey != null) {
             return AzureOpenAiChatModel.builder()
-                    .apiKey(apiKey)
-                    .deploymentName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-                    .endpoint(runContext.render(this.getEndpoint()).as(String.class).orElseThrow())
-                    .serviceVersion(runContext.render(this.getServiceVersion()).as(String.class).orElse(null))
-                    .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
-                    .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-                    .seed(seed != null ? seed.longValue() : null)
-                    .logRequestsAndResponses(logRequestAndResponses)
+                .apiKey(apiKey)
+                .deploymentName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+                .endpoint(runContext.render(this.getEndpoint()).as(String.class).orElseThrow())
+                .serviceVersion(runContext.render(this.getServiceVersion()).as(String.class).orElse(null))
+                .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
+                .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
+                .seed(seed != null ? seed.longValue() : null)
+                .logRequestsAndResponses(logRequestAndResponses)
+                .responseFormat(configuration.computeResponseFormat(runContext))
                 .listeners(List.of(new TimingChatModelListener()))
-                    .build();
+                .build();
         } else if (tenantId != null && clientId != null && clientSecret != null) {
             return AzureOpenAiChatModel.builder()
-                    .tokenCredential(credentials(runContext, tenantId, clientId, clientSecret))
-                    .deploymentName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
-                    .endpoint(runContext.render(this.getEndpoint()).as(String.class).orElseThrow())
-                    .serviceVersion(runContext.render(this.getServiceVersion()).as(String.class).orElse(null))
-                    .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
-                    .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
-                    .seed(seed != null ? seed.longValue() : null)
-                    .logRequestsAndResponses(logRequestAndResponses)
+                .tokenCredential(credentials(runContext, tenantId, clientId, clientSecret))
+                .deploymentName(runContext.render(this.getModelName()).as(String.class).orElseThrow())
+                .endpoint(runContext.render(this.getEndpoint()).as(String.class).orElseThrow())
+                .serviceVersion(runContext.render(this.getServiceVersion()).as(String.class).orElse(null))
+                .temperature(runContext.render(configuration.getTemperature()).as(Double.class).orElse(null))
+                .topP(runContext.render(configuration.getTopP()).as(Double.class).orElse(null))
+                .seed(seed != null ? seed.longValue() : null)
+                .logRequestsAndResponses(logRequestAndResponses)
+                .responseFormat(configuration.computeResponseFormat(runContext))
                 .listeners(List.of(new TimingChatModelListener()))
-                    .build();
+                .build();
         } else {
             throw new IllegalArgumentException("You need to set an API Key or a tenantId, clientId and clientSecret");
         }
