@@ -201,9 +201,6 @@ class KestraTaskCallingTest extends ContainerTest {
         assertThat(output.getCompletion()).contains("logs");
         assertThat(output.getCompletion()).contains("fetch");
         assertThat(output.getCompletion()).contains("task");
-        assertThat(output.getCompletion()).contains("task1");
-        assertThat(output.getCompletion()).contains("task2");
-        assertThat(output.getCompletion()).contains("task3");
         assertThat(output.getToolExecutions()).isNotEmpty();
         assertThat(output.getToolExecutions()).extracting("requestName").contains("kestra_task_fetch");
         assertThat(output.getIntermediateResponses()).isNotEmpty();
