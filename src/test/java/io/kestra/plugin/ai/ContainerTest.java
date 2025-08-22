@@ -49,7 +49,7 @@ public class ContainerTest {
         await("ollama daemon responds")
             .pollDelay(Duration.ZERO)
             .pollInterval(Duration.ofMillis(250))
-            .atMost(Duration.ofSeconds(15))
+            .atMost(Duration.ofSeconds(30))
             .until(() -> execOk("ollama", "list"));
     }
 
@@ -57,7 +57,7 @@ public class ContainerTest {
         await("pull " + model)
             .pollDelay(Duration.ZERO)
             .pollInterval(Duration.ofSeconds(1))
-            .atMost(Duration.ofSeconds(30))
+            .atMost(Duration.ofSeconds(120))
             .until(() -> execOk("ollama", "pull", model));
     }
 
