@@ -58,58 +58,58 @@ public class Weaviate extends EmbeddingStoreProvider {
 
     @Schema(
         title = "Weaviate API key",
-        description = "Your Weaviate API key. Not required for local deployment."
+        description = "Your Weaviate API key - not required for local deployment"
     )
     @NotNull
     private Property<String> apiKey;
 
     @Schema(
         title = "Weaviate scheme",
-        description = "The scheme, e.g. \"https\" of cluster URL. Find in under Details of your Weaviate cluster."
+        description = "The scheme, e.g., \"https\" of cluster URL - find under Details of your Weaviate cluster."
     )
     private Property<String> scheme;
 
     @Schema(
         title = "Weaviate host",
-        description = "The host, e.g. \"ai-4jw7ufd9.weaviate.network\" of cluster URL. Find in under Details of your Weaviate cluster."
+        description = "The host, e.g., \"ai-4jw7ufd9.weaviate.network\" of cluster URL - find under Details of your Weaviate cluster."
     )
     @NotNull
     private Property<String> host;
 
     @Schema(
         title = "Weaviate port",
-        description = "The port, e.g. 8080. This parameter is optional."
+        description = "The port, e.g., 8080 - this parameter is optional."
     )
     private Property<Integer> port;
 
     @Schema(
         title = "Weaviate object class",
-        description = "The object class you want to store, e.g. \"MyGreatClass\". Must start from an uppercase letter. If not provided, will default to \"Default\"."
+        description = "The object class you want to store, e.g., \"MyGreatClass\" - must start from an uppercase letter. If not provided, will default to \"Default\"."
     )
     private Property<String> objectClass;
 
     @Schema(
         title = "Weaviate consistency level",
-        description = "Consistency level: ONE, QUORUM (default) or ALL."
+        description = "Consistency level: ONE, QUORUM (default), or ALL"
     )
     private Property<ConsistencyLevel> consistencyLevel;
 
     @Schema(
         title = "Weaviate avoid dups",
         description = "If true (default), then WeaviateEmbeddingStore will generate a hashed ID based on provided text segment, " +
-            "which avoids duplicated entries in DB. If false, then random ID will be generated."
+            "which avoids duplicated entries in DB. If false, then a random ID will be generated."
     )
     private Property<Boolean> avoidDups;
 
     @Schema(
         title = "Weaviate metadata field name",
-        description = "The name of the metadata field to store. If not provided, will default to \"_metadata\"."
+        description = "The name of the metadata field to store - if not provided, it will default to \"_metadata\"."
     )
     private Property<String> metadataFieldName;
 
     @Schema(
         title = "Weaviate metadata keys",
-        description = "The list of metadata keys to store. If not provided, will default to an empty list."
+        description = "The list of metadata keys to store - if not provided, it will default to an empty list."
     )
     private Property<List<String>> metadataKeys;
 

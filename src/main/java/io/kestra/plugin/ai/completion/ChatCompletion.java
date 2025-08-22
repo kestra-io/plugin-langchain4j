@@ -101,7 +101,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
 
     @Schema(
         title = "Chat Messages",
-        description = "The list of chat messages for the current conversation. There can be only one system message and the last message must be a user message"
+        description = "The list of chat messages for the current conversation. There can be only one system message, and the last message must be a user message"
     )
     @NotNull
     protected Property<List<ChatMessage>> messages;
@@ -211,7 +211,7 @@ public class ChatCompletion extends Task implements RunnableTask<ChatCompletion.
     public static class Output extends AIOutput { // we must keep this one to keep the deprecated aiResponse
         @Schema(
             title = "AI Response",
-            description = "The generated response from the AI. Deprecated: use `completion` instead."
+            description = "The generated response from the AI (Deprecated: use `completion` instead)"
         )
         @Deprecated(forRemoval = true, since = "1.0.0")
         private String aiResponse;

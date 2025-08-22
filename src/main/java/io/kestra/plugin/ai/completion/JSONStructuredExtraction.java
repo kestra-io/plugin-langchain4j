@@ -66,15 +66,15 @@ import java.util.List;
 )
 public class JSONStructuredExtraction extends Task implements RunnableTask<JSONStructuredExtraction.Output> {
 
-    @Schema(title = "Text prompt", description = "The input prompt for the AI model.")
+    @Schema(title = "Text prompt", description = "The input prompt for the AI model")
     @NotNull
     private Property<String> prompt;
 
-    @Schema(title = "Schema Name", description = "The name of the JSON schema for structured extraction.")
+    @Schema(title = "Schema Name", description = "The name of the JSON schema for structured extraction")
     @NotNull
     private Property<String> schemaName;
 
-    @Schema(title = "JSON Fields", description = "List of fields to extract from the text.")
+    @Schema(title = "JSON Fields", description = "List of fields to extract from the text")
     @NotNull
     private Property<List<String>> jsonFields;
 
@@ -137,10 +137,10 @@ public class JSONStructuredExtraction extends Task implements RunnableTask<JSONS
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Schema Name", description = "The schema name used for the structured JSON extraction.")
+        @Schema(title = "Schema Name", description = "The schema name used for the structured JSON extraction")
         private String schemaName;
 
-        @Schema(title = "Extracted JSON", description = "The structured JSON output.")
+        @Schema(title = "Extracted JSON", description = "The structured JSON output")
         private String extractedJson;
 
         @Schema(title = "Token usage")

@@ -138,10 +138,10 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 @Schema(
     title = "Call a Kestra flow as a tool.",
     description = """
-        This tool provider will provide a tool that can call a defined Kestra flow, the name of the tool will be `kestra_flow_<namespace>_<id>`.
+        This tool provider will provide a tool that can call a defined Kestra flow; the name of the tool will be `kestra_flow_<namespace>_<id>`.
 
         To instruct what the flow is doing, the provider either use the description set as the `description` property or the description of the flow itself. If none are provider an error will be thrown.
-        The LLM can set `inputs`, `labels` and a `scheduledDate` if needed.
+        The LLM can set `inputs`, `labels`, and a `scheduledDate` if needed.
         The called flow will have the `correlationId` label of the current flow if none is provided by the LLM."""
 )
 public class KestraFlowCalling extends ToolProvider {
@@ -149,7 +149,7 @@ public class KestraFlowCalling extends ToolProvider {
     private static final String TOOL_DESCRIPTION = "This tool allows to execute a Kestra workflow also called a flow.";
 
     @Schema(
-        title = "Description of the flow if not already provided inside the flow itself.",
+        title = "Description of the flow if not already provided inside the flow itself",
         description = """
             The LLM needs a description for the tool to be able to know if it needs to use it or not.
             If the flow has a description, the tool provider will use it, otherwise this property must be used to give a description."""
@@ -157,25 +157,25 @@ public class KestraFlowCalling extends ToolProvider {
     private Property<String> description;
 
     @NotNull
-    @Schema(title = "The target flow namespace.")
+    @Schema(title = "The target flow namespace")
     private Property<String> namespace;
 
     @NotNull
-    @Schema(title = "The target flow id.")
+    @Schema(title = "The target flow id")
     private Property<String> flowId;
 
-    @Schema(title = "The target flow revision.")
+    @Schema(title = "The target flow revision")
     private Property<Integer> revision;
 
     @Schema(
-        title = "The inputs to pass to the flow to be called.",
+        title = "The inputs to pass to the flow to be called",
         description = "Any inputs passed by the LLM will override those defined here."
     )
     @PluginProperty(dynamic = true)
     private Map<String, Object> inputs;
 
     @Schema(
-        title = "The labels to pass to the flow to be executed.",
+        title = "The labels to pass to the flow to be executed",
         description = "Any labels passed by the LLM will override those defined here.",
         implementation = Object.class, oneOf = {List.class, Map.class}
     )
@@ -186,7 +186,7 @@ public class KestraFlowCalling extends ToolProvider {
 
     @Builder.Default
     @Schema(
-        title = "Whether the flow should inherit labels from this execution that triggered it.",
+        title = "Whether the flow should inherit labels from this execution that triggered it",
         description = """
             By default, labels are not passed to the flow execution. If you set this option to `true`, the flow execution will inherit all labels from the this execution.
             Any labels passed by the LLM will override those defined here."""
@@ -195,7 +195,7 @@ public class KestraFlowCalling extends ToolProvider {
 
     @Schema(
         title = "Don't trigger the flow now but schedule it on a specific date.",
-        description = "If the LLM set a scheduleDate, it will override the one defined here."
+        description = "If the LLM sets a scheduleDate, it will override the one defined here."
     )
     private Property<ZonedDateTime> scheduleDate;
 

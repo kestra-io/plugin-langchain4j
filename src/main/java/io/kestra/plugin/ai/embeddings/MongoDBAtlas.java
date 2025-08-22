@@ -76,7 +76,7 @@ public class MongoDBAtlas extends EmbeddingStoreProvider {
     private Property<String> password;
 
     @NotNull
-    @Schema(title = "The scheme (e.g. mongodb+srv)")
+    @Schema(title = "The scheme (e.g., mongodb+srv)")
     private Property<String> scheme;
 
     @NotNull
