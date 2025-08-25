@@ -73,7 +73,7 @@ import static io.kestra.core.utils.Rethrow.throwSupplier;
     title = "Model Context Protocol (MCP) Docker client tool"
 )
 public class DockerMcpClient extends ToolProvider {
-    @Schema(title = "The MCP client command, as a list of command parts.")
+    @Schema(title = "The MCP client command, as a list of command parts")
     private Property<List<String>> command;
 
     @Schema(title = "Environment variables")

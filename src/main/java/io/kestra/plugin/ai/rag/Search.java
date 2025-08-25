@@ -77,8 +77,8 @@ import static io.kestra.core.models.tasks.common.FetchType.NONE;
     aliases = "io.kestra.plugin.langchain4j.rag.Search"
 )
 @Schema(
-    title = "Search from an embedding store.",
-    description = "Performs a semantic search using a query string."
+    title = "Search from an embedding store",
+    description = "Performs a semantic search using a query string"
 )
 public class Search extends Task implements RunnableTask<Search.Output> {
 

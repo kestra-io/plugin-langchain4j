@@ -102,7 +102,7 @@ public class Redis extends MemoryProvider {
     @NotNull
     @Schema(
         title = "Redis host",
-        description = "The hostname of your Redis server (e.g. localhost or redis-server)"
+        description = "The hostname of your Redis server (e.g., localhost or redis-server)"
     )
     private Property<String> host;
 

@@ -31,13 +31,13 @@ public class ChatConfiguration {
 
     @Schema(
         title = "Whether to log LLM requests",
-        description = "Log will be send to the server log in DEBUG."
+        description = "Log will be sent to the server log in DEBUG."
     )
     private Property<Boolean> logRequests;
 
     @Schema(
         title = "Whether to log LLM responses",
-        description = "Log will be send to the server log in DEBUG."
+        description = "Log will be sent to the server log in DEBUG."
     )
     private Property<Boolean> logResponses;
 

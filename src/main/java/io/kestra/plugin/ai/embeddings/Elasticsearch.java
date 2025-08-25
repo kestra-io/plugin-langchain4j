@@ -122,8 +122,8 @@ public class Elasticsearch extends EmbeddingStoreProvider {
         private static final ObjectMapper MAPPER = JacksonMapper.ofJson(false);
 
         @Schema(
-            title = "List of HTTP ElasticSearch servers.",
-            description = "Must be an URI like `https://elasticsearch.com:9200` with scheme and port."
+            title = "List of HTTP ElasticSearch servers",
+            description = "Must be an URI like `https://elasticsearch.com:9200` with scheme and port"
         )
         @PluginProperty(dynamic = true)
         @NotNull
@@ -131,19 +131,19 @@ public class Elasticsearch extends EmbeddingStoreProvider {
         private List<String> hosts;
 
         @Schema(
-            title = "Basic auth configuration."
+            title = "Basic authorization configuration"
         )
         @PluginProperty
         private BasicAuth basicAuth;
 
         @Schema(
-            title = "List of HTTP headers to be send on every request.",
-            description = "Must be a string with key value separated with `:`, ex: `Authorization: Token XYZ`."
+            title = "List of HTTP headers to be send on every request",
+            description = "Must be a string with key value separated with `:`, e.g., `Authorization: Token XYZ`"
         )
         private Property<List<String>> headers;
 
         @Schema(
-            title = "Sets the path's prefix for every request used by the HTTP client.",
+            title = "Sets the path's prefix for every request used by the HTTP client",
             description = "For example, if this is set to `/my/path`, then any client request will become `/my/path/` + endpoint.\n" +
                 "In essence, every request's endpoint is prefixed by this `pathPrefix`.\n" +
                 "The path prefix is useful for when ElasticSearch is behind a proxy that provides a base path " +
@@ -153,13 +153,13 @@ public class Elasticsearch extends EmbeddingStoreProvider {
         private Property<String> pathPrefix;
 
         @Schema(
-            title = "Whether the REST client should return any response containing at least one warning header as a failure."
+            title = "Whether the REST client should return any response containing at least one warning header as a failure"
         )
         private Property<Boolean> strictDeprecationMode;
 
         @Schema(
-            title = "Trust all SSL CA certificates.",
-            description = "Use this if the server is using a self signed SSL certificate."
+            title = "Trust all SSL CA certificates",
+            description = "Use this if the server is using a self signed SSL certificate"
         )
         private Property<Boolean> trustAllSsl;
 
@@ -168,12 +168,12 @@ public class Elasticsearch extends EmbeddingStoreProvider {
         @Getter
         public static class BasicAuth {
             @Schema(
-                title = "Basic auth username."
+                title = "Basic authorization username"
             )
             private Property<String> username;
 
             @Schema(
-                title = "Basic auth password."
+                title = "Basic authorization password"
             )
             private Property<String> password;
         }

@@ -31,7 +31,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @JsonDeserialize
 @Schema(
-    title = "In-memory Embedding Store that then store its serialization form as a Kestra K/V pair"
+    title = "In-memory Embedding Store that stores its serialization form as a Kestra K/V pair"
 )
 @Plugin(
     examples = {

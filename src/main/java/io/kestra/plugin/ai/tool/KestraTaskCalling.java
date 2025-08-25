@@ -76,11 +76,11 @@ import java.util.stream.Collectors;
        This tool provider will provide one tool by Kestra tasks, the name of the tool will be `kestra_task_<taskId>`.
 
        When you define the task inside the tool:
-        - You can set task properties as usually, those would not be overridden by the agent.
+        - You can set task properties as usual, those would not be overridden by the agent.
         - If you want the agent to fill a mandatory property, set it with the value `...` and the agent will fill it.
-        - Optional properties not already set may be filled by the agent if it decided to.
+        - Optional properties not already set may be filled by the agent if it decides to.
 
-        WARNING: as some model providers didn't support JSON schema with `anyOf`, when creating the JSON Schema to call the task, each `anyOf` will be replaced by one of the sub-schema.
+        WARNING: as some model providers don't support JSON schema with `anyOf`, when creating the JSON Schema to call the task, each `anyOf` will be replaced by one of the sub-schema.
         You can see the generated schema in debug logs."""
 )
 public class KestraTaskCalling extends ToolProvider {

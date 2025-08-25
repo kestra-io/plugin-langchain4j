@@ -117,7 +117,7 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
     private DocumentSplitter documentSplitter;
 
     @Schema(
-        title = "Whether to drop the store before ingestion. Useful for testing purpose."
+        title = "Whether to drop the store before ingestion - useful for testing purposes."
     )
     @Builder.Default
     private Property<Boolean> drop = Property.ofValue(Boolean.FALSE);
@@ -232,11 +232,11 @@ public class IngestDocument extends Task implements RunnableTask<IngestDocument.
         private Type splitter = Type.RECURSIVE;
 
         @NotNull
-        @Schema(title = "The maximum size of the segment, defined in characters.")
+        @Schema(title = "The maximum size of the segment, it is defined in characters.")
         private Integer maxSegmentSizeInChars;
 
         @NotNull
-        @Schema(title = "The maximum size of the overlap, defined in characters. Only full sentences are considered for the overlap.")
+        @Schema(title = "The maximum size of the overlap, it is defined in characters. Only full sentences are considered for the overlap.")
         private Integer maxOverlapSizeInChars;
 
         enum Type {

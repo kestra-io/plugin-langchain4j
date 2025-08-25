@@ -30,10 +30,10 @@ import java.util.Optional;
 @NoArgsConstructor
 @JsonDeserialize
 @Schema(
-    title = "In-memory Chat Memory that then store its serialization form as a Kestra K/V pair",
+    title = "In-memory Chat Memory that stores its serialization form as a Kestra K/V pair",
     description = """
-        It will store the memory inside a K/V pair, the name of the entry will be the memory id and it will expires after the memory TTL.
-        Be careful that if your internal storage implementation didn't support expiration, the K/V pair may exist forever even if you set a TTL inside the Memory."""
+        It will store the memory inside a K/V pair, the name of the entry will be the memory id, and it will expires after the memory TTL.
+        If your internal storage implementation doesn't support expiration, the K/V pair may exist forever even if you set a TTL inside the Memory."""
 )
 @Plugin(
     examples = {

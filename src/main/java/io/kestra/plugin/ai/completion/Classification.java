@@ -61,11 +61,11 @@ import java.util.List;
 )
 public class Classification extends Task implements RunnableTask<Classification.Output> {
 
-    @Schema(title = "Text prompt", description = "The input text to classify.")
+    @Schema(title = "Text prompt", description = "The input text to classify")
     @NotNull
     private Property<String> prompt;
 
-    @Schema(title = "Classification Options", description = "The list of possible classification categories.")
+    @Schema(title = "Classification Options", description = "The list of possible classification categories")
     @NotNull
     private Property<List<String>> classes;
 
@@ -112,7 +112,7 @@ public class Classification extends Task implements RunnableTask<Classification.
     @Builder
     @Getter
     public static class Output implements io.kestra.core.models.tasks.Output {
-        @Schema(title = "Classification Result", description = "The classified category of the input text.")
+        @Schema(title = "Classification Result", description = "The classified category of the input text")
         private final String classification;
 
         @Schema(title = "Token usage")

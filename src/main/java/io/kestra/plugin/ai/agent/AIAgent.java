@@ -34,10 +34,10 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @Getter
 @NoArgsConstructor
 @Schema(
-    title = "Call a AI agent.",
+    title = "Call an AI agent.",
     description = """
-        AI agents are autonomous systems that uses a Large Language Model (LLM) to act on a user inputs.
-        They can use tools, content retriever and be configured with a memory for enhanced context."""
+        AI agents are autonomous systems that use a Large Language Model (LLM) to act on a user inputs.
+        They can use tools, content retrievers, and be configured with a memory for enhanced context."""
 )
 @Plugin(
     examples = {
@@ -202,7 +202,7 @@ public class AIAgent extends Task implements RunnableTask<AIOutput> {
 
     @Schema(
         title = "Content retrievers",
-        description = "Some content retrievers like WebSearch can be used also as tools, but using them as content retrievers will make them always used whereas tools are only used when the LLM decided to."
+        description = "Some content retrievers, like WebSearch, can also be used as tools. However, when configured as content retrievers, they will always be used, whereas tools are only invoked when the LLM decides to use them."
     )
     private Property<List<ContentRetrieverProvider>> contentRetrievers;
 

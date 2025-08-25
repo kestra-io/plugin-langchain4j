@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
     title = "Model Context Protocol (MCP) HTTP client tool"
 )
 public class StdioMcpClient extends ToolProvider {
-    @Schema(title = "The MCP client command, as a list of command parts.")
+    @Schema(title = "The MCP client command, as a list of command parts")
     @NotNull
     private Property<List<String>> command;
 

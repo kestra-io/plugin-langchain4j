@@ -25,24 +25,24 @@ import java.time.Duration;
 // AND concrete subclasses must be annotated by @JsonDeserialize() to avoid StackOverflow.
 @JsonDeserialize(using = PluginDeserializer.class)
 public abstract class MemoryProvider extends AdditionalPlugin {
-    @Schema(title = "The maximum number of messages to keep inside the memory.")
+    @Schema(title = "The maximum number of messages to keep inside the memory")
     @Builder.Default
     private Property<Integer> messages = Property.ofValue(10);
 
-    @Schema(title = "The memory duration. Defaults to 1h.")
+    @Schema(title = "The memory duration - defaults to 1h")
     @Builder.Default
     private Property<Duration> ttl = Property.ofValue(Duration.ofHours(1));
 
-    @Schema(title = "The memory id. Defaults to the value of the 'system.correlationId' label. This means that a memory is valid for the whole flow execution including its subflows.")
+    @Schema(title = "The memory id - defaults to the value of the 'system.correlationId' label. This means that a memory is valid for the whole flow execution including its subflows.")
     @Builder.Default
     private Property<String> memoryId = Property.ofExpression("{{ labels.system.correlationId }}");
 
     @Schema(
-        title = "Drop memory: never, before or after task execution .",
+        title = "Drop memory: never, before, or after task execution",
         description = """
-            By default, the memory ID is value of the 'system.correlationId' label, this means that the same memory will be used by all tasks of the flow and its subflows.
-            If you want to remove the memory eagerly (before expiration), you can set `drop: AFTER_EXECUTION` inside the last task of the flow so the memory is erased after its execution.
-            You can also set `drop: BEFORE_EXECUTION` to drop the memory before the task execution, this can be useful for eg. in a subflow in case you want a different memory."""
+            By default, the memory ID is the value of the 'system.correlationId' label, meaning that the same memory will be used by all tasks of the flow and its subflows.
+            If you want to remove the memory eagerly (before expiration), you can set `drop: AFTER_EXECUTION` inside the last task of the flow to erase the memory after its execution.
+            You can also set `drop: BEFORE_EXECUTION` to drop the memory before the task execution; this can be useful subflows in case you want a different memory."""
     )
     @Builder.Default
     private Property<Drop> drop = Property.ofValue(Drop.NEVER);
