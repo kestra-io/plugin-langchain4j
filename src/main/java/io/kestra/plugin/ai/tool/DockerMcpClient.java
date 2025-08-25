@@ -34,7 +34,6 @@ import static io.kestra.core.utils.Rethrow.throwSupplier;
 @NoArgsConstructor
 @AllArgsConstructor
 @Plugin(
-    beta = true,
     examples = {
         @Example(
             title = "Chat Completion with Google Gemini and a Docker MCP Client tool",
@@ -115,7 +114,7 @@ public class DockerMcpClient extends ToolProvider {
     @Schema(title = "The container registry URL")
     private Property<String> registryUrl;
 
-    @Schema(title = "The API verions")
+    @Schema(title = "The API version")
     private Property<String> apiVersion;
 
     @JsonIgnore
