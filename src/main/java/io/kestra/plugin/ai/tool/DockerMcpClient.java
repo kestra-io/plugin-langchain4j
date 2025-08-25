@@ -138,7 +138,7 @@ public class DockerMcpClient extends ToolProvider {
             .registryUsername(runContext.render(registryUsername).as(String.class).orElse(null))
             .registryUrl(runContext.render(registryUrl).as(String.class).orElse(null))
             .apiVersion(runContext.render(apiVersion).as(String.class).orElse(null))
-            .logEvents(runContext.render(logEvents).as(Boolean.class).orElseThrow())
+            .logEvents(runContext.render(logEvents).as(Boolean.class).orElse(false))
             .build();
 
         this.mcpClient = new DefaultMcpClient.Builder()
